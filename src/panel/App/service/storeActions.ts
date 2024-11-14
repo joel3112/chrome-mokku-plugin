@@ -1,11 +1,12 @@
 import { match as getMatcher } from "path-to-regexp";
 import {
   IDynamicURLMap,
+  IMockGroup,
   IMockResponse,
-  IMockResponseRaw,
   IStore,
   IURLMap,
-} from "@mokku/types";
+  MockType,
+} from "../types";
 import messageService from "./messageService";
 
 const getNetworkMethodMap = () => ({
@@ -21,6 +22,8 @@ const storeName = "mokku.extension.main.db";
 export const getDefaultStore = (): IStore => ({
   theme: "light",
   active: false,
+  groups: [],
+  totalGroupsCreated: 0,
   mocks: [],
   totalMocksCreated: 0,
   collections: {},
@@ -63,7 +66,7 @@ export const updateStoreInDB = (store: IStore) => {
       } catch (error) {
         reject(error);
       }
-    },
+    }
   );
 };
 
@@ -113,9 +116,81 @@ export const getURLMapWithStore = (store: IStore) => {
   return { urlMap, dynamicUrlMap, store };
 };
 
+export const addGroups = (
+  oldStore: IStore,
+  dirtyNewGroup: IMockGroup | IMockGroup[]
+) => {
+  const store = { ...oldStore };
+
+  // standardize mock
+  const newGroups = Array.isArray(dirtyNewGroup)
+    ? dirtyNewGroup
+    : [dirtyNewGroup];
+
+  newGroups.forEach((group) => {
+    store.groups = [...store.groups, { ...group, type: MockType.GROUP }];
+    store.totalGroupsCreated++;
+  });
+
+  return store;
+};
+
+type PartialGroupWithId = { id: IMockGroup["id"] } & Partial<IMockGroup>;
+
+export const updateGroups = (
+  oldStore: IStore,
+  dirtyNewGroup: PartialGroupWithId | Array<PartialGroupWithId>
+) => {
+  const store = { ...oldStore };
+
+  // standardize mock
+  const newGroups = Array.isArray(dirtyNewGroup)
+    ? dirtyNewGroup
+    : [dirtyNewGroup];
+
+  const newGroupsMap: Record<string, PartialGroupWithId> = {};
+  newGroups.forEach((mock) => {
+    newGroupsMap[mock.id] = mock;
+  });
+
+  const newStoreGroups = store.groups.map((storeGroup) => {
+    const groupToBeUpdated = newGroupsMap[storeGroup.id];
+    if (groupToBeUpdated) {
+      return { ...storeGroup, ...groupToBeUpdated };
+    } else {
+      return storeGroup;
+    }
+  });
+
+  store.groups = newStoreGroups;
+  return { ...store, groups: newStoreGroups };
+};
+
+export const deleteGroups = (
+  draftStore: IStore,
+  dirtyGroupId: string | string[]
+) => {
+  const groupIdsSet = Array.isArray(dirtyGroupId)
+    ? new Set(dirtyGroupId)
+    : new Set([dirtyGroupId]);
+
+  const groups = draftStore.groups.filter((group) => {
+    if (groupIdsSet.has(group.id)) {
+      return false;
+    }
+    return true;
+  });
+
+  const store = {
+    ...draftStore,
+    groups,
+  };
+
+  return store;
+};
 export const addMocks = (
   oldStore: IStore,
-  dirtyNewMock: IMockResponse | IMockResponse[],
+  dirtyNewMock: IMockResponse | IMockResponse[]
 ) => {
   const store = { ...oldStore };
 
@@ -124,7 +199,7 @@ export const addMocks = (
 
   newMocks.forEach((mock) => {
     const dynamic = mock.url.includes("(.*)") || mock.url.includes("/:");
-    store.mocks = [...store.mocks, { ...mock, dynamic }];
+    store.mocks = [...store.mocks, { ...mock, dynamic, type: MockType.MOCK }];
     store.totalMocksCreated++;
   });
 
@@ -135,7 +210,7 @@ type PartialMockWithId = { id: IMockResponse["id"] } & Partial<IMockResponse>;
 
 export const updateMocks = (
   oldStore: IStore,
-  dirtyNewMock: PartialMockWithId | Array<PartialMockWithId>,
+  dirtyNewMock: PartialMockWithId | Array<PartialMockWithId>
 ) => {
   const store = { ...oldStore };
 
@@ -165,7 +240,7 @@ export const updateMocks = (
 
 export const deleteMocks = (
   draftStore: IStore,
-  dirtyMockId: string | string[],
+  dirtyMockId: string | string[]
 ) => {
   const mockIdsSet = Array.isArray(dirtyMockId)
     ? new Set(dirtyMockId)
@@ -194,11 +269,14 @@ export const refreshContentStore = (tabId?: number) => {
       to: "CONTENT",
       type: "NOTIFICATION",
     },
-    tabId,
+    tabId
   );
 };
 
 export const storeActions = {
+  deleteGroups,
+  updateGroups,
+  addGroups,
   deleteMocks,
   updateMocks,
   addMocks,

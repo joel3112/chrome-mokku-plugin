@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { shallow } from "zustand/shallow";
-import { Tabs, Flex, createStyles, Input, Button } from "@mantine/core";
-import { MdAdd } from "react-icons/md";
+import { Button, Flex, Input, Tabs } from "@mantine/core";
+import { MdAdd, MdClear } from "react-icons/md";
 import { TbSearch } from "react-icons/tb";
 import {
   useChromeStore,
   useGlobalStore,
-  ViewEnum,
   useGlobalStoreState,
+  ViewEnum,
 } from "../store";
 import { ThemeButton } from "./ThemeButton";
 import { RefreshButton } from "./RefreshButton";
@@ -26,9 +26,12 @@ const viewSelector = (state: useGlobalStoreState) => ({
 export const Header = () => {
   const { view, setView, search, setSearch } = useGlobalStore(
     viewSelector,
-    shallow,
+    shallow
   );
+
+  const store = useChromeStore((state) => state.store);
   const setSelectedMock = useChromeStore((state) => state.setSelectedMock);
+  const setSelectedGroup = useChromeStore((state) => state.setSelectedGroup);
   const [showSupportUs, setShowSupportUs] = useState(false);
 
   return (
@@ -39,14 +42,33 @@ export const Header = () => {
             <Tabs.Tab value={ViewEnum.MOCKS}>Mocks</Tabs.Tab>
             <Tabs.Tab value={ViewEnum.LOGS}>Logs</Tabs.Tab>
             <Flex align="center" gap={8}>
-              <Button
-                onClick={() => setSelectedMock({})}
-                leftIcon={<MdAdd />}
-                size="xs"
-                variant="subtle"
-              >
-                Add Mock
-              </Button>
+              <Flex align="center" gap={0}>
+                <Button
+                  onClick={() => setSelectedGroup({})}
+                  leftIcon={<MdAdd />}
+                  size="xs"
+                  variant="subtle"
+                >
+                  Add Group
+                </Button>
+                <Button
+                  onClick={() => setSelectedMock({})}
+                  leftIcon={<MdAdd />}
+                  size="xs"
+                  variant="subtle"
+                >
+                  Add Mock
+                </Button>
+                <Button
+                  onClick={() => store}
+                  leftIcon={<MdClear />}
+                  size="xs"
+                  variant="subtle"
+                >
+                  Clear
+                </Button>
+              </Flex>
+
               <Input
                 icon={<TbSearch />}
                 placeholder="Search..."

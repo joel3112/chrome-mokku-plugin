@@ -8,7 +8,17 @@ export enum MethodEnum {
   DELETE = "DELETE",
 }
 
+export enum MockType {
+  GROUP = "group",
+  MOCK = "mock",
+}
+
 export enum MockStatusEnum {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+}
+
+export enum GroupStatusEnum {
   ACTIVE = "ACTIVE",
   INACTIVE = "INACTIVE",
 }
@@ -36,7 +46,19 @@ export interface ILog {
   mockPath?: string;
 }
 
+export interface IMockGroup {
+  type: MockType.GROUP;
+  name: string;
+  description: string;
+  id: string;
+  active: boolean;
+  expanded?: boolean;
+}
+
+export type IMockGroupRaw = Partial<IMockGroup>;
+
 export interface IMockResponse {
+  type: MockType.MOCK;
   method: MethodEnum;
   createdOn: number;
   url: string;
@@ -46,6 +68,7 @@ export interface IMockResponse {
   delay?: number;
   name?: string;
   id: string;
+  groupId?: string;
   dynamic?: boolean;
   active: boolean;
   description: string;
@@ -61,6 +84,8 @@ export type IMockResponseRaw = Partial<IMockResponse>;
 export interface IStore {
   active: boolean;
   theme: "dark" | "light";
+  groups: IMockGroup[];
+  totalGroupsCreated: number;
   mocks: IMockResponse[];
   totalMocksCreated: number;
   activityInfo: {
@@ -69,6 +94,7 @@ export interface IStore {
   collections: Record<
     string,
     {
+      groups: IMockGroup[];
       mocks: IMockResponse[];
       id: number;
       active: boolean;
@@ -89,7 +115,7 @@ export interface IURLMap {
 export interface IDynamicURLMap {
   [urlLength: number]: Array<{
     match: (
-      s: string,
+      s: string
     ) => boolean | { path: string; params: Record<string, string> };
     method: string;
     getterKey: string;

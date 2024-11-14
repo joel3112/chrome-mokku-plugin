@@ -3,20 +3,21 @@ import {
   Card,
   createStyles,
   Flex,
+  JsonInput,
   SegmentedControl,
+  Select,
   Tabs,
   Text,
   Textarea,
   TextInput,
   Title,
-  JsonInput,
 } from "@mantine/core";
 import { v4 as uuidv4 } from "uuid";
 import React from "react";
 import { SideDrawerHeader } from "../../Blocks/SideDrawer";
 import {
-  IMockResponseRaw,
   IMockResponse,
+  IMockResponseRaw,
   MethodEnum,
   MockStatusEnum,
 } from "../../types";
@@ -77,6 +78,7 @@ export const AddMockForm = ({
       delay: 500,
       method: "GET",
       active: true,
+      groupId: "",
       ...selectedMock,
     },
   });
@@ -148,7 +150,7 @@ export const AddMockForm = ({
                   onChange={(value) =>
                     form.setFieldValue(
                       "active",
-                      value === MockStatusEnum.ACTIVE,
+                      value === MockStatusEnum.ACTIVE
                     )
                   }
                   size="xs"
@@ -164,6 +166,15 @@ export const AddMockForm = ({
                 placeholder="Goals Success"
                 className={flexGrow}
                 {...form.getInputProps("name")}
+              />
+            </Flex>
+            <Flex gap={12} align="center">
+              <Select
+                label="Group"
+                placeholder="Select group"
+                data={store.groups.map((g) => ({ label: g.name, value: g.id }))}
+                allowDeselect
+                {...form.getInputProps("groupId")}
               />
             </Flex>
             <Flex gap={12} align="center">
@@ -244,7 +255,7 @@ export const AddMockForm = ({
                           name: "",
                           value: "",
                         },
-                        0,
+                        0
                       );
                     }}
                   >

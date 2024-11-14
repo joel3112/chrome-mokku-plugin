@@ -1,22 +1,31 @@
 import React from "react";
 import { ActionIcon, Flex, Switch } from "@mantine/core";
 import { TableSchema, TableWrapper } from "../Blocks/Table";
-import { IMockResponse } from "@mokku/types";
-import { useGlobalStore, useChromeStore, useChromeStoreState } from "../store";
+import { IMockGroup, IMockResponse, MockType } from "../types";
+import { useChromeStore, useChromeStoreState, useGlobalStore } from "../store";
 import { shallow } from "zustand/shallow";
 import {
   MdDeleteOutline,
   MdOutlineContentCopy,
+  MdOutlineExpandLess,
+  MdOutlineExpandMore,
   MdOutlineModeEditOutline,
 } from "react-icons/md";
 import { useMockActions } from "./Mocks.action";
 import { Placeholder } from "../Blocks/Placeholder";
+import { useGroupActions } from "../Groups/Group.action";
+import { storeActions } from "../service/storeActions";
 
 interface GetSchemeProps {
   toggleMock: (mock: IMockResponse) => void;
   deleteMock: (mock: IMockResponse) => void;
   editMock: (mock: IMockResponse) => void;
   duplicateMock: (mock: IMockResponse) => void;
+
+  toggleGroup: (group: IMockGroup) => void;
+  deleteGroup: (group: IMockGroup) => void;
+  editGroup: (group: IMockGroup) => void;
+  duplicateGroup: (group: IMockGroup) => void;
 }
 
 const getSchema = ({
@@ -24,7 +33,11 @@ const getSchema = ({
   deleteMock,
   duplicateMock,
   editMock,
-}: GetSchemeProps): TableSchema<IMockResponse> => [
+  toggleGroup,
+  deleteGroup,
+  duplicateGroup,
+  editGroup,
+}: GetSchemeProps): TableSchema<IMockResponse | IMockGroup> => [
   {
     header: "",
     content: (data) => (
@@ -38,12 +51,28 @@ const getSchema = ({
         <Switch
           checked={data.active}
           onChange={(x) => {
-            toggleMock({ ...data, active: x.target.checked });
+            data.type === MockType.GROUP
+              ? toggleGroup({ ...data, active: x.target.checked })
+              : toggleMock({ ...data, active: x.target.checked });
           }}
         />
       </div>
     ),
     width: 60,
+  },
+  {
+    header: "",
+    content: (data) =>
+      data.type === MockType.GROUP && (
+        <Flex align="center">
+          {!data.expanded ? (
+            <MdOutlineExpandMore size={18} />
+          ) : (
+            <MdOutlineExpandLess size={18} />
+          )}
+        </Flex>
+      ),
+    width: 5,
   },
   {
     header: "Name",
@@ -52,21 +81,21 @@ const getSchema = ({
   },
   {
     header: "Method",
-    content: (data) => data.method,
+    content: (data) => (data.type !== MockType.GROUP ? data.method : ""),
     width: 100,
   },
   {
     header: "URL",
-    content: (data) => data.url,
+    content: (data) => (data.type !== MockType.GROUP ? data.url : ""),
   },
   {
     header: "Status",
-    content: (data) => data.status,
+    content: (data) => (data.type !== MockType.GROUP ? data.status : ""),
     width: 80,
   },
   {
     header: "Delay",
-    content: (data) => data.delay,
+    content: (data) => (data.type !== MockType.GROUP ? data.delay : ""),
     width: 120,
   },
   {
@@ -83,7 +112,9 @@ const getSchema = ({
         <ActionIcon
           variant="outline"
           color="blue"
-          onClick={() => editMock(data)}
+          onClick={() =>
+            data.type === MockType.GROUP ? editGroup(data) : editMock(data)
+          }
           title={`Edit Mock ${data.name}`}
         >
           <MdOutlineModeEditOutline />
@@ -92,7 +123,11 @@ const getSchema = ({
         <ActionIcon
           variant="outline"
           color="blue"
-          onClick={() => duplicateMock(data)}
+          onClick={() =>
+            data.type === MockType.GROUP
+              ? duplicateGroup(data)
+              : duplicateMock(data)
+          }
           title={`Duplicate ${data.name}`}
         >
           <MdOutlineContentCopy />
@@ -100,7 +135,9 @@ const getSchema = ({
         <ActionIcon
           variant="outline"
           color="red"
-          onClick={() => deleteMock(data)}
+          onClick={() =>
+            data.type === MockType.GROUP ? deleteGroup(data) : deleteMock(data)
+          }
           title={`Delete ${data.name}`}
         >
           <MdDeleteOutline />
@@ -113,34 +150,104 @@ const getSchema = ({
 
 const useMockStoreSelector = (state: useChromeStoreState) => ({
   store: state.store,
+  setSelectedGroup: state.setSelectedGroup,
+  selectedGroup: state.selectedGroup,
   setSelectedMock: state.setSelectedMock,
   selectedMock: state.selectedMock,
   setStoreProperties: state.setStoreProperties,
 });
 
 export const Mocks = () => {
-  const { store, selectedMock, setSelectedMock } = useChromeStore(
-    useMockStoreSelector,
-    shallow,
-  );
+  const {
+    store,
+    selectedMock,
+    setSelectedMock,
+    selectedGroup,
+    setSelectedGroup,
+    setStoreProperties,
+  } = useChromeStore(useMockStoreSelector, shallow);
   const search = useGlobalStore((state) => state.search).toLowerCase();
 
   const { deleteMock, duplicateMock, toggleMock, editMock } = useMockActions();
+  const {
+    deleteGroup,
+    duplicateGroup,
+    toggleGroup,
+    editGroup,
+  } = useGroupActions();
 
   const schema = getSchema({
     toggleMock,
     deleteMock,
     duplicateMock,
     editMock,
+    toggleGroup,
+    deleteGroup,
+    duplicateGroup,
+    editGroup,
   });
 
-  const filteredMocks = store.mocks.filter(
-    (mock) =>
-      (mock?.name || "").toLowerCase().includes(search) ||
-      (mock?.url || "").toLowerCase().includes(search) ||
-      (mock?.method || "").toLowerCase().includes(search) ||
-      (mock?.status || "").toString().includes(search),
-  );
+  const filteredMocks = [
+    ...store.groups.filter(
+      (group) =>
+        (group?.name || "").toLowerCase().includes(search) ||
+        (group?.description || "").toLowerCase().includes(search)
+    ),
+    ...store.mocks.filter(
+      (mock) =>
+        (mock?.name || "").toLowerCase().includes(search) ||
+        (mock?.url || "").toLowerCase().includes(search) ||
+        (mock?.method || "").toLowerCase().includes(search) ||
+        (mock?.status || "").toString().includes(search)
+    ),
+  ].sort((a, b) => a.name.localeCompare(b.name));
+
+  console.log("filteredMocks", filteredMocks);
+
+  function organizeItems(
+    items: (IMockResponse | IMockGroup)[]
+  ): (IMockResponse | IMockGroup)[] {
+    // Separate items into groups and mocks
+    const groups = [];
+    const mocks = [];
+
+    items.forEach((item) => {
+      if (item.type === "group") {
+        groups.push(item);
+      } else if (item.type === "mock") {
+        mocks.push(item);
+      }
+    });
+
+    // Map group IDs to their respective mocks
+    const groupedMocks = {};
+    mocks.forEach((mock) => {
+      if (mock.groupId) {
+        if (!groupedMocks[mock.groupId]) {
+          groupedMocks[mock.groupId] = [];
+        }
+        groupedMocks[mock.groupId].push(mock);
+      }
+    });
+
+    // Reconstruct the ordered array
+    const result = [];
+    items.forEach((item) => {
+      if (item.type === "group") {
+        result.push(item);
+        // Add mocks associated with this group
+        if (groupedMocks[item.id]) {
+          result.push(...groupedMocks[item.id]);
+        }
+      } else if (item.type === "mock" && !item.groupId) {
+        result.push(item);
+      }
+    });
+
+    return result;
+  }
+
+  console.log("organizeItems", organizeItems(filteredMocks));
 
   if (store.mocks.length === 0) {
     return (
@@ -160,11 +267,23 @@ export const Mocks = () => {
     );
   }
 
+  const selectRow = (data: IMockResponse | IMockGroup) => {
+    if (data.type === MockType.GROUP) {
+      const updatedStore = storeActions.updateGroups(store, {
+        ...data,
+        expanded: !data.expanded,
+      });
+      storeActions.updateStoreInDB(updatedStore).then(setStoreProperties);
+      return;
+    }
+    setSelectedMock(data);
+  };
+
   return (
     <TableWrapper
-      onRowClick={(data) => setSelectedMock(data)}
+      onRowClick={selectRow}
       selectedRowId={selectedMock?.id}
-      data={filteredMocks}
+      data={organizeItems(filteredMocks)}
       schema={schema}
     />
   );

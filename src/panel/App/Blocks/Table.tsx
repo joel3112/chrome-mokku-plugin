@@ -1,5 +1,6 @@
 import React from "react";
 import { createStyles, Table } from "@mantine/core";
+import { MockType } from "../types/mock";
 
 export type TableSchema<T> = Array<{
   header: string;
@@ -17,6 +18,14 @@ export interface TableWrapperProps<T> {
 }
 
 const useStyles = createStyles((theme) => ({
+  groupRow: {
+    background: `${theme.colors.gray[0]}`,
+    ...(theme.colorScheme === "dark"
+      ? {
+          background: theme.colors.dark[9],
+        }
+      : {}),
+  },
   selectedRow: {
     background: `${theme.colors[theme.primaryColor][3]} !important`,
     ...(theme.colorScheme === "dark"
@@ -47,7 +56,14 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-export const TableWrapper = <T extends unknown & { id: string | number }>({
+export const TableWrapper = <
+  T extends unknown & {
+    id: string | number;
+    type?: MockType;
+    groupId?: string;
+    expanded?: boolean;
+  }
+>({
   schema,
   data,
   onRowClick,
@@ -69,28 +85,38 @@ export const TableWrapper = <T extends unknown & { id: string | number }>({
     </tr>
   );
 
-  const rows = data.map((row, index) => (
-    <tr
-      key={`row-${index}`}
-      onClick={() => {
-        onRowClick(row);
-      }}
-      className={`${selectedRowId === row.id ? classes.selectedRow : ""} ${
-        classes.rows
-      }`}
-    >
-      {schema.map(({ content }, index) => (
-        <td key={index}>{content(row)}</td>
-      ))}
-    </tr>
-  ));
+  const rows = data.map((row, index) => {
+    const rowMockHasGroup = row.type !== MockType.GROUP && row.groupId;
+
+    if (rowMockHasGroup) {
+      const hasGroupExpanded = data.find((item) => item.id === row.groupId)
+        ?.expanded;
+      if (hasGroupExpanded === false) {
+        return null;
+      }
+    }
+
+    return (
+      <tr
+        key={`row-${index}`}
+        onClick={() => {
+          onRowClick(row);
+        }}
+        className={`${selectedRowId === row.id ? classes.selectedRow : ""} ${
+          rowMockHasGroup ? classes.groupRow : ""
+        } ${classes.rows}`}
+      >
+        {schema.map(({ content }, index) => (
+          <td key={index}>{content(row)}</td>
+        ))}
+      </tr>
+    );
+  });
 
   return (
     <Table
       captionSide="bottom"
-      striped
       highlightOnHover
-      withColumnBorders
       style={{ position: "relative" }}
     >
       <thead>{ths}</thead>

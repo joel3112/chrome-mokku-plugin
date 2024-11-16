@@ -9,6 +9,7 @@ import {
 } from "../types";
 import messageService from "./messageService";
 import { v4 as uuidv4 } from "uuid";
+import { defaultTheme } from "./theme";
 
 const getNetworkMethodMap = () => ({
   GET: [],
@@ -21,7 +22,7 @@ const getNetworkMethodMap = () => ({
 const storeName = "mokku.extension.main.db";
 
 export const getDefaultStore = (): IStore => ({
-  theme: "light",
+  theme: defaultTheme,
   active: false,
   groups: [],
   totalGroupsCreated: 0,

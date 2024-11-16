@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from "react";
 import {
-  MantineProvider,
-  ColorSchemeProvider,
   ColorScheme,
+  ColorSchemeProvider,
+  MantineProvider,
 } from "@mantine/core";
 
 import { useGlobalStoreState } from "./store";
 import { App } from "./App";
+import { defaultTheme } from "./service/theme";
 
 export const AppProvider = (props: useGlobalStoreState["meta"]) => {
-  const [colorScheme, setColorScheme] = useState<ColorScheme>("light");
+  const [colorScheme, setColorScheme] = useState<ColorScheme>(defaultTheme);
   const toggleColorScheme = (value?: ColorScheme) =>
     setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"));
 
   useEffect(() => {
-    const theme = (localStorage.getItem("theme") || "light") as ColorScheme;
+    const theme = (localStorage.getItem("theme") ||
+      defaultTheme) as ColorScheme;
     setColorScheme(theme);
   }, []);
 

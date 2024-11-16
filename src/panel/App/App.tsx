@@ -15,6 +15,7 @@ import {
 import { Notifications } from "@mantine/notifications";
 import { Modal } from "./Blocks/Modal";
 import { Header } from "./Header";
+import { defaultTheme } from "./service/theme";
 
 export const App = (props: useGlobalStoreState["meta"]) => {
   const state = usePanelListener(props);
@@ -22,13 +23,14 @@ export const App = (props: useGlobalStoreState["meta"]) => {
   const setMeta = useGlobalStore((state) => state.setMeta);
   const view = useGlobalStore((state) => state.view);
 
-  const [colorScheme, setColorScheme] = useState<ColorScheme>("light");
+  const [colorScheme, setColorScheme] = useState<ColorScheme>(defaultTheme);
   const initMockStore = useChromeStore((state) => state.init);
 
   useEffect(() => {
     initMockStore();
     setMeta(props);
-    const theme = (localStorage.getItem("theme") || "light") as ColorScheme;
+    const theme = (localStorage.getItem("theme") ||
+      defaultTheme) as ColorScheme;
     setColorScheme(theme);
   }, []);
 

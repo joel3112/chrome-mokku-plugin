@@ -1,6 +1,5 @@
 import React, { ReactNode, useEffect, useRef } from "react";
 import { createStyles, Flex } from "@mantine/core";
-import { RxDragHandleDots2 } from "react-icons/rx";
 
 const MIN_WIDTH = 240;
 
@@ -38,6 +37,7 @@ const useStyles = createStyles((theme) => ({
     paddingLeft: 8,
     height: 36,
     flexShrink: 0,
+    width: "100%",
   },
 }));
 
@@ -66,7 +66,7 @@ export const SideDrawer = ({
     const elementRightEdge = containerRef.current.getBoundingClientRect().right;
     const width = Math.max(
       minWidth || MIN_WIDTH,
-      elementRightEdge - mousePosition,
+      elementRightEdge - mousePosition
     );
     containerRef.current.style.width = `${width}px`;
   };
@@ -84,7 +84,7 @@ export const SideDrawer = ({
     draggerRef.current?.addEventListener("mousedown", onDraggerMouseDown);
     const containerWidth = Math.min(
       Math.max(minWidth || MIN_WIDTH),
-      window.innerWidth - 48,
+      window.innerWidth - 48
     );
     containerRef.current.style.width = `${containerWidth}px`;
   }, []);

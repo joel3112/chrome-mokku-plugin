@@ -3,7 +3,8 @@ import { useChromeStore, useLogStore } from "../store";
 import { AddGroup } from "../Groups/AddGroup/AddGroup";
 import { AddMock } from "../Mocks/AddMock/AddMock";
 import { LogDetails } from "../Logs/LogDetails/LogDetails";
-import { Flex } from "@mantine/core";
+import { Drawer, Flex } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 
 enum ModalType {
   Group = "GROUP",
@@ -19,6 +20,8 @@ export const Modal = () => {
   const selectedLog = useLogStore((state) => state.selectedLog);
   const setSelectedLog = useLogStore((state) => state.setSelectedLog);
   const [order, setOrder] = useState<ModalType[]>([]);
+
+  const [opened, { open, close }] = useDisclosure(false);
 
   const handleModalInstance = (modalType: ModalType, condition: boolean) => {
     setOrder((order) => {
@@ -37,6 +40,7 @@ export const Modal = () => {
   useEffect(() => {
     if (selectedGroup) {
       setSelectedMock();
+      selectedGroup && open();
     }
     handleModalInstance(ModalType.Group, !!selectedGroup);
   }, [selectedGroup]);
@@ -44,18 +48,40 @@ export const Modal = () => {
   useEffect(() => {
     if (selectedMock) {
       setSelectedGroup();
+      selectedMock && open();
     }
     handleModalInstance(ModalType.Mock, !!selectedMock);
   }, [selectedMock]);
 
   useEffect(() => {
+    selectedLog && open();
     handleModalInstance(ModalType.Log, !!selectedLog);
   }, [selectedLog]);
 
-  const Mock = selectedMock ? <AddMock /> : null;
-  const Group = selectedGroup ? <AddGroup /> : null;
+  const Mock = selectedMock ? (
+    <AddMock
+      onClose={() => {
+        close();
+        setSelectedMock();
+      }}
+    />
+  ) : null;
+  const Group = selectedGroup ? (
+    <AddGroup
+      onClose={() => {
+        close();
+        setSelectedGroup();
+      }}
+    />
+  ) : null;
   const Log = selectedLog ? (
-    <LogDetails log={selectedLog} onClose={() => setSelectedLog()} />
+    <LogDetails
+      log={selectedLog}
+      onClose={() => {
+        close();
+        setSelectedLog();
+      }}
+    />
   ) : null;
 
   const componentOrderMap = {
@@ -65,21 +91,30 @@ export const Modal = () => {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        position: "fixed",
-        top: 0,
-        right: 0,
-        height: "100vh",
-        boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
-        zIndex: 1000,
-        background: "white",
+    <Drawer.Root
+      opened={opened}
+      onClose={() => {
+        close();
+
+        setTimeout(() => {
+          setSelectedMock();
+          setSelectedGroup();
+          setSelectedLog();
+        }, 300);
       }}
+      position="right"
+      padding={0}
+      size="auto"
+      autoFocus
     >
-      {order.map((o) => (
-        <Flex key={o}>{componentOrderMap[o]}</Flex>
-      ))}
-    </div>
+      <Drawer.Overlay opacity={0.1} />
+      <Drawer.Content>
+        <Drawer.Body display="flex" style={{ height: "100%" }}>
+          {order.map((o) => (
+            <Flex key={o}>{componentOrderMap[o]}</Flex>
+          ))}
+        </Drawer.Body>
+      </Drawer.Content>
+    </Drawer.Root>
   );
 };

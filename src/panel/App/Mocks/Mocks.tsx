@@ -1,5 +1,5 @@
 import React from "react";
-import { ActionIcon, Flex, Switch } from "@mantine/core";
+import { ActionIcon, Flex, Switch, Text } from "@mantine/core";
 import { TableSchema, TableWrapper } from "../Blocks/Table";
 import { IMockGroup, IMockResponse, MockType } from "../types";
 import { useChromeStore, useChromeStoreState, useGlobalStore } from "../store";
@@ -22,6 +22,7 @@ interface GetSchemeProps {
   editMock: (mock: IMockResponse) => void;
   duplicateMock: (mock: IMockResponse) => void;
 
+  getMocksByGroup: (groupId: string) => IMockResponse[];
   toggleGroup: (group: IMockGroup) => void;
   deleteGroup: (group: IMockGroup) => void;
   editGroup: (group: IMockGroup) => void;
@@ -29,6 +30,7 @@ interface GetSchemeProps {
 }
 
 const getSchema = ({
+  getMocksByGroup,
   toggleMock,
   deleteMock,
   duplicateMock,
@@ -76,7 +78,27 @@ const getSchema = ({
   },
   {
     header: "Name",
-    content: (data) => data.name,
+    content: (data) => {
+      if (data.type !== MockType.GROUP) {
+        return data.name;
+      }
+
+      // return `${data.name} (${getMocksByGroup(data.id).length})`;
+      const totalMocksInGroup = getMocksByGroup(data.id).length;
+      const activeMocksInGroup = getMocksByGroup(data.id).filter(
+        (mock) => mock.active
+      ).length;
+      return (
+        <Flex align="center" gap={8}>
+          <Text>{data.name}</Text>
+          <Text
+            opacity={0.7}
+            c="dimmed"
+            size="xs"
+          >{`(${activeMocksInGroup}/${totalMocksInGroup})`}</Text>
+        </Flex>
+      );
+    },
     width: 240,
   },
   {
@@ -168,7 +190,13 @@ export const Mocks = () => {
   } = useChromeStore(useMockStoreSelector, shallow);
   const search = useGlobalStore((state) => state.search).toLowerCase();
 
-  const { deleteMock, duplicateMock, toggleMock, editMock } = useMockActions();
+  const {
+    getMocksByGroup,
+    deleteMock,
+    duplicateMock,
+    toggleMock,
+    editMock,
+  } = useMockActions();
   const {
     deleteGroup,
     duplicateGroup,
@@ -177,6 +205,7 @@ export const Mocks = () => {
   } = useGroupActions();
 
   const schema = getSchema({
+    getMocksByGroup,
     toggleMock,
     deleteMock,
     duplicateMock,
@@ -249,7 +278,7 @@ export const Mocks = () => {
 
   console.log("organizeItems", organizeItems(filteredMocks));
 
-  if (store.mocks.length === 0) {
+  if (store.mocks.length === 0 && store.groups.length === 0) {
     return (
       <Placeholder
         title="No Mocks created yet."

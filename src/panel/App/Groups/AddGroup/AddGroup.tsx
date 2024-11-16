@@ -10,7 +10,7 @@ const useGroupStoreSelector = (state: useChromeStoreState) => ({
   setStoreProperties: state.setStoreProperties,
 });
 
-export const AddGroup = () => {
+export const AddGroup = ({ onClose }: { onClose: () => void }) => {
   const {
     store,
     selectedGroup,
@@ -26,6 +26,7 @@ export const AddGroup = () => {
         selectedGroup={selectedGroup}
         setSelectedGroup={setSelectedGroup}
         setStoreProperties={setStoreProperties}
+        onClose={onClose}
       />
     </SideDrawer>
   );

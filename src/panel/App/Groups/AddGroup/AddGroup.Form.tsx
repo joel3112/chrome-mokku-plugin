@@ -10,9 +10,14 @@ import {
   Title,
 } from "@mantine/core";
 import { v4 as uuidv4 } from "uuid";
-import React from "react";
+import React, { useMemo } from "react";
 import { SideDrawerHeader } from "../../Blocks/SideDrawer";
-import { GroupStatusEnum, IMockGroup, IMockGroupRaw } from "../../types";
+import {
+  GroupActionInFormEnum,
+  GroupStatusEnum,
+  IMockGroup,
+  IMockGroupRaw,
+} from "../../types";
 import { useForm } from "@mantine/form";
 import { MdClose } from "react-icons/md";
 import { storeActions } from "../../service/storeActions";
@@ -48,10 +53,11 @@ export const AddGroupForm = ({
   selectedGroup,
   setSelectedGroup,
   setStoreProperties,
+  onClose,
 }: Pick<
   useChromeStoreState,
   "store" | "selectedGroup" | "setSelectedGroup" | "setStoreProperties"
->) => {
+> & { onClose: () => void }) => {
   const {
     classes: { flexGrow, wrapper, footer, card },
   } = useStyles();
@@ -60,28 +66,50 @@ export const AddGroupForm = ({
   const form = useForm<IMockGroupRaw>({
     initialValues: {
       active: true,
+      name: "",
+      description: "",
       ...selectedGroup,
     },
   });
-  const isNewGroup = !selectedGroup.id;
+
+  const groupAction = useMemo(() => {
+    if (!selectedGroup.createdOn && selectedGroup.name) {
+      return GroupActionInFormEnum.DUPLICATE;
+    }
+    if (!selectedGroup.createdOn) {
+      return GroupActionInFormEnum.ADD;
+    }
+    return GroupActionInFormEnum.UPDATE;
+  }, [selectedGroup]);
+  const isNewGroup = groupAction !== GroupActionInFormEnum.UPDATE;
 
   return (
     <form
       style={{ height: "100%" }}
       onSubmit={form.onSubmit((values) => {
-        console.log(899, values);
-        if (!values.id) {
+        console.log("Submit group", values);
+        const originalId = selectedGroup.id;
+        const storeAction = {
+          [GroupActionInFormEnum.ADD]: storeActions.addGroups,
+          [GroupActionInFormEnum.UPDATE]: storeActions.updateGroups,
+          [GroupActionInFormEnum.DUPLICATE]: storeActions.duplicateGroup,
+        };
+        if (!values.createdOn) {
           values.id = uuidv4();
         }
-        const updatedStore = isNewGroup
-          ? storeActions.addGroups(store, values as IMockGroup)
-          : storeActions.updateGroups(store, values as IMockGroup);
+
+        const updatedStore = storeAction[groupAction](
+          store,
+          values as IMockGroup,
+          originalId
+        );
+
         storeActions
           .updateStoreInDB(updatedStore)
           .then(setStoreProperties)
           .then(() => {
+            onClose();
             storeActions.refreshContentStore(tab.id);
-            setSelectedGroup();
             notifications.show({
               title: `${values.name} group ${isNewGroup ? "added" : "updated"}`,
               message: `Group "${values.name}" has been ${
@@ -89,7 +117,8 @@ export const AddGroupForm = ({
               }.`,
             });
           })
-          .catch(() => {
+          .catch((error) => {
+            console.error(error);
             notifications.show({
               title: `Cannot ${isNewGroup ? "add" : "update"} group.`,
               message: `Something went wrong, unable to ${
@@ -104,10 +133,7 @@ export const AddGroupForm = ({
         <Card className={card}>
           <SideDrawerHeader>
             <Title order={6}>{isNewGroup ? "Add Group" : "Update Group"}</Title>
-            <MdClose
-              style={{ cursor: "pointer" }}
-              onClick={() => setSelectedGroup()}
-            />
+            <MdClose style={{ cursor: "pointer" }} onClick={onClose} />
           </SideDrawerHeader>
           <Flex direction="column" gap={16} className={wrapper}>
             <Flex gap={12} align="center">
@@ -139,6 +165,7 @@ export const AddGroupForm = ({
                 label="Name"
                 placeholder="Goals group"
                 className={flexGrow}
+                data-autofocus
                 {...form.getInputProps("name")}
               />
             </Flex>
@@ -153,11 +180,7 @@ export const AddGroupForm = ({
           </Flex>
           <Flex className={footer} justify="flex-end">
             <Flex justify="flex-end" gap={4}>
-              <Button
-                color="red"
-                compact
-                onClick={() => setSelectedGroup(undefined)}
-              >
+              <Button color="red" compact onClick={onClose}>
                 Close
               </Button>
               <Button compact type="submit">

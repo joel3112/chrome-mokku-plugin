@@ -8,6 +8,7 @@ import {
   MockType,
 } from "../types";
 import messageService from "./messageService";
+import { v4 as uuidv4 } from "uuid";
 
 const getNetworkMethodMap = () => ({
   GET: [],
@@ -70,6 +71,10 @@ export const updateStoreInDB = (store: IStore) => {
   );
 };
 
+export const resetStoreInDB = () => {
+  return updateStoreInDB(getDefaultStore());
+};
+
 export const getURLMapWithStore = (store: IStore) => {
   const urlMap: IURLMap = {};
   const dynamicUrlMap: IDynamicURLMap = {};
@@ -128,11 +133,51 @@ export const addGroups = (
     : [dirtyNewGroup];
 
   newGroups.forEach((group) => {
-    store.groups = [...store.groups, { ...group, type: MockType.GROUP }];
+    store.groups = [
+      ...store.groups,
+      {
+        ...group,
+        type: MockType.GROUP,
+        expanded: false,
+        createdOn: new Date().getTime(),
+      },
+    ];
     store.totalGroupsCreated++;
   });
 
   return store;
+};
+
+export const duplicateGroup = (
+  oldStore: IStore,
+  dirtyNewGroup: IMockGroup,
+  copiedGroupId: string
+) => {
+  const store = { ...oldStore };
+  const newGroup = dirtyNewGroup;
+
+  store.groups = [
+    ...store.groups,
+    {
+      ...newGroup,
+      type: MockType.GROUP,
+      expanded: false,
+      createdOn: new Date().getTime(),
+    },
+  ];
+  store.totalGroupsCreated++;
+
+  const mocksInCopiedGroup = store.mocks.filter(
+    (mock) => mock.groupId === copiedGroupId
+  );
+  const newMocks = mocksInCopiedGroup.map((mock) => {
+    return {
+      ...mock,
+      id: uuidv4(),
+      groupId: newGroup.id,
+    };
+  });
+  return addMocks(store, newMocks);
 };
 
 type PartialGroupWithId = { id: IMockGroup["id"] } & Partial<IMockGroup>;
@@ -180,14 +225,22 @@ export const deleteGroups = (
     }
     return true;
   });
+  const mocks = draftStore.mocks.filter((mock) => {
+    if (groupIdsSet.has(mock.groupId)) {
+      return false;
+    }
+    return true;
+  });
 
   const store = {
     ...draftStore,
     groups,
+    mocks,
   };
 
   return store;
 };
+
 export const addMocks = (
   oldStore: IStore,
   dirtyNewMock: IMockResponse | IMockResponse[]
@@ -199,7 +252,15 @@ export const addMocks = (
 
   newMocks.forEach((mock) => {
     const dynamic = mock.url.includes("(.*)") || mock.url.includes("/:");
-    store.mocks = [...store.mocks, { ...mock, dynamic, type: MockType.MOCK }];
+    store.mocks = [
+      ...store.mocks,
+      {
+        ...mock,
+        dynamic,
+        type: MockType.MOCK,
+        createdOn: new Date().getTime(),
+      },
+    ];
     store.totalMocksCreated++;
   });
 
@@ -277,11 +338,13 @@ export const storeActions = {
   deleteGroups,
   updateGroups,
   addGroups,
+  duplicateGroup,
   deleteMocks,
   updateMocks,
   addMocks,
   getURLMapWithStore,
   updateStoreInDB,
+  resetStoreInDB,
   getStore,
   getDefaultStore,
   refreshContentStore,

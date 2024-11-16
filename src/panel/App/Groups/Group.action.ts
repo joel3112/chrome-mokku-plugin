@@ -76,7 +76,7 @@ export const useGroupActions = () => {
   );
   const duplicateGroup = useCallback(
     (group: IMockGroup) => {
-      setSelectedGroup({ ...group, id: undefined });
+      setSelectedGroup({ ...group, createdOn: undefined });
     },
     [setSelectedGroup]
   );

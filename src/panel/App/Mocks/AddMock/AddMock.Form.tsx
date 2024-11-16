@@ -62,10 +62,11 @@ export const AddMockForm = ({
   selectedMock,
   setSelectedMock,
   setStoreProperties,
+  onClose,
 }: Pick<
   useChromeStoreState,
   "store" | "selectedMock" | "setSelectedMock" | "setStoreProperties"
->) => {
+> & { onClose: () => void }) => {
   const {
     classes: { flexGrow, wrapper, tabs, footer, card },
   } = useStyles();
@@ -79,6 +80,9 @@ export const AddMockForm = ({
       method: "GET",
       active: true,
       groupId: "",
+      name: "",
+      description: "",
+      url: "",
       ...selectedMock,
     },
   });
@@ -90,7 +94,7 @@ export const AddMockForm = ({
     <form
       style={{ height: "100%" }}
       onSubmit={form.onSubmit((values) => {
-        console.log(899, values);
+        console.log("Submit mock", values);
         if (!values.id) {
           values.id = uuidv4();
         }
@@ -106,8 +110,8 @@ export const AddMockForm = ({
           .updateStoreInDB(updatedStore)
           .then(setStoreProperties)
           .then(() => {
+            onClose();
             storeActions.refreshContentStore(tab.id);
-            setSelectedMock();
             notifications.show({
               title: `${values.name} mock ${isNewMock ? "added" : "updated"}`,
               message: `Mock "${values.name}" has been ${
@@ -115,7 +119,8 @@ export const AddMockForm = ({
               }.`,
             });
           })
-          .catch(() => {
+          .catch((error) => {
+            console.error(error);
             notifications.show({
               title: `Cannot ${isNewMock ? "add" : "update"} mock.`,
               message: `Something went wrong, unable to ${
@@ -130,10 +135,7 @@ export const AddMockForm = ({
         <Card className={card}>
           <SideDrawerHeader>
             <Title order={6}>{isNewMock ? "Add Mock" : "Update Mock"}</Title>
-            <MdClose
-              style={{ cursor: "pointer" }}
-              onClick={() => setSelectedMock()}
-            />
+            <MdClose style={{ cursor: "pointer" }} onClick={onClose} />
           </SideDrawerHeader>
           <Flex direction="column" gap={16} className={wrapper}>
             <Flex gap={12} align="center">
@@ -165,6 +167,7 @@ export const AddMockForm = ({
                 label="Name"
                 placeholder="Goals Success"
                 className={flexGrow}
+                data-autofocus
                 {...form.getInputProps("name")}
               />
             </Flex>
@@ -293,11 +296,7 @@ export const AddMockForm = ({
               {jsonValid ? "" : "Response JSON not valid"}
             </Text>
             <Flex justify="flex-end" gap={4}>
-              <Button
-                color="red"
-                compact
-                onClick={() => setSelectedMock(undefined)}
-              >
+              <Button color="red" compact onClick={onClose}>
                 Close
               </Button>
               <Button compact type="submit" disabled={!jsonValid}>

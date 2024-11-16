@@ -23,6 +23,12 @@ export enum GroupStatusEnum {
   INACTIVE = "INACTIVE",
 }
 
+export enum GroupActionInFormEnum {
+  ADD = "ADD",
+  UPDATE = "UPDATE",
+  DUPLICATE = "DUPLICATE",
+}
+
 export type Headers = Array<{ name: string; value: string }>;
 
 export interface ILog {
@@ -52,6 +58,7 @@ export interface IMockGroup {
   description: string;
   id: string;
   active: boolean;
+  createdOn: number;
   expanded?: boolean;
 }
 

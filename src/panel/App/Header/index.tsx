@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { shallow } from "zustand/shallow";
 import { Button, Flex, Input, Tabs } from "@mantine/core";
-import { MdAdd, MdClear } from "react-icons/md";
+import { MdAdd } from "react-icons/md";
 import { TbSearch } from "react-icons/tb";
 import {
   useChromeStore,
@@ -14,7 +14,7 @@ import { RefreshButton } from "./RefreshButton";
 import { ClearButton } from "./ClearButton";
 import { RecordButton } from "./RecordButton";
 import { SwitchButton } from "./SwitchButton";
-import { SupportUs } from "./SupportUs";
+import { Settings } from "./Settings";
 
 const viewSelector = (state: useGlobalStoreState) => ({
   view: state.view,
@@ -32,7 +32,7 @@ export const Header = () => {
   const store = useChromeStore((state) => state.store);
   const setSelectedMock = useChromeStore((state) => state.setSelectedMock);
   const setSelectedGroup = useChromeStore((state) => state.setSelectedGroup);
-  const [showSupportUs, setShowSupportUs] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   return (
     <Tabs defaultValue={ViewEnum.MOCKS} value={view} onTabChange={setView}>
@@ -59,14 +59,6 @@ export const Header = () => {
                 >
                   Add Mock
                 </Button>
-                <Button
-                  onClick={() => store}
-                  leftIcon={<MdClear />}
-                  size="xs"
-                  variant="subtle"
-                >
-                  Clear
-                </Button>
               </Flex>
 
               <Input
@@ -82,18 +74,18 @@ export const Header = () => {
           </Flex>
           <Flex gap="4px" style={{ paddingRight: 4 }}>
             <Button
-              onClick={() => setShowSupportUs(true)}
+              onClick={() => setShowSettings(true)}
               size="xs"
               variant="subtle"
             >
-              Support Mokku
+              Settings
             </Button>
             <ThemeButton />
             <RefreshButton />
             <SwitchButton />
           </Flex>
-          {showSupportUs && (
-            <SupportUs onClose={() => setShowSupportUs(false)} />
+          {showSettings && (
+            <Settings store={store} onClose={() => setShowSettings(false)} />
           )}
         </Flex>
       </Tabs.List>

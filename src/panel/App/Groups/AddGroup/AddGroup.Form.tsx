@@ -118,7 +118,7 @@ export const AddGroupForm = ({
             });
           })
           .catch((error) => {
-            console.error(error);
+            console.error("Failed to update store:", error);
             notifications.show({
               title: `Cannot ${isNewGroup ? "add" : "update"} group.`,
               message: `Something went wrong, unable to ${

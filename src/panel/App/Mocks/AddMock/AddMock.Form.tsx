@@ -120,7 +120,7 @@ export const AddMockForm = ({
             });
           })
           .catch((error) => {
-            console.error(error);
+            console.error("Failed to add mock:", error);
             notifications.show({
               title: `Cannot ${isNewMock ? "add" : "update"} mock.`,
               message: `Something went wrong, unable to ${

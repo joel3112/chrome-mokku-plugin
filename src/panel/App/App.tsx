@@ -7,9 +7,9 @@ import { usePanelListener } from "./hooks/usePanelListner";
 import { DisabledPlaceholder } from "./DisabledPlaceholder/DisabledPlaceholder";
 
 import {
+  useChromeStore,
   useGlobalStore,
   useGlobalStoreState,
-  useChromeStore,
   ViewEnum,
 } from "./store";
 import { Notifications } from "@mantine/notifications";
@@ -42,7 +42,7 @@ export const App = (props: useGlobalStoreState["meta"]) => {
 
   return (
     <>
-      <Notifications />
+      <Notifications id="notification-mocks" zIndex={9999999} />
       <Flex
         direction="column"
         style={{ minWidth: 1024, height: "100%", overflow: "hidden" }}

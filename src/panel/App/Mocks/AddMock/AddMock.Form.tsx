@@ -90,6 +90,10 @@ export const AddMockForm = ({
   const response = form.values["response"];
   const jsonValid = response ? isJsonValid(response) : true;
 
+  const isGroupSelectedActive = store.groups.find(
+    (group) => group.id === form.values.groupId
+  )?.active;
+
   return (
     <form
       style={{ height: "100%" }}
@@ -171,7 +175,7 @@ export const AddMockForm = ({
                 {...form.getInputProps("name")}
               />
             </Flex>
-            <Flex gap={12} align="center">
+            <Flex gap={12} align="flex-end">
               <Select
                 label="Group"
                 placeholder="Select group"
@@ -179,6 +183,11 @@ export const AddMockForm = ({
                 allowDeselect
                 {...form.getInputProps("groupId")}
               />
+              {!isGroupSelectedActive && form.values.groupId && (
+                <Text fw={400} fz="xs" mb={10}>
+                  ⚠️ Group is disabled
+                </Text>
+              )}
             </Flex>
             <Flex gap={12} align="center">
               <Textarea

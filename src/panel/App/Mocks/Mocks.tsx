@@ -21,7 +21,7 @@ interface GetSchemeProps {
   deleteMock: (mock: IMockResponse) => void;
   editMock: (mock: IMockResponse) => void;
   duplicateMock: (mock: IMockResponse) => void;
-
+  isActiveGroupByMock: (mock: IMockResponse) => boolean;
   getMocksByGroup: (groupId: string) => IMockResponse[];
   toggleGroup: (group: IMockGroup) => void;
   deleteGroup: (group: IMockGroup) => void;
@@ -30,6 +30,7 @@ interface GetSchemeProps {
 }
 
 const getSchema = ({
+  isActiveGroupByMock,
   getMocksByGroup,
   toggleMock,
   deleteMock,
@@ -42,24 +43,34 @@ const getSchema = ({
 }: GetSchemeProps): TableSchema<IMockResponse | IMockGroup> => [
   {
     header: "",
-    content: (data) => (
-      <div
-        onClick={(event) => {
-          // this was not working with switch for some unknown reason
-          event.stopPropagation();
-        }}
-        style={{ cursor: "pointer" }}
-      >
-        <Switch
-          checked={data.active}
-          onChange={(x) => {
-            data.type === MockType.GROUP
-              ? toggleGroup({ ...data, active: x.target.checked })
-              : toggleMock({ ...data, active: x.target.checked });
+    content: (data) => {
+      let enabled = false;
+      if (data.type !== MockType.GROUP && data.groupId) {
+        enabled = isActiveGroupByMock(data);
+      } else {
+        enabled = true;
+      }
+
+      return (
+        <div
+          onClick={(event) => {
+            // this was not working with switch for some unknown reason
+            event.stopPropagation();
           }}
-        />
-      </div>
-    ),
+          style={{ cursor: "pointer" }}
+        >
+          <Switch
+            disabled={!enabled}
+            checked={data.active}
+            onChange={(x) => {
+              data.type === MockType.GROUP
+                ? toggleGroup({ ...data, active: x.target.checked })
+                : toggleMock({ ...data, active: x.target.checked });
+            }}
+          />
+        </div>
+      );
+    },
     width: 60,
   },
   {
@@ -191,6 +202,7 @@ export const Mocks = () => {
   const search = useGlobalStore((state) => state.search).toLowerCase();
 
   const {
+    isActiveGroupByMock,
     getMocksByGroup,
     deleteMock,
     duplicateMock,
@@ -205,6 +217,7 @@ export const Mocks = () => {
   } = useGroupActions();
 
   const schema = getSchema({
+    isActiveGroupByMock,
     getMocksByGroup,
     toggleMock,
     deleteMock,

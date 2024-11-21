@@ -21,9 +21,16 @@ export const useMockActions = () => {
 
   const getMocksByGroup = useCallback(
     (groupId: string) => {
-      return store.mocks.filter((mock) => mock.groupId === groupId);
+      return storeActions.getMocksByGroup(store, groupId);
     },
     [store.mocks]
+  );
+
+  const isActiveGroupByMock = useCallback(
+    (mock: IMockResponse) => {
+      return storeActions.isActiveGroupByMock(store, mock);
+    },
+    [store.groups]
   );
 
   const toggleMock = useCallback(
@@ -90,5 +97,12 @@ export const useMockActions = () => {
     [setSelectedMock]
   );
 
-  return { getMocksByGroup, toggleMock, deleteMock, duplicateMock, editMock };
+  return {
+    getMocksByGroup,
+    isActiveGroupByMock,
+    toggleMock,
+    deleteMock,
+    duplicateMock,
+    editMock,
+  };
 };

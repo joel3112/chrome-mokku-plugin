@@ -4,7 +4,7 @@ import inject from "./contentScript/injectToDom";
 import { IEventMessage } from "./interface/message";
 import { IDynamicURLMap, ILog } from "./interface/mock";
 import messageService from "./services/message";
-import { getStore } from "./panel/App/service/storeActions";
+import { getStore, storeActions } from "./panel/App/service/storeActions";
 
 const init = () => {
   let store, urlMap, dynamicUrlMap: IDynamicURLMap;
@@ -50,6 +50,16 @@ const init = () => {
     });
   };
 
+  const isEnabledActiveMock = (mock) => {
+    let enabled = false;
+    if (mock.groupId) {
+      enabled = storeActions.isActiveGroupByMock(store, mock);
+    } else {
+      enabled = true;
+    }
+    return enabled;
+  };
+
   const getActiveMockWithPath = (paths: string[]) => {
     let mock = null;
     let path = null;
@@ -74,11 +84,11 @@ const init = () => {
       const message = data.message as ILog;
       const mockPaths = getMockPath(
         message.request.url,
-        message.request.method,
+        message.request.method
       );
       const { mock, path } = getActiveMockWithPath(mockPaths);
 
-      if (mock) {
+      if (mock && isEnabledActiveMock(mock)) {
         message.isMocked = mock.active;
         message.mockPath = path;
       }
@@ -109,7 +119,7 @@ const init = () => {
     const mockPaths = getMockPath(request.url, request.method);
     const { mock } = getActiveMockWithPath(mockPaths);
 
-    if (mock && mock.active) {
+    if (mock && isEnabledActiveMock(mock)) {
       (response.message as ILog).mockResponse = mock;
     }
 

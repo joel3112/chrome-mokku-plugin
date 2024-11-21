@@ -122,6 +122,14 @@ export const getURLMapWithStore = (store: IStore) => {
   return { urlMap, dynamicUrlMap, store };
 };
 
+export const getMocksByGroup = (store: IStore, groupId: string) => {
+  return store.mocks.filter((mock) => mock.groupId === groupId);
+};
+
+export const isActiveGroupByMock = (store: IStore, mock: IMockResponse) => {
+  return store.groups.find((group) => group.id === mock.groupId)?.active;
+};
+
 export const addGroups = (
   oldStore: IStore,
   dirtyNewGroup: IMockGroup | IMockGroup[]
@@ -336,6 +344,8 @@ export const refreshContentStore = (tabId?: number) => {
 };
 
 export const storeActions = {
+  getMocksByGroup,
+  isActiveGroupByMock,
   deleteGroups,
   updateGroups,
   addGroups,

@@ -1,5 +1,12 @@
 import React from "react";
-import { ActionIcon, Flex, Switch, Text } from "@mantine/core";
+import {
+  ActionIcon,
+  createStyles,
+  Flex,
+  Menu,
+  Switch,
+  Text,
+} from "@mantine/core";
 import { TableSchema, TableWrapper } from "../Blocks/Table";
 import { IMockGroup, IMockResponse, MockType } from "../types";
 import { useChromeStore, useChromeStoreState, useGlobalStore } from "../store";
@@ -10,6 +17,7 @@ import {
   MdOutlineExpandLess,
   MdOutlineExpandMore,
   MdOutlineModeEditOutline,
+  MdOutlineMoreHoriz,
 } from "react-icons/md";
 import { useMockActions } from "./Mocks.action";
 import { Placeholder } from "../Blocks/Placeholder";
@@ -29,6 +37,30 @@ interface GetSchemeProps {
   duplicateGroup: (group: IMockGroup) => void;
 }
 
+const Description = ({ children }: { children: React.ReactNode }) => (
+  <Text size="xs" color="dimmed" fw="initial" truncate="end" lh="1">
+    {children}
+  </Text>
+);
+
+const useStyles = createStyles((theme) => ({
+  more: {
+    color: theme.colors.blue[5],
+    cursor: "pointer",
+    fontSize: 20,
+  },
+  menuOptionBlue: {
+    color: theme.colors.blue[5],
+    height: 28,
+    fontSize: 13,
+  },
+  menuOptionRed: {
+    color: theme.colors.red[7],
+    height: 28,
+    fontSize: 13,
+  },
+}));
+
 const getSchema = ({
   isActiveGroupByMock,
   getMocksByGroup,
@@ -40,146 +72,164 @@ const getSchema = ({
   deleteGroup,
   duplicateGroup,
   editGroup,
-}: GetSchemeProps): TableSchema<IMockResponse | IMockGroup> => [
-  {
-    header: "",
-    content: (data) => {
-      let enabled = false;
-      if (data.type !== MockType.GROUP && data.groupId) {
-        enabled = isActiveGroupByMock(data);
-      } else {
-        enabled = true;
-      }
+}: GetSchemeProps): TableSchema<IMockResponse | IMockGroup> => {
+  const { classes } = useStyles();
 
-      return (
-        <div
-          onClick={(event) => {
-            // this was not working with switch for some unknown reason
-            event.stopPropagation();
-          }}
-          style={{ cursor: "pointer" }}
-        >
-          <Switch
-            disabled={!enabled}
-            checked={data.active}
-            onChange={(x) => {
-              data.type === MockType.GROUP
-                ? toggleGroup({ ...data, active: x.target.checked })
-                : toggleMock({ ...data, active: x.target.checked });
+  return [
+    {
+      header: "",
+      content: (data) =>
+        data.type === MockType.GROUP && (
+          <Flex align="center">
+            {!data.expanded ? (
+              <MdOutlineExpandMore size={18} />
+            ) : (
+              <MdOutlineExpandLess size={18} />
+            )}
+          </Flex>
+        ),
+      width: 5,
+    },
+    {
+      header: "Name",
+      content: (data) => {
+        if (data.type !== MockType.GROUP) {
+          return data.name;
+        }
+
+        // return `${data.name} (${getMocksByGroup(data.id).length})`;
+        const totalMocksInGroup = getMocksByGroup(data.id).length;
+        const activeMocksInGroup = getMocksByGroup(data.id).filter(
+          (mock) => mock.active
+        ).length;
+        return (
+          <Flex align="center" gap={8}>
+            <Text>{data.name}</Text>
+            <Text
+              opacity={0.7}
+              c="dimmed"
+              size="xs"
+            >{`(${activeMocksInGroup}/${totalMocksInGroup})`}</Text>
+          </Flex>
+        );
+      },
+      width: 300,
+    },
+    {
+      header: "",
+      content: (data) => {
+        let enabled = false;
+        if (data.type !== MockType.GROUP && data.groupId) {
+          enabled = isActiveGroupByMock(data);
+        } else {
+          enabled = true;
+        }
+
+        return (
+          <div
+            onClick={(event) => {
+              // this was not working with switch for some unknown reason
+              event.stopPropagation();
             }}
-          />
+            style={{ cursor: "pointer" }}
+          >
+            <Switch
+              size="xs"
+              disabled={!enabled}
+              checked={data.active}
+              onChange={(x) => {
+                data.type === MockType.GROUP
+                  ? toggleGroup({ ...data, active: x.target.checked })
+                  : toggleMock({ ...data, active: x.target.checked });
+              }}
+            />
+          </div>
+        );
+      },
+      width: 60,
+    },
+    {
+      header: "Method/URL",
+      content: (data) =>
+        data.type !== MockType.GROUP ? (
+          <Description>{`[${data.method}] ${data.url}`}</Description>
+        ) : (
+          ""
+        ),
+      minWidth: 150,
+    },
+    {
+      header: "Status",
+      content: (data) =>
+        data.type !== MockType.GROUP ? (
+          <Description>{data.status}</Description>
+        ) : (
+          ""
+        ),
+      width: 80,
+    },
+    {
+      header: "Delay",
+      content: (data) =>
+        data.type !== MockType.GROUP ? (
+          <Description>{data.delay}</Description>
+        ) : (
+          ""
+        ),
+      width: 80,
+    },
+    {
+      header: "",
+      content: (data) => (
+        <div onClick={(event) => event.stopPropagation()}>
+          <Menu position="bottom-end" offset={-14}>
+            <Menu.Target>
+              <ActionIcon variant="transparent" size="xl">
+                <MdOutlineMoreHoriz className={classes.more} />
+              </ActionIcon>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Item
+                className={classes.menuOptionBlue}
+                icon={<MdOutlineModeEditOutline />}
+                onClick={() =>
+                  data.type === MockType.GROUP
+                    ? editGroup(data)
+                    : editMock(data)
+                }
+              >
+                Edit
+              </Menu.Item>
+              <Menu.Item
+                className={classes.menuOptionBlue}
+                icon={<MdOutlineContentCopy />}
+                onClick={() =>
+                  data.type === MockType.GROUP
+                    ? duplicateGroup(data)
+                    : duplicateMock(data)
+                }
+              >
+                Duplicate
+              </Menu.Item>
+              <Menu.Item
+                className={classes.menuOptionRed}
+                icon={<MdDeleteOutline />}
+                onClick={() =>
+                  data.type === MockType.GROUP
+                    ? deleteGroup(data)
+                    : deleteMock(data)
+                }
+              >
+                Delete
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
         </div>
-      );
-    },
-    width: 60,
-  },
-  {
-    header: "",
-    content: (data) =>
-      data.type === MockType.GROUP && (
-        <Flex align="center">
-          {!data.expanded ? (
-            <MdOutlineExpandMore size={18} />
-          ) : (
-            <MdOutlineExpandLess size={18} />
-          )}
-        </Flex>
       ),
-    width: 5,
-  },
-  {
-    header: "Name",
-    content: (data) => {
-      if (data.type !== MockType.GROUP) {
-        return data.name;
-      }
-
-      // return `${data.name} (${getMocksByGroup(data.id).length})`;
-      const totalMocksInGroup = getMocksByGroup(data.id).length;
-      const activeMocksInGroup = getMocksByGroup(data.id).filter(
-        (mock) => mock.active
-      ).length;
-      return (
-        <Flex align="center" gap={8}>
-          <Text>{data.name}</Text>
-          <Text
-            opacity={0.7}
-            c="dimmed"
-            size="xs"
-          >{`(${activeMocksInGroup}/${totalMocksInGroup})`}</Text>
-        </Flex>
-      );
+      width: 50,
     },
-    width: 240,
-  },
-  {
-    header: "Method",
-    content: (data) => (data.type !== MockType.GROUP ? data.method : ""),
-    width: 100,
-  },
-  {
-    header: "URL",
-    content: (data) => (data.type !== MockType.GROUP ? data.url : ""),
-  },
-  {
-    header: "Status",
-    content: (data) => (data.type !== MockType.GROUP ? data.status : ""),
-    width: 80,
-  },
-  {
-    header: "Delay",
-    content: (data) => (data.type !== MockType.GROUP ? data.delay : ""),
-    width: 120,
-  },
-  {
-    header: "",
-    content: (data) => (
-      <Flex
-        align="center"
-        gap="4px"
-        onClick={(event) => {
-          // this was not working with switch for some unknown reason
-          event.stopPropagation();
-        }}
-      >
-        <ActionIcon
-          variant="outline"
-          color="blue"
-          onClick={() =>
-            data.type === MockType.GROUP ? editGroup(data) : editMock(data)
-          }
-          title={`Edit Mock ${data.name}`}
-        >
-          <MdOutlineModeEditOutline />
-        </ActionIcon>
-
-        <ActionIcon
-          variant="outline"
-          color="blue"
-          onClick={() =>
-            data.type === MockType.GROUP
-              ? duplicateGroup(data)
-              : duplicateMock(data)
-          }
-          title={`Duplicate ${data.name}`}
-        >
-          <MdOutlineContentCopy />
-        </ActionIcon>
-        <ActionIcon
-          variant="outline"
-          color="red"
-          onClick={() =>
-            data.type === MockType.GROUP ? deleteGroup(data) : deleteMock(data)
-          }
-          title={`Delete ${data.name}`}
-        >
-          <MdDeleteOutline />
-        </ActionIcon>
-      </Flex>
-    ),
-    width: 80,
-  },
-];
+  ];
+};
 
 const useMockStoreSelector = (state: useChromeStoreState) => ({
   store: state.store,

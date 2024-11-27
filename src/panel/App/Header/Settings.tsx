@@ -117,6 +117,7 @@ export const Settings = ({
           color={"blue"}
           onClick={() => onClose()}
           title="Toggle Theme"
+          radius="md"
         >
           <MdClose />
         </ActionIcon>
@@ -140,6 +141,7 @@ export const Settings = ({
                     size="xs"
                     leftIcon={<CiImport />}
                     variant="outline"
+                    radius="md"
                     style={{ width: 240, marginBottom: 12 }}
                     {...props}
                   >
@@ -152,6 +154,7 @@ export const Settings = ({
                 size="xs"
                 leftIcon={<CiExport />}
                 variant="outline"
+                radius="md"
                 style={{ width: 240, marginBottom: 12 }}
                 onClick={() => {
                   downloadJsonFile(store, "mokku-data.json");
@@ -168,6 +171,7 @@ export const Settings = ({
               <Button
                 size="xs"
                 color="red"
+                radius="md"
                 leftIcon={<CiTrash />}
                 variant="outline"
                 style={{ width: 240, marginBottom: 12 }}
@@ -197,6 +201,7 @@ export const Settings = ({
             <Flex gap="8px">
               <Button
                 size="xs"
+                radius="md"
                 leftIcon={<BsPaypal />}
                 variant="outline"
                 style={{ width: 240, marginBottom: 12 }}
@@ -211,6 +216,7 @@ export const Settings = ({
               </Button>
               <Button
                 size="xs"
+                radius="md"
                 color="orange"
                 leftIcon={<SiBuymeacoffee />}
                 variant="outline"
@@ -227,6 +233,7 @@ export const Settings = ({
             <Flex gap="8px">
               <Button
                 size="xs"
+                radius="md"
                 color="dark"
                 leftIcon={<AiFillGithub />}
                 variant="outline"
@@ -242,6 +249,7 @@ export const Settings = ({
               </Button>
               <Button
                 size="xs"
+                radius="md"
                 color="indigo"
                 leftIcon={<RiChromeFill />}
                 variant="outline"

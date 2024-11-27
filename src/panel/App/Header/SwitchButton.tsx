@@ -21,6 +21,7 @@ export const SwitchButton = () => {
       color="red"
       onClick={() => toggleActive()}
       title="Disable Mocking"
+      radius="md"
     >
       <ImSwitch />
     </ActionIcon>

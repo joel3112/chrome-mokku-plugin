@@ -33,14 +33,19 @@ export const Header = () => {
   const setSelectedMock = useChromeStore((state) => state.setSelectedMock);
   const setSelectedGroup = useChromeStore((state) => state.setSelectedGroup);
   const [showSettings, setShowSettings] = useState(false);
+  const HEIGHT_TABS = 50;
 
   return (
     <Tabs defaultValue={ViewEnum.MOCKS} value={view} onTabChange={setView}>
-      <Tabs.List style={{ width: "100%" }}>
+      <Tabs.List style={{ width: "100%", height: HEIGHT_TABS }}>
         <Flex justify="space-between" align="center" style={{ width: "100%" }}>
           <Flex align="center">
-            <Tabs.Tab value={ViewEnum.MOCKS}>Mocks</Tabs.Tab>
-            <Tabs.Tab value={ViewEnum.LOGS}>Logs</Tabs.Tab>
+            <Tabs.Tab value={ViewEnum.MOCKS} style={{ height: HEIGHT_TABS }}>
+              Mocks
+            </Tabs.Tab>
+            <Tabs.Tab value={ViewEnum.LOGS} style={{ height: HEIGHT_TABS }}>
+              Logs
+            </Tabs.Tab>
             <Flex align="center" gap={8}>
               <Flex align="center" gap={0}>
                 <Button

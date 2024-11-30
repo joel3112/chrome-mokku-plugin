@@ -15,31 +15,32 @@ const init = () => {
   });
 
   const getMockPath = (url: string, method: string) => {
-    // this will moved to store.ts
-    if (urlMap[url]) {
-      if (urlMap[url][method]) {
-        return urlMap[url][method];
+    try {
+      // this will moved to store.ts
+      if (urlMap[url]) {
+        if (urlMap[url][method]) {
+          return urlMap[url][method];
+        }
       }
-    }
 
-    const url1 = url.replace("://", "-");
-    const key = url1.split("/").length;
-    // match all dynamics route
-    const stack = dynamicUrlMap[key];
-    if (!stack) return [];
+      const url1 = url.replace("://", "-");
+      const key = url1.split("/").length;
 
-    let i = 0;
-    while (i < stack.length) {
-      // there is more to it will be used when
-      // action are introduced
-      const s = stack[i];
-      if (s.method === method && !!s.match(url1)) {
-        return [s.getterKey];
+      let i = 0;
+      const stack = [];
+      while (i < key) {
+        const s = dynamicUrlMap[i]?.[0];
+        if (s && s.method === method && !!s.match(url1)) {
+          stack.push(s.getterKey);
+        }
+        i++;
       }
-      i++;
-    }
 
-    return [];
+      return stack;
+    } catch (error) {
+      console.error(">> Error in getMockPath", error);
+      return [];
+    }
   };
 
   const updateStore = () => {

@@ -73,9 +73,7 @@ export interface IURLMap {
 
 export interface IDynamicURLMap {
   [urlLength: number]: Array<{
-    match: (
-      s: string
-    ) => boolean | { path: string; params: Record<string, string> };
+    match: (s: string) => boolean;
     method: string;
     getterKey: string;
     url: string;

@@ -1,4 +1,4 @@
-import { match as getMatcher } from "path-to-regexp";
+import { wildcardPattern } from "wildcard-regex";
 import {
   IDynamicURLMap,
   IMockGroup,
@@ -84,11 +84,13 @@ export const getURLMapWithStore = (store: IStore) => {
     if (mock.dynamic) {
       const url = mock.url.replace("://", "-");
       const key = url.split("/").length;
+
+      const regex = wildcardPattern(mock.url);
       const matcher: IDynamicURLMap[number][0] = {
         getterKey: `mocks[${index}]`,
         method: mock.method,
         url: url,
-        match: getMatcher(url, { decode: window.decodeURIComponent }),
+        match: (s: string) => new RegExp(regex).test(s),
       };
       if (dynamicUrlMap[key]) {
         dynamicUrlMap[key].push(matcher);
@@ -183,7 +185,7 @@ export const duplicateGroup = (
     return {
       ...mock,
       id: uuidv4(),
-      groupId: newGroup.id,
+      groupId: newGroup.id ?? "",
     };
   });
   return addMocks(store, newMocks);
@@ -250,6 +252,10 @@ export const deleteGroups = (
   return store;
 };
 
+const isDynamicUrl = (pattern: string) => {
+  return pattern.includes("*");
+};
+
 export const addMocks = (
   oldStore: IStore,
   dirtyNewMock: IMockResponse | IMockResponse[]
@@ -260,7 +266,7 @@ export const addMocks = (
   const newMocks = Array.isArray(dirtyNewMock) ? dirtyNewMock : [dirtyNewMock];
 
   newMocks.forEach((mock) => {
-    const dynamic = mock.url.includes("(.*)") || mock.url.includes("/:");
+    const dynamic = isDynamicUrl(mock.url);
     store.mocks = [
       ...store.mocks,
       {
@@ -295,9 +301,7 @@ export const updateMocks = (
   const newStoreMocks = store.mocks.map((storeMock) => {
     const mockToBeUpdated = newMocksMap[storeMock.id];
     if (mockToBeUpdated) {
-      const dynamic =
-        mockToBeUpdated.url.includes("(.*)") ||
-        mockToBeUpdated.url.includes("/:");
+      const dynamic = isDynamicUrl(mockToBeUpdated.url);
       return { ...storeMock, ...mockToBeUpdated, dynamic };
     } else {
       return storeMock;

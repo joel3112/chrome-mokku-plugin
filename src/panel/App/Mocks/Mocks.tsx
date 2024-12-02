@@ -1,6 +1,8 @@
 import React from "react";
 import {
   ActionIcon,
+  Badge,
+  Code,
   createStyles,
   Flex,
   Menu,
@@ -8,7 +10,7 @@ import {
   Text,
 } from "@mantine/core";
 import { TableSchema, TableWrapper } from "../Blocks/Table";
-import { IMockGroup, IMockResponse, MockType } from "../types";
+import { IMockGroup, IMockResponse, MethodEnum, MockType } from "../types";
 import { useChromeStore, useChromeStoreState, useGlobalStore } from "../store";
 import { shallow } from "zustand/shallow";
 import {
@@ -37,12 +39,6 @@ interface GetSchemeProps {
   duplicateGroup: (group: IMockGroup) => void;
 }
 
-const Description = ({ children }: { children: React.ReactNode }) => (
-  <Text size="xs" color="dimmed" fw="initial" truncate="end" lh="1">
-    {children}
-  </Text>
-);
-
 const useStyles = createStyles((theme) => ({
   more: {
     color: theme.colors.blue[5],
@@ -60,6 +56,39 @@ const useStyles = createStyles((theme) => ({
     fontSize: 13,
   },
 }));
+
+const MethodTag = ({ method }: Pick<IMockResponse, "method">) => {
+  const colorByMethod = {
+    [MethodEnum.GET]: "blue",
+    [MethodEnum.POST]: "green",
+    [MethodEnum.PUT]: "orange",
+    [MethodEnum.PATCH]: "yellow",
+    [MethodEnum.DELETE]: "red",
+  };
+
+  return (
+    <Badge color={colorByMethod[method]} variant="dot" radius="sm" size="sm">
+      {method}
+    </Badge>
+  );
+};
+
+const StatusTag = ({ status }: Pick<IMockResponse, "status">) => {
+  const initialNumber = Math.floor(status / 100).toString();
+  const colorByNumber = {
+    1: "blue",
+    2: "green",
+    3: "violet",
+    4: "yellow",
+    5: "red",
+  };
+
+  return (
+    <Badge color={colorByNumber[initialNumber]} radius="sm" size="sm">
+      {status}
+    </Badge>
+  );
+};
 
 const getSchema = ({
   isActiveGroupByMock,
@@ -104,7 +133,7 @@ const getSchema = ({
         ).length;
         return (
           <Flex align="center" gap={8}>
-            <Text>{data.name}</Text>
+            {data.name}
             <Text
               opacity={0.7}
               c="dimmed"
@@ -134,7 +163,8 @@ const getSchema = ({
             style={{ cursor: "pointer" }}
           >
             <Switch
-              size="xs"
+              onLabel="ON"
+              offLabel="OFF"
               disabled={!enabled}
               checked={data.active}
               onChange={(x) => {
@@ -149,42 +179,49 @@ const getSchema = ({
       width: 60,
     },
     {
-      header: "Method/URL",
+      header: "URL",
       content: (data) =>
         data.type !== MockType.GROUP ? (
-          <Description>{`[${data.method}] ${data.url}`}</Description>
+          <Flex gap={8} align="center">
+            <MethodTag method={data.method} />
+            <StatusTag status={data.status} />
+            <Code fz={11}>{data.url}</Code>
+          </Flex>
         ) : (
           ""
         ),
-      minWidth: 150,
+      minWidth: 130,
     },
-    {
-      header: "Status",
-      content: (data) =>
-        data.type !== MockType.GROUP ? (
-          <Description>{data.status}</Description>
-        ) : (
-          ""
-        ),
-      width: 80,
-    },
-    {
-      header: "Delay",
-      content: (data) =>
-        data.type !== MockType.GROUP ? (
-          <Description>{data.delay}</Description>
-        ) : (
-          ""
-        ),
-      width: 80,
-    },
+    // {
+    //   header: "Status",
+    //   content: (data) =>
+    //     data.type !== MockType.GROUP ? <StatusTag status={data.status} /> : "",
+    //   width: 60,
+    // },
+    // {
+    //   header: "Delay",
+    //   content: (data) =>
+    //     data.type !== MockType.GROUP ? (
+    //       <Description>{data.delay}</Description>
+    //     ) : (
+    //       ""
+    //     ),
+    //   width: 80,
+    // },
     {
       header: "",
       content: (data) => (
         <div onClick={(event) => event.stopPropagation()}>
           <Menu position="bottom-end" offset={-14}>
             <Menu.Target>
-              <ActionIcon variant="transparent" size="xl">
+              <ActionIcon
+                variant="transparent"
+                size="lg"
+                style={{
+                  height: "100%",
+                  minHeight: 32,
+                }}
+              >
                 <MdOutlineMoreHoriz className={classes.more} />
               </ActionIcon>
             </Menu.Target>
@@ -374,7 +411,7 @@ export const Mocks = () => {
   return (
     <TableWrapper
       onRowClick={selectRow}
-      selectedRowId={selectedMock?.id}
+      selectedRowId={selectedGroup?.id || selectedMock?.id}
       data={organizeItems(filteredMocks)}
       schema={schema}
     />

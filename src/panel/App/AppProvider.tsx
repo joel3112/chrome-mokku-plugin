@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   ColorScheme,
   ColorSchemeProvider,
@@ -8,21 +8,16 @@ import {
 import { useGlobalStoreState } from "./store";
 import { App } from "./App";
 import { defaultTheme } from "./service/theme";
+import { useLocalStorage } from "@mantine/hooks";
 
 export const AppProvider = (props: useGlobalStoreState["meta"]) => {
-  const [colorScheme, setColorScheme] = useState<ColorScheme>(defaultTheme);
-  const toggleColorScheme = (value?: ColorScheme) =>
-    setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"));
+  const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
+    key: "color-scheme",
+    defaultValue: defaultTheme,
+  });
 
-  useEffect(() => {
-    const theme = (localStorage.getItem("theme") ||
-      defaultTheme) as ColorScheme;
-    setColorScheme(theme);
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("theme", colorScheme);
-  }, [colorScheme]);
+  const toggleColorScheme = () =>
+    setColorScheme((current) => (current === "dark" ? "light" : "dark"));
 
   return (
     <ColorSchemeProvider

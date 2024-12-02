@@ -1,5 +1,5 @@
 import React from "react";
-import { createStyles, Table } from "@mantine/core";
+import { createStyles, rem, Table } from "@mantine/core";
 import { MockType } from "../types/mock";
 
 export type TableSchema<T> = Array<{
@@ -19,30 +19,19 @@ export interface TableWrapperProps<T> {
 
 const useStyles = createStyles((theme) => ({
   groupRow: {
-    background: `${theme.colors.gray[0]}`,
-    ...(theme.colorScheme === "dark"
-      ? {
-          background: theme.colors.dark[9],
-        }
-      : {}),
+    background: `${
+      theme.colorScheme === "dark" ? "#080808" : theme.colors.gray[2]
+    }`,
   },
   selectedRow: {
-    background: `${theme.colors[theme.primaryColor][3]} !important`,
-    ...(theme.colorScheme === "dark"
-      ? {
-          color: theme.black,
-        }
-      : {}),
-    "&:hover": {
-      background: `${theme.colors[theme.primaryColor][3]} !important`,
-      ...(theme.colorScheme === "dark"
-        ? {
-            color: theme.black,
-          }
-        : {}),
-    },
+    background: `${
+      theme.colorScheme === "dark"
+        ? theme.fn.rgba(theme.colors.blue[7], 0.25)
+        : theme.colors.blue[0]
+    } !important`,
   },
   rows: {
+    height: 54,
     "&:hover": {
       cursor: "pointer",
     },
@@ -50,9 +39,20 @@ const useStyles = createStyles((theme) => ({
   th: {
     background:
       theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.white,
+    borderBottom: `${rem(1)} solid ${
+      theme.colorScheme === "dark" ? theme.colors.dark[4] : theme.colors.gray[3]
+    }`,
     position: "sticky",
     top: 0,
-    borderBottom: "1px solid black",
+    zIndex: 3,
+  },
+  table: {
+    position: "relative",
+    borderCollapse: "collapse",
+    width: "100%",
+    borderBottom: `${rem(1)} solid ${
+      theme.colorScheme === "dark" ? theme.colors.dark[4] : theme.colors.gray[3]
+    }`,
   },
 }));
 
@@ -114,11 +114,7 @@ export const TableWrapper = <
   });
 
   return (
-    <Table
-      captionSide="bottom"
-      highlightOnHover
-      style={{ position: "relative" }}
-    >
+    <Table captionSide="bottom" highlightOnHover className={classes.table}>
       <thead>{ths}</thead>
       <tbody>{rows}</tbody>
     </Table>

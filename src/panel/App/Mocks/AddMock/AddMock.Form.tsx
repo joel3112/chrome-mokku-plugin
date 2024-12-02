@@ -4,6 +4,7 @@ import {
   createStyles,
   Flex,
   JsonInput,
+  NumberInput,
   SegmentedControl,
   Select,
   Tabs,
@@ -231,11 +232,13 @@ export const AddMockForm = ({
                 placeholder="200"
                 {...form.getInputProps("status")}
               />
-              <TextInput
+              <NumberInput
                 required
+                step={500}
+                contentEditable={false}
+                min={500}
                 label="Delay (ms)"
                 placeholder="500"
-                type="number"
                 {...form.getInputProps("delay")}
               />
             </Flex>

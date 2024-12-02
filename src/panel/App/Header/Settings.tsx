@@ -4,6 +4,7 @@ import {
   ActionIcon,
   Button,
   Card,
+  ColorScheme,
   createStyles,
   FileButton,
   Flex,
@@ -21,6 +22,7 @@ import { notifications } from "@mantine/notifications";
 import { StoreSchema } from "../service/schema";
 import { storeActions, updateStoreInDB } from "../service/storeActions";
 import { useChromeStore } from "../store";
+import { useLocalStorage } from "@mantine/hooks";
 
 const useStyles = createStyles((theme) => ({
   wrapper: {
@@ -75,6 +77,7 @@ export const Settings = ({
   store: IStore;
   onClose: () => void;
 }) => {
+  const [colorScheme] = useLocalStorage<ColorScheme>({ key: "color-scheme" });
   const { classes } = useStyles();
   const [file, setFile] = useState<File | null>(null);
   const resetRef = useRef<() => void>(null);
@@ -234,7 +237,7 @@ export const Settings = ({
               <Button
                 size="xs"
                 radius="md"
-                color="dark"
+                color={colorScheme === "dark" ? "gray" : "dark"}
                 leftIcon={<AiFillGithub />}
                 variant="outline"
                 style={{ width: 240, marginBottom: 12 }}

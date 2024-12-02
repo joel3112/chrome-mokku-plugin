@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { ColorScheme, Flex } from "@mantine/core";
+import React, { useEffect } from "react";
+import { Flex } from "@mantine/core";
 import { Show } from "./Blocks/Show";
 import { Mocks } from "./Mocks/Mocks";
 import { Logs } from "./Logs/Logs";
@@ -15,7 +15,6 @@ import {
 import { Notifications } from "@mantine/notifications";
 import { Modal } from "./Blocks/Modal";
 import { Header } from "./Header";
-import { defaultTheme } from "./service/theme";
 
 export const App = (props: useGlobalStoreState["meta"]) => {
   const state = usePanelListener(props);
@@ -23,20 +22,12 @@ export const App = (props: useGlobalStoreState["meta"]) => {
   const setMeta = useGlobalStore((state) => state.setMeta);
   const view = useGlobalStore((state) => state.view);
 
-  const [colorScheme, setColorScheme] = useState<ColorScheme>(defaultTheme);
   const initMockStore = useChromeStore((state) => state.init);
 
   useEffect(() => {
     initMockStore();
     setMeta(props);
-    const theme = (localStorage.getItem("theme") ||
-      defaultTheme) as ColorScheme;
-    setColorScheme(theme);
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem("theme", colorScheme);
-  }, [colorScheme]);
 
   if (!state.active) {
     return <DisabledPlaceholder />;
@@ -47,7 +38,7 @@ export const App = (props: useGlobalStoreState["meta"]) => {
       <Notifications id="notification-mocks" zIndex={9999999} />
       <Flex
         direction="column"
-        style={{ minWidth: 1000, height: "100%", overflow: "hidden" }}
+        style={{ minWidth: 900, height: "100%", overflow: "hidden" }}
       >
         <Header />
         <div style={{ overflow: "auto", flexGrow: 2 }}>

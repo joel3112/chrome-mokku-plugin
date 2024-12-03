@@ -23,7 +23,7 @@ export enum GroupStatusEnum {
   INACTIVE = "INACTIVE",
 }
 
-export enum GroupActionInFormEnum {
+export enum ActionInFormEnum {
   ADD = "ADD",
   UPDATE = "UPDATE",
   DUPLICATE = "DUPLICATE",

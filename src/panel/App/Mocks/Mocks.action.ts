@@ -85,7 +85,7 @@ export const useMockActions = () => {
   );
   const duplicateMock = useCallback(
     (mock: IMockResponse) => {
-      setSelectedMock({ ...mock, id: undefined });
+      setSelectedMock({ ...mock, id: undefined, createdOn: undefined });
     },
     [setSelectedMock]
   );

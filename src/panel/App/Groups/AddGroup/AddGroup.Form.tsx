@@ -1,5 +1,4 @@
 import {
-  Button,
   Card,
   createStyles,
   Flex,
@@ -7,23 +6,21 @@ import {
   Text,
   Textarea,
   TextInput,
-  Title,
 } from "@mantine/core";
 import { v4 as uuidv4 } from "uuid";
-import React, { useMemo } from "react";
-import { SideDrawerHeader } from "../../Blocks/SideDrawer";
+import React from "react";
 import {
-  GroupActionInFormEnum,
+  ActionInFormEnum,
   GroupStatusEnum,
   IMockGroup,
   IMockGroupRaw,
 } from "../../types";
 import { useForm } from "@mantine/form";
-import { MdClose } from "react-icons/md";
 import { storeActions } from "../../service/storeActions";
 import { useChromeStoreState } from "../../store/useMockStore";
 import { notifications } from "@mantine/notifications";
 import { useGlobalStore } from "../../store/useGlobalStore";
+import { getActionInForm } from "../../Blocks/Modal";
 
 const useStyles = createStyles((theme) => ({
   flexGrow: {
@@ -32,7 +29,8 @@ const useStyles = createStyles((theme) => ({
   card: {
     display: "flex",
     flexDirection: "column",
-    padding: "0 !important",
+    paddingBlock: 12,
+    paddingInline: 2,
     height: "100%",
     borderRadius: 0,
   },
@@ -41,10 +39,6 @@ const useStyles = createStyles((theme) => ({
     height: "100%",
     overflow: "auto",
     paddingTop: 0,
-  },
-  footer: {
-    padding: 12,
-    borderTop: `1px solid ${theme.colors.gray[2]}`,
   },
 }));
 
@@ -59,7 +53,7 @@ export const AddGroupForm = ({
   "store" | "selectedGroup" | "setSelectedGroup" | "setStoreProperties"
 > & { onClose: () => void }) => {
   const {
-    classes: { flexGrow, wrapper, footer, card },
+    classes: { flexGrow, wrapper, card },
   } = useStyles();
   const tab = useGlobalStore((state) => state.meta.tab);
 
@@ -72,33 +66,25 @@ export const AddGroupForm = ({
     },
   });
 
-  const groupAction = useMemo(() => {
-    if (!selectedGroup.createdOn && selectedGroup.name) {
-      return GroupActionInFormEnum.DUPLICATE;
-    }
-    if (!selectedGroup.createdOn) {
-      return GroupActionInFormEnum.ADD;
-    }
-    return GroupActionInFormEnum.UPDATE;
-  }, [selectedGroup]);
-  const isNewGroup = groupAction !== GroupActionInFormEnum.UPDATE;
+  const action = getActionInForm(selectedGroup);
+  const isNewGroup = action !== ActionInFormEnum.UPDATE;
 
   return (
     <form
       style={{ height: "100%" }}
       onSubmit={form.onSubmit((values) => {
         console.log("Submit group", values);
-        const originalId = selectedGroup.id;
-        const storeAction = {
-          [GroupActionInFormEnum.ADD]: storeActions.addGroups,
-          [GroupActionInFormEnum.UPDATE]: storeActions.updateGroups,
-          [GroupActionInFormEnum.DUPLICATE]: storeActions.duplicateGroup,
-        };
         if (!values.createdOn) {
           values.id = uuidv4();
         }
 
-        const updatedStore = storeAction[groupAction](
+        const originalId = selectedGroup.id;
+        const storeAction = {
+          [ActionInFormEnum.ADD]: storeActions.addGroups,
+          [ActionInFormEnum.UPDATE]: storeActions.updateGroups,
+          [ActionInFormEnum.DUPLICATE]: storeActions.duplicateGroup,
+        };
+        const updatedStore = storeAction[action](
           store,
           values as IMockGroup,
           originalId
@@ -130,11 +116,7 @@ export const AddGroupForm = ({
       })}
     >
       <>
-        <Card className={card}>
-          <SideDrawerHeader>
-            <Title order={6}>{isNewGroup ? "Add Group" : "Update Group"}</Title>
-            <MdClose style={{ cursor: "pointer" }} onClick={onClose} />
-          </SideDrawerHeader>
+        <Card className={card} p={0}>
           <Flex direction="column" gap={16} className={wrapper}>
             <Flex gap={12} align="center">
               <Flex direction="column">
@@ -176,16 +158,6 @@ export const AddGroupForm = ({
                 placeholder="Group case for goals mocks"
                 {...form.getInputProps("description")}
               />
-            </Flex>
-          </Flex>
-          <Flex className={footer} justify="flex-end">
-            <Flex justify="flex-end" gap={4}>
-              <Button color="red" compact onClick={onClose}>
-                Close
-              </Button>
-              <Button compact type="submit">
-                {isNewGroup ? "Add Group" : "Update Group"}
-              </Button>
             </Flex>
           </Flex>
         </Card>

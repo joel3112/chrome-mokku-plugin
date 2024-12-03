@@ -9,7 +9,7 @@ const useStyles = createStyles((theme) => ({
   },
   dragger: {
     flexShrink: 0,
-    width: 4,
+    width: 2,
     height: "100%",
     background: theme.colors.gray[5],
     cursor: "col-resize",
@@ -32,11 +32,13 @@ const useStyles = createStyles((theme) => ({
     height: 2,
   },
   header: {
-    borderBottom: `2px solid ${theme.colors.gray[3]}`,
-    paddingRight: 4,
-    paddingLeft: 8,
-    height: 36,
+    padding: "12px 12px 12px 16px",
+    height: 44,
     flexShrink: 0,
+    background:
+      theme.colorScheme === "dark"
+        ? theme.colors.dark[7]
+        : theme.colors.gray[0],
     width: "100%",
   },
 }));

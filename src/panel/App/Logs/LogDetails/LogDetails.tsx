@@ -1,20 +1,9 @@
 import React from "react";
 import { ILog } from "@mokku/types";
-import {
-  Button,
-  Card,
-  createStyles,
-  Flex,
-  Tabs,
-  Text,
-  Title,
-} from "@mantine/core";
+import { Card, createStyles, Flex, Tabs, Text } from "@mantine/core";
 import { LogDetailsJSON } from "./LogDetails.JSON";
-import { MdClose } from "react-icons/md";
 import { LogDetailsHeader } from "./LogDetails.Header";
-import { SideDrawer, SideDrawerHeader } from "../../Blocks/SideDrawer";
-import { getMockFromLog } from "../log.util";
-import { useChromeStore } from "../../store/useMockStore";
+import { SideDrawer } from "../../Blocks/SideDrawer";
 
 interface IProps {
   log: ILog;
@@ -61,22 +50,10 @@ const useStyles = createStyles((theme) => ({
 
 export const LogDetails = ({ log, onClose }: IProps) => {
   const { classes } = useStyles();
-  const setSelectedMock = useChromeStore((state) => state.setSelectedMock);
-  const addMock = () => {
-    setSelectedMock(getMockFromLog(log));
-  };
+
   return (
     <SideDrawer minWidth={480}>
       <Card className={classes.card}>
-        <SideDrawerHeader>
-          <Flex align="center" gap={4}>
-            <Title order={6}>Log Details</Title>
-            <Button compact variant="subtle" onClick={addMock}>
-              Mock
-            </Button>
-          </Flex>
-          <MdClose style={{ cursor: "pointer" }} onClick={onClose} />
-        </SideDrawerHeader>
         <Flex className={classes.urlWrapper}>
           <Text fz="sm" fw={500}>
             URL:

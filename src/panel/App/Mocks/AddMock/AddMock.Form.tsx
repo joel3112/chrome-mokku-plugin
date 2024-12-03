@@ -11,24 +11,23 @@ import {
   Text,
   Textarea,
   TextInput,
-  Title,
 } from "@mantine/core";
 import { v4 as uuidv4 } from "uuid";
-import React from "react";
-import { SideDrawerHeader } from "../../Blocks/SideDrawer";
+import React, { useEffect } from "react";
 import {
+  ActionInFormEnum,
   IMockResponse,
   IMockResponseRaw,
   MethodEnum,
   MockStatusEnum,
 } from "../../types";
 import { useForm } from "@mantine/form";
-import { MdClose, MdDeleteOutline } from "react-icons/md";
+import { MdDeleteOutline } from "react-icons/md";
 import { storeActions } from "../../service/storeActions";
 import { useChromeStoreState } from "../../store/useMockStore";
 import { notifications } from "@mantine/notifications";
 import { useGlobalStore } from "../../store/useGlobalStore";
-import { isJsonValid } from "./utils";
+import { FORM_ID, getActionInForm } from "../../Blocks/Modal";
 
 const useStyles = createStyles((theme) => ({
   flexGrow: {
@@ -37,7 +36,8 @@ const useStyles = createStyles((theme) => ({
   card: {
     display: "flex",
     flexDirection: "column",
-    padding: "0 !important",
+    paddingBlock: 12,
+    paddingInline: 2,
     height: "100%",
     borderRadius: 0,
   },
@@ -52,24 +52,26 @@ const useStyles = createStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
   },
-  footer: {
-    padding: 12,
-    borderTop: `1px solid ${theme.colors.gray[2]}`,
-  },
 }));
+
+type AddMockFormProps = Pick<
+  useChromeStoreState,
+  "store" | "selectedMock" | "setSelectedMock" | "setStoreProperties"
+> & {
+  onClose: () => void;
+  onFormChange?: (values: IMockResponseRaw) => void;
+};
 
 export const AddMockForm = ({
   store,
   selectedMock,
   setSelectedMock,
   setStoreProperties,
+  onFormChange,
   onClose,
-}: Pick<
-  useChromeStoreState,
-  "store" | "selectedMock" | "setSelectedMock" | "setStoreProperties"
-> & { onClose: () => void }) => {
+}: AddMockFormProps) => {
   const {
-    classes: { flexGrow, wrapper, tabs, footer, card },
+    classes: { flexGrow, wrapper, tabs, card },
   } = useStyles();
   const tab = useGlobalStore((state) => state.meta.tab);
 
@@ -87,20 +89,25 @@ export const AddMockForm = ({
       ...selectedMock,
     },
   });
-  const isNewMock = !selectedMock.id;
-  const response = form.values["response"];
-  const jsonValid = response ? isJsonValid(response) : true;
+
+  const action = getActionInForm(selectedMock);
+  const isNewMock = action !== ActionInFormEnum.UPDATE;
 
   const isGroupSelectedActive = store.groups.find(
     (group) => group.id === form.values.groupId
   )?.active;
 
+  useEffect(() => {
+    onFormChange?.(form.values);
+  }, [form.values]);
+
   return (
     <form
+      id={FORM_ID}
       style={{ height: "100%" }}
       onSubmit={form.onSubmit((values) => {
         console.log("Submit mock", values);
-        if (!values.id) {
+        if (!values.createdOn) {
           values.id = uuidv4();
         }
         try {
@@ -108,9 +115,17 @@ export const AddMockForm = ({
         } catch (e) {
           values.status = 200;
         }
-        const updatedStore = isNewMock
-          ? storeActions.addMocks(store, values as IMockResponse)
-          : storeActions.updateMocks(store, values as IMockResponse);
+
+        const storeAction = {
+          [ActionInFormEnum.ADD]: storeActions.addMocks,
+          [ActionInFormEnum.UPDATE]: storeActions.updateMocks,
+          [ActionInFormEnum.DUPLICATE]: storeActions.addMocks,
+        };
+        const updatedStore = storeAction[action](
+          store,
+          values as IMockResponse
+        );
+
         storeActions
           .updateStoreInDB(updatedStore)
           .then(setStoreProperties)
@@ -137,11 +152,7 @@ export const AddMockForm = ({
       })}
     >
       <>
-        <Card className={card}>
-          <SideDrawerHeader>
-            <Title order={6}>{isNewMock ? "Add Mock" : "Update Mock"}</Title>
-            <MdClose style={{ cursor: "pointer" }} onClick={onClose} />
-          </SideDrawerHeader>
+        <Card className={card} p={0}>
           <Flex direction="column" gap={16} className={wrapper}>
             <Flex gap={12} align="center">
               <Flex direction="column">
@@ -301,19 +312,6 @@ export const AddMockForm = ({
                   </Flex>
                 </Tabs.Panel>
               </Tabs>
-            </Flex>
-          </Flex>
-          <Flex className={footer} justify="space-between">
-            <Text color="red">
-              {jsonValid ? "" : "Response JSON not valid"}
-            </Text>
-            <Flex justify="flex-end" gap={4}>
-              <Button color="red" compact onClick={onClose}>
-                Close
-              </Button>
-              <Button compact type="submit" disabled={!jsonValid}>
-                {isNewMock ? "Add Mock" : "Update Mock"}
-              </Button>
             </Flex>
           </Flex>
         </Card>

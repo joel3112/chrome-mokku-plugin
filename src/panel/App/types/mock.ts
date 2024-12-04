@@ -1,4 +1,4 @@
-export type IMethod = "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
+// export type IMethod = "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
 
 export enum MethodEnum {
   GET = "GET",
@@ -34,7 +34,7 @@ export type Headers = Array<{ name: string; value: string }>;
 export interface ILog {
   request?: {
     url: string;
-    method: IMethod;
+    method: MethodEnum;
     body?: string;
     queryParams?: string;
     headers: Headers;

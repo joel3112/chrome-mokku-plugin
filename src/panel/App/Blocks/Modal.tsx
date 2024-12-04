@@ -8,6 +8,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { ActionInFormEnum, IMockGroup, IMockResponse } from "../types/mock";
 import { isJsonValid } from "../Mocks/AddMock/utils";
 import { getMockFromLog } from "../Logs/log.util";
+import { get } from "lodash";
 
 enum ModalType {
   Group = "GROUP",
@@ -16,9 +17,18 @@ enum ModalType {
 }
 
 const useStyles = createStyles((theme) => ({
+  content: {
+    display: "grid",
+    gridTemplateRows: "auto 1fr",
+    overflow: "hidden auto",
+    scrollBehavior: "smooth",
+  },
   header: {
-    padding: 12,
-    borderLeft: `2px solid ${theme.colors.gray[5]}`,
+    paddingBlock: 13,
+    paddingInline: 16,
+    borderBottom: `1px solid ${
+      theme.colorScheme === "dark" ? theme.colors.dark[4] : theme.colors.gray[4]
+    }`,
   },
   body: {
     display: "flex",
@@ -26,7 +36,9 @@ const useStyles = createStyles((theme) => ({
   footer: {
     background: "inherit",
     padding: 16,
-    borderLeft: `2px solid ${theme.colors.gray[5]}`,
+    borderTop: `1px solid ${
+      theme.colorScheme === "dark" ? theme.colors.dark[4] : theme.colors.gray[4]
+    }`,
     position: "sticky",
     bottom: 0,
     width: "100%",
@@ -46,6 +58,7 @@ export const getActionInForm = (selected: IMockGroup | IMockResponse) => {
 export const FORM_ID = "FORM_ID";
 
 export const Modal = () => {
+  const store = useChromeStore((state) => state.store);
   const selectedMock = useChromeStore((state) => state.selectedMock);
   const setSelectedMock = useChromeStore((state) => state.setSelectedMock);
   const selectedGroup = useChromeStore((state) => state.selectedGroup);
@@ -74,31 +87,29 @@ export const Modal = () => {
 
   useEffect(() => {
     if (selectedGroup) {
-      setSelectedMock();
-
       const isNewGroup =
         getActionInForm(selectedGroup) !== ActionInFormEnum.UPDATE;
       setTitle(isNewGroup ? "Add Group" : "Update Group");
-      selectedGroup && open();
+      open();
     }
     handleModalInstance(ModalType.Group, !!selectedGroup);
   }, [selectedGroup]);
 
   useEffect(() => {
     if (selectedMock) {
-      setSelectedGroup();
-
       const isNewMock =
         getActionInForm(selectedMock) !== ActionInFormEnum.UPDATE;
       setTitle(isNewMock ? "Add Mock" : "Update Mock");
-      selectedMock && open();
+      open();
     }
     handleModalInstance(ModalType.Mock, !!selectedMock);
   }, [selectedMock]);
 
   useEffect(() => {
-    selectedLog && open();
-    setTitle("Log Details");
+    if (selectedLog) {
+      setTitle("Log Details");
+      open();
+    }
     handleModalInstance(ModalType.Log, !!selectedLog);
   }, [selectedLog]);
 
@@ -159,13 +170,17 @@ export const Modal = () => {
     {
       onClick: () => {
         close();
+        setTitle("Add Mock");
         setTimeout(() => {
           setSelectedLog();
-          setTitle("Add Mock");
-          setSelectedMock(getMockFromLog(selectedLog));
+          if (selectedLog.isMocked) {
+            setSelectedMock(get(store, selectedLog.mockPath, {}));
+          } else {
+            setSelectedMock(getMockFromLog(selectedLog));
+          }
         }, 200);
       },
-      children: "Add Mock",
+      children: !selectedLog?.isMocked ? "Add Mock" : "Edit Mock",
       disabled: !jsonValid,
     },
   ];
@@ -179,8 +194,8 @@ export const Modal = () => {
       size="auto"
       autoFocus
     >
-      <Drawer.Overlay opacity={0.1} />
-      <Drawer.Content display="grid" style={{ gridTemplateRows: "auto 1fr" }}>
+      <Drawer.Overlay opacity={0.4} />
+      <Drawer.Content className={classes.content}>
         <Drawer.Header className={classes.header}>
           <Drawer.Title>{title}</Drawer.Title>
           <Drawer.CloseButton />

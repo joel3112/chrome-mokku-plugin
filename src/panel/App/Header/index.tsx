@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { shallow } from "zustand/shallow";
 import { Button, Flex, Input, Tabs } from "@mantine/core";
-import { MdAdd } from "react-icons/md";
 import { TbSearch } from "react-icons/tb";
 import {
   useChromeStore,
@@ -50,19 +49,17 @@ export const Header = () => {
               <Flex align="center" gap={0}>
                 <Button
                   onClick={() => setSelectedGroup({})}
-                  leftIcon={<MdAdd />}
                   size="xs"
                   variant="subtle"
                 >
-                  Add Group
+                  + Add Group
                 </Button>
                 <Button
                   onClick={() => setSelectedMock({})}
-                  leftIcon={<MdAdd />}
                   size="xs"
                   variant="subtle"
                 >
-                  Add Mock
+                  + Add Mock
                 </Button>
               </Flex>
 

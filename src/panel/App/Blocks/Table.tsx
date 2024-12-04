@@ -31,7 +31,7 @@ const useStyles = createStyles((theme) => ({
     } !important`,
   },
   rows: {
-    height: 54,
+    height: 50,
     "&:hover": {
       cursor: "pointer",
     },

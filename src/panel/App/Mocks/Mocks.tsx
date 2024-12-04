@@ -1,7 +1,6 @@
 import React from "react";
 import {
   ActionIcon,
-  Badge,
   Code,
   createStyles,
   Flex,
@@ -10,7 +9,7 @@ import {
   Text,
 } from "@mantine/core";
 import { TableSchema, TableWrapper } from "../Blocks/Table";
-import { IMockGroup, IMockResponse, MethodEnum, MockType } from "../types";
+import { IMockGroup, IMockResponse, MockType } from "../types";
 import { useChromeStore, useChromeStoreState, useGlobalStore } from "../store";
 import { shallow } from "zustand/shallow";
 import {
@@ -25,6 +24,7 @@ import { useMockActions } from "./Mocks.action";
 import { Placeholder } from "../Blocks/Placeholder";
 import { useGroupActions } from "../Groups/Group.action";
 import { storeActions } from "../service/storeActions";
+import { MethodTag, StatusTag } from "../Blocks/Tag";
 
 interface GetSchemeProps {
   toggleMock: (mock: IMockResponse) => void;
@@ -56,39 +56,6 @@ const useStyles = createStyles((theme) => ({
     fontSize: 13,
   },
 }));
-
-const MethodTag = ({ method }: Pick<IMockResponse, "method">) => {
-  const colorByMethod = {
-    [MethodEnum.GET]: "blue",
-    [MethodEnum.POST]: "green",
-    [MethodEnum.PUT]: "orange",
-    [MethodEnum.PATCH]: "yellow",
-    [MethodEnum.DELETE]: "red",
-  };
-
-  return (
-    <Badge color={colorByMethod[method]} variant="dot" radius="sm" size="sm">
-      {method}
-    </Badge>
-  );
-};
-
-const StatusTag = ({ status }: Pick<IMockResponse, "status">) => {
-  const initialNumber = Math.floor(status / 100).toString();
-  const colorByNumber = {
-    1: "blue",
-    2: "green",
-    3: "violet",
-    4: "yellow",
-    5: "red",
-  };
-
-  return (
-    <Badge color={colorByNumber[initialNumber]} radius="sm" size="sm">
-      {status}
-    </Badge>
-  );
-};
 
 const getSchema = ({
   isActiveGroupByMock,

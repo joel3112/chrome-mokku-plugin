@@ -11,7 +11,7 @@ const useStyles = createStyles((theme) => ({
     flexShrink: 0,
     width: 2,
     height: "100%",
-    background: theme.colors.gray[5],
+    background: "transparent",
     cursor: "col-resize",
     "&:hover": {
       background:

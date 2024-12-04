@@ -25,7 +25,7 @@ export const AddMock = ({ onClose, onFormChange }: AddMockProps) => {
   } = useChromeStore(useMockStoreSelector);
 
   return (
-    <SideDrawer minWidth={480}>
+    <SideDrawer minWidth={520}>
       <AddMockForm
         key={`${selectedMock.id}-${selectedMock.url}`}
         store={store}

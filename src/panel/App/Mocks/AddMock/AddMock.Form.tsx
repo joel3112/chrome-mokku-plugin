@@ -5,10 +5,9 @@ import {
   Flex,
   JsonInput,
   NumberInput,
-  SegmentedControl,
+  rem,
   Select,
   Tabs,
-  Text,
   Textarea,
   TextInput,
 } from "@mantine/core";
@@ -28,24 +27,32 @@ import { useChromeStoreState } from "../../store/useMockStore";
 import { notifications } from "@mantine/notifications";
 import { useGlobalStore } from "../../store/useGlobalStore";
 import { FORM_ID, getActionInForm } from "../../Blocks/Modal";
+import { statusOptions } from "./data";
+import { SegmentedControl } from "../../Blocks/SegmentedControl";
 
-const useStyles = createStyles((theme) => ({
+export const useStyles = createStyles((theme) => ({
   flexGrow: {
     flexGrow: 2,
   },
   card: {
     display: "flex",
     flexDirection: "column",
-    paddingBlock: 12,
-    paddingInline: 2,
+    background: "transparent",
     height: "100%",
     borderRadius: 0,
   },
   wrapper: {
-    padding: 12,
     height: "100%",
     overflow: "auto",
-    paddingTop: 0,
+    paddingBlock: 12,
+    paddingInline: 20,
+    "label:not([class*=SegmentedControl])": {
+      fontSize: rem(13),
+      marginBottom: 4,
+    },
+    textarea: {
+      overflowY: "clip",
+    },
   },
   tabs: {
     flexGrow: 2,
@@ -80,7 +87,7 @@ export const AddMockForm = ({
       headers: [],
       status: 200,
       delay: 500,
-      method: "GET",
+      method: MethodEnum.POST,
       active: true,
       groupId: "",
       name: "",
@@ -154,94 +161,79 @@ export const AddMockForm = ({
       <>
         <Card className={card} p={0}>
           <Flex direction="column" gap={16} className={wrapper}>
-            <Flex gap={12} align="center">
-              <Flex direction="column">
-                <Text fw={500} fz="sm">
-                  Status
-                </Text>
-                <SegmentedControl
-                  value={
-                    form.values.active
-                      ? MockStatusEnum.ACTIVE
-                      : MockStatusEnum.INACTIVE
-                  }
-                  onChange={(value) =>
-                    form.setFieldValue(
-                      "active",
-                      value === MockStatusEnum.ACTIVE
-                    )
-                  }
-                  size="xs"
-                  data={[
-                    { label: "Active", value: MockStatusEnum.ACTIVE },
-                    { label: "Inactive", value: MockStatusEnum.INACTIVE },
-                  ]}
-                />
-              </Flex>
+            <Flex gap={30} align="flex-end" justify="space-between">
               <TextInput
                 required
                 label="Name"
                 placeholder="Goals Success"
-                className={flexGrow}
                 data-autofocus
+                maw={340}
+                style={{ flex: 1 }}
                 {...form.getInputProps("name")}
               />
-            </Flex>
-            <Flex gap={12} align="flex-end">
-              <Select
-                label="Group"
-                placeholder="Select group"
-                data={store.groups.map((g) => ({ label: g.name, value: g.id }))}
-                allowDeselect
-                {...form.getInputProps("groupId")}
-              />
-              {!isGroupSelectedActive && form.values.groupId && (
-                <Text fw={400} fz="xs" mb={10}>
-                  ⚠️ Group is disabled
-                </Text>
-              )}
-            </Flex>
-            <Flex gap={12} align="center">
-              <Textarea
-                className={flexGrow}
-                label="Description"
-                placeholder="Success case for goals API"
-                {...form.getInputProps("description")}
-              />
-            </Flex>
-            <Flex gap={12} align="center">
-              <TextInput
-                className={flexGrow}
-                label="URL"
-                required
-                placeholder="https://api.awesomeapp.com/goals"
-                {...form.getInputProps("url")}
-              />
-            </Flex>
-            <Flex gap={12} align="center">
-              <Flex direction="column">
-                <Text>Method</Text>
-                <SegmentedControl
-                  value={form.values.method}
-                  onChange={(value) =>
-                    form.setFieldValue("method", value as MethodEnum)
-                  }
-                  size="xs"
-                  data={[
-                    { label: "GET", value: MethodEnum.GET },
-                    { label: "POST", value: MethodEnum.POST },
-                    { label: "PUT", value: MethodEnum.PUT },
-                    { label: "PATCH", value: MethodEnum.PATCH },
-                    { label: "DELETE", value: MethodEnum.DELETE },
-                  ]}
-                />
-              </Flex>
-              <TextInput
-                required
+              <SegmentedControl
                 label="Status"
-                type="number"
-                placeholder="200"
-                {...form.getInputProps("status")}
+                value={
+                  form.values.active
+                    ? MockStatusEnum.ACTIVE
+                    : MockStatusEnum.INACTIVE
+                }
+                onChange={(value) =>
+                  form.setFieldValue("active", value === MockStatusEnum.ACTIVE)
+                }
+                data={[
+                  { label: "Active", value: MockStatusEnum.ACTIVE },
+                  { label: "Inactive", value: MockStatusEnum.INACTIVE },
+                ]}
+              />
+            </Flex>
+            <Select
+              label="Group"
+              placeholder="Select group"
+              data={store.groups.map((g) => ({ label: g.name, value: g.id }))}
+              description={
+                !isGroupSelectedActive &&
+                form.values.groupId &&
+                "⚠️ Group is disabled"
+              }
+              inputWrapperOrder={["label", "input", "description"]}
+              allowDeselect
+              {...form.getInputProps("groupId")}
+            />
+            <Textarea
+              label="Description"
+              placeholder="Success case for goals API"
+              {...form.getInputProps("description")}
+            />
+            <TextInput
+              label="URL"
+              required
+              placeholder="https://api.awesomeapp.com/goals"
+              {...form.getInputProps("url")}
+            />
+            <Select
+              required
+              label="Status"
+              placeholder="Select status"
+              data={statusOptions}
+              allowDeselect
+              searchable
+              {...form.getInputProps("status")}
+            />
+            <Flex gap={30} align="flex-end" justify="space-between">
+              <SegmentedControl
+                label="Method"
+                value={form.values.method}
+                onChange={(value) =>
+                  form.setFieldValue("method", value as MethodEnum)
+                }
+                data={[
+                  { label: "GET", value: MethodEnum.GET },
+                  { label: "POST", value: MethodEnum.POST },
+                  { label: "PUT", value: MethodEnum.PUT },
+                  { label: "PATCH", value: MethodEnum.PATCH },
+                  { label: "DELETE", value: MethodEnum.DELETE },
+                ]}
               />
               <NumberInput
                 required

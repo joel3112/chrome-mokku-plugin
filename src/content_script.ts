@@ -68,7 +68,7 @@ const init = () => {
       const tempMock = get(store, tempPath, null);
       if (tempMock.active) {
         mock = tempMock;
-        path = path;
+        path = tempPath;
         return true;
       }
       return false;
@@ -83,6 +83,7 @@ const init = () => {
   messageService.listen("CONTENT", (data: IEventMessage) => {
     if (data.type === "LOG") {
       const message = data.message as ILog;
+
       const mockPaths = getMockPath(
         message.request.url,
         message.request.method

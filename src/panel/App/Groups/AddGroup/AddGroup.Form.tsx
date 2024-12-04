@@ -1,12 +1,4 @@
-import {
-  Card,
-  createStyles,
-  Flex,
-  SegmentedControl,
-  Text,
-  Textarea,
-  TextInput,
-} from "@mantine/core";
+import { Card, Flex, Textarea, TextInput } from "@mantine/core";
 import { v4 as uuidv4 } from "uuid";
 import React from "react";
 import {
@@ -21,26 +13,8 @@ import { useChromeStoreState } from "../../store/useMockStore";
 import { notifications } from "@mantine/notifications";
 import { useGlobalStore } from "../../store/useGlobalStore";
 import { getActionInForm } from "../../Blocks/Modal";
-
-const useStyles = createStyles((theme) => ({
-  flexGrow: {
-    flexGrow: 2,
-  },
-  card: {
-    display: "flex",
-    flexDirection: "column",
-    paddingBlock: 12,
-    paddingInline: 2,
-    height: "100%",
-    borderRadius: 0,
-  },
-  wrapper: {
-    padding: 12,
-    height: "100%",
-    overflow: "auto",
-    paddingTop: 0,
-  },
-}));
+import { useStyles } from "../../Mocks/AddMock/AddMock.Form";
+import { SegmentedControl } from "../../Blocks/SegmentedControl";
 
 export const AddGroupForm = ({
   store,
@@ -53,7 +27,7 @@ export const AddGroupForm = ({
   "store" | "selectedGroup" | "setSelectedGroup" | "setStoreProperties"
 > & { onClose: () => void }) => {
   const {
-    classes: { flexGrow, wrapper, card },
+    classes: { wrapper, card },
   } = useStyles();
   const tab = useGlobalStore((state) => state.meta.tab);
 
@@ -118,47 +92,37 @@ export const AddGroupForm = ({
       <>
         <Card className={card} p={0}>
           <Flex direction="column" gap={16} className={wrapper}>
-            <Flex gap={12} align="center">
-              <Flex direction="column">
-                <Text fw={500} fz="sm">
-                  Status
-                </Text>
-                <SegmentedControl
-                  value={
-                    form.values.active
-                      ? GroupStatusEnum.ACTIVE
-                      : GroupStatusEnum.INACTIVE
-                  }
-                  onChange={(value) =>
-                    form.setFieldValue(
-                      "active",
-                      value === GroupStatusEnum.ACTIVE
-                    )
-                  }
-                  size="xs"
-                  data={[
-                    { label: "Active", value: GroupStatusEnum.ACTIVE },
-                    { label: "Inactive", value: GroupStatusEnum.INACTIVE },
-                  ]}
-                />
-              </Flex>
+            <Flex gap={30} align="flex-end" justify="space-between">
               <TextInput
                 required
                 label="Name"
                 placeholder="Goals group"
-                className={flexGrow}
                 data-autofocus
+                maw={340}
+                style={{ flex: 1 }}
                 {...form.getInputProps("name")}
               />
-            </Flex>
-            <Flex gap={12} align="center">
-              <Textarea
-                className={flexGrow}
-                label="Description"
-                placeholder="Group case for goals mocks"
-                {...form.getInputProps("description")}
+              <SegmentedControl
+                label="Status"
+                value={
+                  form.values.active
+                    ? GroupStatusEnum.ACTIVE
+                    : GroupStatusEnum.INACTIVE
+                }
+                onChange={(value) =>
+                  form.setFieldValue("active", value === GroupStatusEnum.ACTIVE)
+                }
+                data={[
+                  { label: "Active", value: GroupStatusEnum.ACTIVE },
+                  { label: "Inactive", value: GroupStatusEnum.INACTIVE },
+                ]}
               />
             </Flex>
+            <Textarea
+              label="Description"
+              placeholder="Group case for goals mocks"
+              {...form.getInputProps("description")}
+            />
           </Flex>
         </Card>
       </>

@@ -21,15 +21,6 @@ const useLogStoreSelector = (state: useLogStoreState) => ({
   selectedLog: state.selectedLog,
 });
 
-// const getRowColor = (data) => {
-//   const status = data.response?.status;
-//   if (status !== undefined) {
-//     if ((status >= 500 && status < 600) || status === 0) {
-//       return "red";
-//     }
-//   }
-// };
-
 export const Logs = () => {
   const {
     colors: { blue },
@@ -68,17 +59,10 @@ export const Logs = () => {
         ),
       width: 40,
     },
-    // {
-    //   header: "Method",
-    //   content: (data) => (
-    //     <Text color={getRowColor(data)}>{data.request?.method}</Text>
-    //   ),
-    // },
     {
       header: "URL",
       content: (data) =>
         data.request && data.response ? (
-          // <Text color={getRowColor(data)}>{data.request?.url}</Text>
           <Flex gap={8} align="center">
             <MethodTag method={data.request.method} />
             <StatusTag status={data.response.status} />
@@ -88,12 +72,6 @@ export const Logs = () => {
           <></>
         ),
     },
-    // {
-    //   header: "Status",
-    //   content: (data) => (
-    //     <Text color={getRowColor(data)}>{data.response?.status}</Text>
-    //   ),
-    // },
     {
       header: "Action",
       content: (data) => (
@@ -124,14 +102,14 @@ export const Logs = () => {
     },
   ];
 
-  // if (logs.length === 0) {
-  //   return (
-  //     <Placeholder
-  //       title="No Network calls yet!"
-  //       description="There is no network call yet, all xhr network calls will appear here."
-  //     />
-  //   );
-  // }
+  if (logs.length === 0) {
+    return (
+      <Placeholder
+        title="No Network calls yet!"
+        description="There is no network call yet, all xhr network calls will appear here."
+      />
+    );
+  }
 
   if (filteredLogs.length === 0) {
     return (

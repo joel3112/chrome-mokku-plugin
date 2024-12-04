@@ -3,7 +3,8 @@ import { createStyles, rem, Table } from "@mantine/core";
 import { MockType } from "../types/mock";
 
 export type TableSchema<T> = Array<{
-  header: string;
+  header: React.ReactNode;
+  style?: React.CSSProperties;
   content: (data: T) => React.ReactNode;
   minWidth?: number;
   maxWidth?: number;
@@ -73,9 +74,9 @@ export const TableWrapper = <
 
   const ths = (
     <tr>
-      {schema.map(({ header, minWidth, maxWidth, width }, index) => (
+      {schema.map(({ header, minWidth, maxWidth, width, style }, index) => (
         <th
-          style={{ minWidth, maxWidth, width }}
+          style={{ minWidth, maxWidth, width, ...style }}
           key={index}
           className={classes.th}
         >

@@ -148,33 +148,20 @@ const getSchema = ({
     {
       header: "URL",
       content: (data) =>
-        data.type !== MockType.GROUP ? (
-          <Flex gap={8} align="center">
-            <MethodTag method={data.method} />
-            <StatusTag status={data.status} />
-            <Code fz={11}>{data.url}</Code>
-          </Flex>
-        ) : (
-          ""
-        ),
+        data.type !== MockType.GROUP ? <Code fz={11}>{data.url}</Code> : "",
       minWidth: 130,
     },
-    // {
-    //   header: "Status",
-    //   content: (data) =>
-    //     data.type !== MockType.GROUP ? <StatusTag status={data.status} /> : "",
-    //   width: 60,
-    // },
-    // {
-    //   header: "Delay",
-    //   content: (data) =>
-    //     data.type !== MockType.GROUP ? (
-    //       <Description>{data.delay}</Description>
-    //     ) : (
-    //       ""
-    //     ),
-    //   width: 80,
-    // },
+    {
+      header: <Flex justify="end">Status</Flex>,
+      content: (data) =>
+        data.type !== MockType.GROUP && (
+          <Flex gap={8} justify="end">
+            <MethodTag method={data.method} />
+            <StatusTag status={data.status} />
+          </Flex>
+        ),
+      width: 30,
+    },
     {
       header: "",
       content: (data) => (

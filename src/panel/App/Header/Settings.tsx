@@ -125,7 +125,6 @@ export const Settings = ({
       ),
       labels: { confirm: "Clear", cancel: "No don't clear it" },
       confirmProps: { color: "red" },
-      onCancel: onClose,
       onConfirm: () => {
         onClose();
         storeActions.resetStoreInDB().then(setStoreProperties);

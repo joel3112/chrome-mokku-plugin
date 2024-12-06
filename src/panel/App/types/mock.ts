@@ -122,7 +122,6 @@ export interface IURLMap {
 
 export interface IDynamicURLMap {
   [urlLength: number]: Array<{
-    match: (s: string) => boolean;
     method: string;
     getterKey: string;
     url: string;

@@ -160,13 +160,14 @@ const getSchema = ({
           (mock) => mock.active
         ).length;
         return (
-          <Flex align="baseline" gap={8}>
+          <Flex align="baseline" justify="space-between" gap={8}>
             <Name active={data.active}>{data.name}</Name>
             <Text
+              mr={12}
               opacity={0.7}
               c="dimmed"
               size="xs"
-            >{`(${activeMocksInGroup}/${totalMocksInGroup})`}</Text>
+            >{`${activeMocksInGroup}/${totalMocksInGroup}`}</Text>
           </Flex>
         );
       },

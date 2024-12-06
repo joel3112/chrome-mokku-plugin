@@ -12,7 +12,7 @@ import { storeActions } from "../../service/storeActions";
 import { useChromeStoreState } from "../../store/useMockStore";
 import { notifications } from "@mantine/notifications";
 import { useGlobalStore } from "../../store/useGlobalStore";
-import { getActionInForm } from "../../Blocks/Modal";
+import { FORM_ID, getActionInForm } from "../../Blocks/Modal";
 import { useStyles } from "../../Mocks/AddMock/AddMock.Form";
 import { SegmentedControl } from "../../Blocks/SegmentedControl";
 
@@ -45,7 +45,7 @@ export const AddGroupForm = ({
 
   return (
     <form
-      style={{ height: "100%" }}
+      id={FORM_ID}
       onSubmit={form.onSubmit((values) => {
         console.log("Submit group", values);
         if (!values.createdOn) {

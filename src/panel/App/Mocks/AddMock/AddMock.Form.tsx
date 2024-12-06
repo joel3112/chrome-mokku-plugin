@@ -112,7 +112,6 @@ export const AddMockForm = ({
   return (
     <form
       id={FORM_ID}
-      style={{ height: "100%" }}
       onSubmit={form.onSubmit((values) => {
         console.log("Submit mock", values);
         if (!values.createdOn) {

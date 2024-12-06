@@ -1,5 +1,5 @@
 import { get } from "lodash";
-
+import { wildcardPattern } from "wildcard-regex";
 import inject from "./contentScript/injectToDom";
 import { IEventMessage } from "./interface/message";
 import { IDynamicURLMap, ILog } from "./interface/mock";
@@ -31,8 +31,12 @@ const init = () => {
       while (i < key) {
         if (dynamicUrlMap[i]) {
           dynamicUrlMap[i].forEach((s) => {
-            if (s.method === method && !!s.match(url1)) {
-              stack.push(s.getterKey);
+            if (s.method === method) {
+              const regex = wildcardPattern(s.url);
+              const match = new RegExp(regex).test(url1);
+              if (match) {
+                stack.push(s.getterKey);
+              }
             }
           });
         }

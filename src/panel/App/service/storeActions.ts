@@ -1,4 +1,3 @@
-import { wildcardPattern } from "wildcard-regex";
 import {
   IDynamicURLMap,
   IMockGroup,
@@ -83,14 +82,12 @@ export const getURLMapWithStore = (store: IStore) => {
   store.mocks.forEach((mock, index) => {
     if (mock.dynamic) {
       const url = mock.url.replace("://", "-");
-      const key = url.split("/").length;
+      const key = url.replace("*", "").split("/").filter(Boolean).length;
 
-      const regex = wildcardPattern(mock.url);
       const matcher: IDynamicURLMap[number][0] = {
         getterKey: `mocks[${index}]`,
         method: mock.method,
         url: url,
-        match: (s: string) => new RegExp(regex).test(s),
       };
       if (dynamicUrlMap[key]) {
         dynamicUrlMap[key].push(matcher);

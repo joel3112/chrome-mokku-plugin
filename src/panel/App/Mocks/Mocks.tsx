@@ -62,7 +62,7 @@ const useStyles = createStyles((theme) => ({
 }));
 
 const Name = ({ children, active }: { children: string; active: boolean }) => (
-  <Text c={active ? "" : "dimmed"} opacity={active ? 1 : 0.7}>
+  <Text c={active ? "" : "dimmed"} opacity={active ? 1 : 0.7} truncate>
     {children}
   </Text>
 );
@@ -102,7 +102,6 @@ const getSchema = ({
       header: "Name",
       content: (data) => {
         if (data.type !== MockType.GROUP) {
-          console.log("getMockScenarios", data.url, getMockScenarios(data));
           const scenarioOptions = getMockScenarios(data).map((scenario) => ({
             label: scenario.name,
             value: scenario.id,
@@ -136,14 +135,15 @@ const getSchema = ({
                 variant="unstyled"
                 defaultValue={data.id}
                 data={scenarioOptions}
-                styles={(theme) =>
-                  !data.active && {
-                    input: {
+                styles={(theme) => ({
+                  input: {
+                    ...(!data.active && {
                       color: `${theme.colors.dark[2]}`,
                       opacity: 0.7,
-                    },
-                  }
-                }
+                    }),
+                    textOverflow: "ellipsis",
+                  },
+                })}
                 itemComponent={SelectItem}
                 onChange={(value) => {
                   selectMockScenario(
@@ -172,6 +172,7 @@ const getSchema = ({
         );
       },
       width: 300,
+      maxWidth: 300,
     },
     {
       header: "",

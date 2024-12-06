@@ -107,8 +107,10 @@ export const TableWrapper = <
           rowMockHasGroup ? classes.groupRow : ""
         } ${classes.rows}`}
       >
-        {schema.map(({ content }, index) => (
-          <td key={index}>{content(row)}</td>
+        {schema.map(({ content, maxWidth, style }, index) => (
+          <td key={index} style={{ maxWidth, ...style }}>
+            {content(row)}
+          </td>
         ))}
       </tr>
     );

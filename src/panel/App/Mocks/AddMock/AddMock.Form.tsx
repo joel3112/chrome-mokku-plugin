@@ -87,7 +87,7 @@ export const AddMockForm = ({
       headers: [],
       status: 200,
       delay: 500,
-      method: MethodEnum.POST,
+      method: MethodEnum.GET,
       active: true,
       groupId: "",
       name: "",
@@ -99,6 +99,7 @@ export const AddMockForm = ({
 
   const action = getActionInForm(selectedMock);
   const isNewMock = action !== ActionInFormEnum.UPDATE;
+  const isDuplicateMock = action === ActionInFormEnum.DUPLICATE;
 
   const isGroupSelectedActive = store.groups.find(
     (group) => group.id === form.values.groupId
@@ -128,10 +129,10 @@ export const AddMockForm = ({
           [ActionInFormEnum.UPDATE]: storeActions.updateMocks,
           [ActionInFormEnum.DUPLICATE]: storeActions.addMocks,
         };
-        const updatedStore = storeAction[action](
-          store,
-          values as IMockResponse
-        );
+        const updatedStore = storeAction[action](store, {
+          ...values,
+          groupId: values.groupId || "",
+        } as IMockResponse);
 
         storeActions
           .updateStoreInDB(updatedStore)
@@ -198,6 +199,7 @@ export const AddMockForm = ({
               }
               inputWrapperOrder={["label", "input", "description"]}
               allowDeselect
+              disabled={isDuplicateMock}
               {...form.getInputProps("groupId")}
             />
             <Textarea
@@ -209,6 +211,7 @@ export const AddMockForm = ({
               label="URL"
               required
               placeholder="https://api.awesomeapp.com/goals"
+              disabled={isDuplicateMock}
               {...form.getInputProps("url")}
             />
             <Select
@@ -216,7 +219,6 @@ export const AddMockForm = ({
               label="Status"
               placeholder="Select status"
               data={statusOptions}
-              allowDeselect
               searchable
               {...form.getInputProps("status")}
             />
@@ -234,6 +236,7 @@ export const AddMockForm = ({
                   { label: "PATCH", value: MethodEnum.PATCH },
                   { label: "DELETE", value: MethodEnum.DELETE },
                 ]}
+                disabled={isDuplicateMock}
               />
               <NumberInput
                 required

@@ -128,6 +128,21 @@ export const getMocksByGroup = (store: IStore, groupId: string) => {
   return store.mocks.filter((mock) => mock.groupId === groupId);
 };
 
+export const getMockScenarios = (store: IStore, mock: IMockResponse) => {
+  const scenarios = store.mocks.filter(
+    (m) =>
+      m.groupId === mock.groupId &&
+      m.method === mock.method &&
+      m.url === mock.url
+  );
+
+  return scenarios;
+};
+
+export const hasMultipleScenarios = (store: IStore, mock: IMockResponse) => {
+  return getMockScenarios(store, mock).length > 1;
+};
+
 export const isActiveGroupByMock = (store: IStore, mock: IMockResponse) => {
   return store.groups.find((group) => group.id === mock.groupId)?.active;
 };
@@ -348,6 +363,8 @@ export const refreshContentStore = (tabId?: number) => {
 };
 
 export const storeActions = {
+  getMockScenarios,
+  hasMultipleScenarios,
   getMocksByGroup,
   isActiveGroupByMock,
   deleteGroups,

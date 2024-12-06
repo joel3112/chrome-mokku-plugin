@@ -78,6 +78,7 @@ export interface IMockResponse {
   groupId?: string;
   dynamic?: boolean;
   active: boolean;
+  selected: boolean;
   description: string;
   action?: (req: {
     body: Record<string, any>;

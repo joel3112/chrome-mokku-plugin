@@ -17,9 +17,10 @@ const init = () => {
   const getMockPath = (url: string, method: string) => {
     try {
       // this will moved to store.ts
+      const stack = [];
       if (urlMap[url]) {
         if (urlMap[url][method]) {
-          return urlMap[url][method];
+          stack.push(...urlMap[url][method]);
         }
       }
 
@@ -27,11 +28,13 @@ const init = () => {
       const key = url1.split("/").length;
 
       let i = 0;
-      const stack = [];
       while (i < key) {
-        const s = dynamicUrlMap[i]?.[0];
-        if (s && s.method === method && !!s.match(url1)) {
-          stack.push(s.getterKey);
+        if (dynamicUrlMap[i]) {
+          dynamicUrlMap[i].forEach((s) => {
+            if (s.method === method && !!s.match(url1)) {
+              stack.push(s.getterKey);
+            }
+          });
         }
         i++;
       }
@@ -61,12 +64,20 @@ const init = () => {
     return enabled;
   };
 
+  const isActiveSelectedMock = (mock) => {
+    const hasEscenarios = storeActions.hasMultipleScenarios(store, mock);
+    if (hasEscenarios) {
+      return mock.selected && mock.active;
+    }
+    return mock.active;
+  };
+
   const getActiveMockWithPath = (paths: string[]) => {
     let mock = null;
     let path = null;
     paths.some((tempPath) => {
       const tempMock = get(store, tempPath, null);
-      if (tempMock.active) {
+      if (isActiveSelectedMock(tempMock)) {
         mock = tempMock;
         path = tempPath;
         return true;

@@ -26,6 +26,13 @@ export const useMockActions = () => {
     [store.mocks]
   );
 
+  const getMockScenarios = useCallback(
+    (mock: IMockResponse) => {
+      return storeActions.getMockScenarios(store, mock);
+    },
+    [store.mocks]
+  );
+
   const isActiveGroupByMock = useCallback(
     (mock: IMockResponse) => {
       return storeActions.isActiveGroupByMock(store, mock);
@@ -85,7 +92,14 @@ export const useMockActions = () => {
   );
   const duplicateMock = useCallback(
     (mock: IMockResponse) => {
-      setSelectedMock({ ...mock, id: undefined, createdOn: undefined });
+      setSelectedMock({
+        ...mock,
+        name: "",
+        description: "",
+        id: undefined,
+        createdOn: undefined,
+        selected: false,
+      });
     },
     [setSelectedMock]
   );
@@ -97,8 +111,24 @@ export const useMockActions = () => {
     [setSelectedMock]
   );
 
+  const selectMockScenario = useCallback(
+    (mock: IMockResponse) => {
+      const scenarios = getMockScenarios(mock);
+      const mocksUpdated = scenarios.map((m) => ({
+        ...m,
+        selected: m.id === mock.id,
+      }));
+
+      const updatedStore = storeActions.updateMocks(store, mocksUpdated);
+      storeActions.updateStoreInDB(updatedStore).then(setStoreProperties);
+    },
+    [store, setStoreProperties]
+  );
+
   return {
     getMocksByGroup,
+    getMockScenarios,
+    selectMockScenario,
     isActiveGroupByMock,
     toggleMock,
     deleteMock,

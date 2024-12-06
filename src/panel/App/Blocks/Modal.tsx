@@ -5,7 +5,12 @@ import { AddMock } from "../Mocks/AddMock/AddMock";
 import { LogDetails } from "../Logs/LogDetails/LogDetails";
 import { Button, createStyles, Drawer, Flex } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { ActionInFormEnum, IMockGroup, IMockResponse } from "../types/mock";
+import {
+  ActionInFormEnum,
+  IMockGroup,
+  IMockResponse,
+  MockType,
+} from "../types/mock";
 import { isJsonValid } from "../Mocks/AddMock/utils";
 import { getMockFromLog } from "../Logs/log.util";
 import { get } from "lodash";
@@ -47,8 +52,10 @@ const useStyles = createStyles((theme) => ({
 }));
 
 export const getActionInForm = (selected: IMockGroup | IMockResponse) => {
-  if (!selected.createdOn && selected.name) {
-    return ActionInFormEnum.DUPLICATE;
+  if (selected.type === MockType.MOCK) {
+    if (!selected.createdOn && selected.url) {
+      return ActionInFormEnum.DUPLICATE;
+    }
   }
   if (!selected.createdOn) {
     return ActionInFormEnum.ADD;

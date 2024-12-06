@@ -18,7 +18,12 @@ export const MethodTag = ({ method }: Pick<IMockResponse, "method">) => {
   );
 };
 
-export const StatusTag = ({ status }: Pick<IMockResponse, "status">) => {
+export const StatusTag = ({
+  status,
+  onClick,
+}: Pick<IMockResponse, "status"> & {
+  onClick?: () => void;
+}) => {
   const initialNumber = Math.floor(status / 100).toString();
   const colorByNumber = {
     1: "blue",
@@ -29,7 +34,12 @@ export const StatusTag = ({ status }: Pick<IMockResponse, "status">) => {
   };
 
   return (
-    <Badge color={colorByNumber[initialNumber]} radius="sm" size="sm">
+    <Badge
+      color={colorByNumber[initialNumber]}
+      radius="sm"
+      size="sm"
+      onClick={onClick}
+    >
       {status}
     </Badge>
   );

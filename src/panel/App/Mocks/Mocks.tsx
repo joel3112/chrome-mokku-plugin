@@ -1,10 +1,11 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import {
   ActionIcon,
   Code,
   createStyles,
   Flex,
   Menu,
+  Select,
   Switch,
   Text,
 } from "@mantine/core";
@@ -25,6 +26,7 @@ import { Placeholder } from "../Blocks/Placeholder";
 import { useGroupActions } from "../Groups/Group.action";
 import { storeActions } from "../service/storeActions";
 import { MethodTag, StatusTag } from "../Blocks/Tag";
+import { uniqueItemsByKeys } from "../utils/uniqueItemsByKeys";
 
 interface GetSchemeProps {
   toggleMock: (mock: IMockResponse) => void;
@@ -33,6 +35,8 @@ interface GetSchemeProps {
   duplicateMock: (mock: IMockResponse) => void;
   isActiveGroupByMock: (mock: IMockResponse) => boolean;
   getMocksByGroup: (groupId: string) => IMockResponse[];
+  getMockScenarios: (mock: IMockResponse) => IMockResponse[];
+  selectMockScenario: (mock: IMockResponse) => void;
   toggleGroup: (group: IMockGroup) => void;
   deleteGroup: (group: IMockGroup) => void;
   editGroup: (group: IMockGroup) => void;
@@ -57,9 +61,17 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
+const Name = ({ children, active }: { children: string; active: boolean }) => (
+  <Text c={active ? "" : "dimmed"} opacity={active ? 1 : 0.7}>
+    {children}
+  </Text>
+);
+
 const getSchema = ({
   isActiveGroupByMock,
   getMocksByGroup,
+  getMockScenarios,
+  selectMockScenario,
   toggleMock,
   deleteMock,
   duplicateMock,
@@ -90,17 +102,66 @@ const getSchema = ({
       header: "Name",
       content: (data) => {
         if (data.type !== MockType.GROUP) {
-          return data.name;
+          console.log("getMockScenarios", data.url, getMockScenarios(data));
+          const scenarioOptions = getMockScenarios(data).map((scenario) => ({
+            label: scenario.name,
+            value: scenario.id,
+            active: scenario.active,
+            status: scenario.status,
+          }));
+
+          if (scenarioOptions.length === 1) {
+            return <Name active={data.active}>{data.name}</Name>;
+          }
+
+          const SelectItem = forwardRef<
+            HTMLDivElement,
+            {
+              label: string;
+              status: number;
+              active: boolean;
+            }
+          >(({ label, status, active, ...others }, ref) => (
+            <div ref={ref} {...others}>
+              <Flex align="center" gap={8}>
+                <StatusTag status={status} />
+                <Name active={active}>{label}</Name>
+              </Flex>
+            </div>
+          ));
+
+          return (
+            <div onClick={(event) => event.stopPropagation()}>
+              <Select
+                variant="unstyled"
+                defaultValue={data.id}
+                data={scenarioOptions}
+                styles={(theme) =>
+                  !data.active && {
+                    input: {
+                      color: `${theme.colors.dark[2]}`,
+                      opacity: 0.7,
+                    },
+                  }
+                }
+                itemComponent={SelectItem}
+                onChange={(value) => {
+                  selectMockScenario(
+                    getMockScenarios(data).find((m) => m.id === value)
+                  );
+                }}
+              />
+            </div>
+          );
         }
 
-        // return `${data.name} (${getMocksByGroup(data.id).length})`;
         const totalMocksInGroup = getMocksByGroup(data.id).length;
         const activeMocksInGroup = getMocksByGroup(data.id).filter(
           (mock) => mock.active
         ).length;
         return (
-          <Flex align="center" gap={8}>
-            {data.name}
+          <Flex align="baseline" gap={8}>
+            <Name active={data.active}>{data.name}</Name>
             <Text
               opacity={0.7}
               c="dimmed"
@@ -166,7 +227,7 @@ const getSchema = ({
       header: "",
       content: (data) => (
         <div onClick={(event) => event.stopPropagation()}>
-          <Menu position="bottom-end" offset={-14}>
+          <Menu position="bottom-end" offset={-8}>
             <Menu.Target>
               <ActionIcon
                 variant="transparent"
@@ -191,17 +252,15 @@ const getSchema = ({
               >
                 Edit
               </Menu.Item>
-              <Menu.Item
-                className={classes.menuOptionBlue}
-                icon={<MdOutlineContentCopy />}
-                onClick={() =>
-                  data.type === MockType.GROUP
-                    ? duplicateGroup(data)
-                    : duplicateMock(data)
-                }
-              >
-                Duplicate
-              </Menu.Item>
+              {data.type === MockType.MOCK && (
+                <Menu.Item
+                  className={classes.menuOptionBlue}
+                  icon={<MdOutlineContentCopy />}
+                  onClick={() => duplicateMock(data)}
+                >
+                  Duplicate
+                </Menu.Item>
+              )}
               <Menu.Item
                 className={classes.menuOptionRed}
                 icon={<MdDeleteOutline />}
@@ -245,6 +304,8 @@ export const Mocks = () => {
   const {
     isActiveGroupByMock,
     getMocksByGroup,
+    getMockScenarios,
+    selectMockScenario,
     deleteMock,
     duplicateMock,
     toggleMock,
@@ -260,6 +321,8 @@ export const Mocks = () => {
   const schema = getSchema({
     isActiveGroupByMock,
     getMocksByGroup,
+    getMockScenarios,
+    selectMockScenario,
     toggleMock,
     deleteMock,
     duplicateMock,
@@ -283,7 +346,7 @@ export const Mocks = () => {
         (mock?.method || "").toLowerCase().includes(search) ||
         (mock?.status || "").toString().includes(search)
     ),
-  ].sort((a, b) => a.name.localeCompare(b.name));
+  ];
 
   console.log("filteredMocks", filteredMocks);
 
@@ -302,9 +365,15 @@ export const Mocks = () => {
       }
     });
 
+    const uniqueMocks = uniqueItemsByKeys(
+      mocks,
+      ["url", "method", "groupId"],
+      "selected"
+    );
+
     // Map group IDs to their respective mocks
     const groupedMocks = {};
-    mocks.forEach((mock) => {
+    uniqueMocks.forEach((mock) => {
       if (mock.groupId) {
         if (!groupedMocks[mock.groupId]) {
           groupedMocks[mock.groupId] = [];
@@ -315,17 +384,23 @@ export const Mocks = () => {
 
     // Reconstruct the ordered array
     const result = [];
-    items.forEach((item) => {
-      if (item.type === "group") {
-        result.push(item);
-        // Add mocks associated with this group
-        if (groupedMocks[item.id]) {
-          result.push(...groupedMocks[item.id]);
+    [...groups, ...uniqueMocks]
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .forEach((item) => {
+        if (item.type === "group") {
+          result.push(item);
+          // Add mocks associated with this group
+          if (groupedMocks[item.id]) {
+            result.push(
+              ...groupedMocks[item.id].sort((a, b) =>
+                a.name.localeCompare(b.name)
+              )
+            );
+          }
+        } else if (item.type === "mock" && !item.groupId) {
+          result.push(item);
         }
-      } else if (item.type === "mock" && !item.groupId) {
-        result.push(item);
-      }
-    });
+      });
 
     return result;
   }

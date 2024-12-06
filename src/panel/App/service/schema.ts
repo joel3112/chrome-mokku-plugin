@@ -18,7 +18,7 @@ export const StoreSchema = z.object({
   mocks: z.array(
     z.object({
       type: z.literal("mock"),
-      method: z.enum(["GET", "POST", "PUT", "DELETE"]),
+      method: z.enum(["GET", "POST", "PUT", "PATCH", "DELETE"]),
       createdOn: z.number(),
       url: z.string(),
       status: z.number(),
@@ -32,6 +32,7 @@ export const StoreSchema = z.object({
       groupId: z.string().optional(),
       dynamic: z.boolean().optional(),
       active: z.boolean(),
+      selected: z.boolean().optional(),
       description: z.string(),
       action: z
         .function()

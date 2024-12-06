@@ -58,15 +58,8 @@ const init = () => {
     });
   };
 
-  const isEnabledActiveMock = (mock) => {
-    let enabled = false;
-    if (mock.groupId) {
-      enabled = storeActions.isActiveGroupByMock(store, mock);
-    } else {
-      enabled = true;
-    }
-    return enabled;
-  };
+  const hasGroupActive = (mock) =>
+    storeActions.isActiveGroupByMock(store, mock);
 
   const isActiveSelectedMock = (mock) => {
     const hasEscenarios = storeActions.hasMultipleScenarios(store, mock);
@@ -105,7 +98,7 @@ const init = () => {
       );
       const { mock, path } = getActiveMockWithPath(mockPaths);
 
-      if (mock && isEnabledActiveMock(mock)) {
+      if (mock && hasGroupActive(mock)) {
         message.isMocked = mock.active;
         message.mockPath = path;
       }
@@ -136,7 +129,7 @@ const init = () => {
     const mockPaths = getMockPath(request.url, request.method);
     const { mock } = getActiveMockWithPath(mockPaths);
 
-    if (mock && isEnabledActiveMock(mock)) {
+    if (mock && hasGroupActive(mock)) {
       (response.message as ILog).mockResponse = mock;
     }
 

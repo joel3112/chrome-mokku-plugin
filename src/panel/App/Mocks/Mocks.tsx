@@ -4,6 +4,7 @@ import {
   Code,
   createStyles,
   Flex,
+  LoadingOverlay,
   Menu,
   Select,
   Switch,
@@ -102,15 +103,18 @@ const getSchema = ({
       header: "Name",
       content: (data) => {
         if (data.type !== MockType.GROUP) {
+          const mustMockActive = (mock: IMockResponse) =>
+            mock.active && isActiveGroupByMock(mock);
+
           const scenarioOptions = getMockScenarios(data).map((scenario) => ({
             label: scenario.name,
             value: scenario.id,
-            active: scenario.active,
+            active: mustMockActive(scenario),
             status: scenario.status,
           }));
 
           if (scenarioOptions.length === 1) {
-            return <Name active={data.active}>{data.name}</Name>;
+            return <Name active={mustMockActive(data)}>{data.name}</Name>;
           }
 
           const SelectItem = forwardRef<
@@ -137,7 +141,7 @@ const getSchema = ({
                 data={scenarioOptions}
                 styles={(theme) => ({
                   input: {
-                    ...(!data.active && {
+                    ...(!mustMockActive(data) && {
                       color: `${theme.colors.dark[2]}`,
                       opacity: 0.7,
                     }),
@@ -336,12 +340,12 @@ export const Mocks = () => {
   });
 
   const filteredMocks = [
-    ...store.groups.filter(
+    ...(store.groups || []).filter(
       (group) =>
         (group?.name || "").toLowerCase().includes(search) ||
         (group?.description || "").toLowerCase().includes(search)
     ),
-    ...store.mocks.filter(
+    ...(store.mocks || []).filter(
       (mock) =>
         (mock?.name || "").toLowerCase().includes(search) ||
         (mock?.url || "").toLowerCase().includes(search) ||
@@ -408,6 +412,10 @@ export const Mocks = () => {
   }
 
   console.log("organizeItems", organizeItems(filteredMocks));
+
+  if (!store.mocks || !store.groups) {
+    return <LoadingOverlay visible overlayBlur={2} />;
+  }
 
   if (store.mocks.length === 0 && store.groups.length === 0) {
     return (

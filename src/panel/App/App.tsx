@@ -35,7 +35,7 @@ export const App = (props: useGlobalStoreState["meta"]) => {
 
   return (
     <>
-      <Notifications id="notification-mocks" zIndex={9999999} />
+      <Notifications id="notification-mocks" zIndex={999} />
       <Flex
         direction="column"
         style={{ minWidth: 900, height: "100%", overflow: "hidden" }}

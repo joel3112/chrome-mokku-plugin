@@ -23,9 +23,9 @@ const storeName = "mokku.extension.main.db";
 export const getDefaultStore = (): IStore => ({
   theme: defaultTheme,
   active: false,
-  groups: [],
+  groups: null,
   totalGroupsCreated: 0,
-  mocks: [],
+  mocks: null,
   totalMocksCreated: 0,
   collections: {},
   activityInfo: {
@@ -44,7 +44,11 @@ export const getStore = (name = storeName) => {
       const { urlMap, dynamicUrlMap } = getURLMapWithStore(store);
 
       resolve({
-        store: store,
+        store: {
+          ...store,
+          mocks: store.mocks || [],
+          groups: store.groups || [],
+        },
         urlMap: urlMap,
         dynamicUrlMap,
       });
@@ -72,14 +76,19 @@ export const updateStoreInDB = (store: IStore) => {
 };
 
 export const resetStoreInDB = () => {
-  return updateStoreInDB(getDefaultStore());
+  const store = {
+    ...getDefaultStore(),
+    mocks: [],
+    groups: [],
+  };
+  return updateStoreInDB(store);
 };
 
 export const getURLMapWithStore = (store: IStore) => {
   const urlMap: IURLMap = {};
   const dynamicUrlMap: IDynamicURLMap = {};
 
-  store.mocks.forEach((mock, index) => {
+  (store.mocks || []).forEach((mock, index) => {
     if (mock.dynamic) {
       const url = mock.url.replace("://", "-");
       const key = url.replace("*", "").split("/").filter(Boolean).length;
@@ -141,6 +150,10 @@ export const hasMultipleScenarios = (store: IStore, mock: IMockResponse) => {
 };
 
 export const isActiveGroupByMock = (store: IStore, mock: IMockResponse) => {
+  if (!mock.groupId) {
+    return true;
+  }
+
   return store.groups.find((group) => group.id === mock.groupId)?.active;
 };
 

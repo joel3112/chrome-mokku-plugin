@@ -45,7 +45,7 @@ const useStyles = createStyles((theme) => ({
     }`,
     position: "sticky",
     top: 0,
-    zIndex: 3,
+    zIndex: 1,
   },
   table: {
     position: "relative",

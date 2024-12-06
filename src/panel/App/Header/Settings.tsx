@@ -23,6 +23,7 @@ import { StoreSchema } from "../service/schema";
 import { storeActions, updateStoreInDB } from "../service/storeActions";
 import { useChromeStore } from "../store";
 import { useLocalStorage } from "@mantine/hooks";
+import { modals } from "@mantine/modals";
 
 const useStyles = createStyles((theme) => ({
   wrapper: {
@@ -31,7 +32,7 @@ const useStyles = createStyles((theme) => ({
     top: 0,
     height: "100%",
     width: "100%",
-    zIndex: 99999,
+    zIndex: 2,
     display: "flex",
     flexDirection: "column",
     overflow: "auto",
@@ -112,6 +113,29 @@ export const Settings = ({
     }
   }, [file]);
 
+  const handleClear = () =>
+    modals.openConfirmModal({
+      title: "Clear data",
+      centered: true,
+      children: (
+        <Text size="sm">
+          Are you sure you want to remove your data? This action is destructive
+          and you will lose all your data.
+        </Text>
+      ),
+      labels: { confirm: "Clear", cancel: "No don't clear it" },
+      confirmProps: { color: "red" },
+      onCancel: onClose,
+      onConfirm: () => {
+        onClose();
+        storeActions.resetStoreInDB().then(setStoreProperties);
+        notifications.show({
+          title: `Clear data`,
+          message: `All data cleared successfully`,
+        });
+      },
+    });
+
   return (
     <Card className={classes.wrapper}>
       <Flex direction="row-reverse">
@@ -178,14 +202,7 @@ export const Settings = ({
                 leftIcon={<CiTrash />}
                 variant="outline"
                 style={{ width: 240, marginBottom: 12 }}
-                onClick={() => {
-                  onClose();
-                  storeActions.resetStoreInDB().then(setStoreProperties);
-                  notifications.show({
-                    title: `Clear data`,
-                    message: `All data cleared successfully`,
-                  });
-                }}
+                onClick={handleClear}
               >
                 Clear data
               </Button>

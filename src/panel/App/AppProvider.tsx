@@ -9,6 +9,7 @@ import { useGlobalStoreState } from "./store";
 import { App } from "./App";
 import { defaultTheme } from "./service/theme";
 import { useLocalStorage } from "@mantine/hooks";
+import { ModalsProvider } from "@mantine/modals";
 
 export const AppProvider = (props: useGlobalStoreState["meta"]) => {
   const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
@@ -29,7 +30,9 @@ export const AppProvider = (props: useGlobalStoreState["meta"]) => {
         withNormalizeCSS
         theme={{ colorScheme }}
       >
-        <App {...props} />
+        <ModalsProvider>
+          <App {...props} />
+        </ModalsProvider>
       </MantineProvider>
     </ColorSchemeProvider>
   );

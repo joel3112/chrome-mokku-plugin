@@ -1,32 +1,24 @@
-import React, { useState } from "react";
-import { shallow } from "zustand/shallow";
-import { Button, Flex, Input, Tabs } from "@mantine/core";
-import { TbSearch } from "react-icons/tb";
-import {
-  useChromeStore,
-  useGlobalStore,
-  useGlobalStoreState,
-  ViewEnum,
-} from "../store";
-import { ThemeButton } from "./ThemeButton";
-import { RefreshButton } from "./RefreshButton";
-import { ClearButton } from "./ClearButton";
-import { RecordButton } from "./RecordButton";
-import { SwitchButton } from "./SwitchButton";
-import { Settings } from "./Settings";
+import React, { useState } from 'react';
+import { TbSearch } from 'react-icons/tb';
+import { shallow } from 'zustand/shallow';
+import { Button, Flex, Input, Tabs } from '@mantine/core';
+import { ViewEnum, useChromeStore, useGlobalStore, useGlobalStoreState } from '../store';
+import { ClearButton } from './ClearButton';
+import { RecordButton } from './RecordButton';
+import { RefreshButton } from './RefreshButton';
+import { Settings } from './Settings';
+import { SwitchButton } from './SwitchButton';
+import { ThemeButton } from './ThemeButton';
 
 const viewSelector = (state: useGlobalStoreState) => ({
   view: state.view,
   setView: state.setView,
   search: state.search,
-  setSearch: state.setSearch,
+  setSearch: state.setSearch
 });
 
 export const Header = () => {
-  const { view, setView, search, setSearch } = useGlobalStore(
-    viewSelector,
-    shallow
-  );
+  const { view, setView, search, setSearch } = useGlobalStore(viewSelector, shallow);
 
   const store = useChromeStore((state) => state.store);
   const setSelectedMock = useChromeStore((state) => state.setSelectedMock);
@@ -36,8 +28,8 @@ export const Header = () => {
 
   return (
     <Tabs defaultValue={ViewEnum.MOCKS} value={view} onTabChange={setView}>
-      <Tabs.List style={{ width: "100%", height: HEIGHT_TABS }}>
-        <Flex justify="space-between" align="center" style={{ width: "100%" }}>
+      <Tabs.List style={{ width: '100%', height: HEIGHT_TABS }}>
+        <Flex justify="space-between" align="center" style={{ width: '100%' }}>
           <Flex align="center">
             <Tabs.Tab value={ViewEnum.MOCKS} style={{ height: HEIGHT_TABS }}>
               Mocks
@@ -47,18 +39,10 @@ export const Header = () => {
             </Tabs.Tab>
             <Flex align="center" gap={8}>
               <Flex align="center" gap={0}>
-                <Button
-                  onClick={() => setSelectedGroup({})}
-                  size="xs"
-                  variant="subtle"
-                >
+                <Button onClick={() => setSelectedGroup({})} size="xs" variant="subtle">
                   + Add Group
                 </Button>
-                <Button
-                  onClick={() => setSelectedMock({})}
-                  size="xs"
-                  variant="subtle"
-                >
+                <Button onClick={() => setSelectedMock({})} size="xs" variant="subtle">
                   + Add Mock
                 </Button>
               </Flex>
@@ -71,24 +55,18 @@ export const Header = () => {
                 onChange={(event) => setSearch(event.target.value)}
               />
               <RecordButton />
-              {view === "LOGS" ? <ClearButton /> : null}
+              {view === 'LOGS' ? <ClearButton /> : null}
             </Flex>
           </Flex>
           <Flex gap="4px" style={{ paddingRight: 4 }}>
-            <Button
-              onClick={() => setShowSettings(true)}
-              size="xs"
-              variant="subtle"
-            >
+            <Button onClick={() => setShowSettings(true)} size="xs" variant="subtle">
               Settings
             </Button>
             <ThemeButton />
             <RefreshButton />
             <SwitchButton />
           </Flex>
-          {showSettings && (
-            <Settings store={store} onClose={() => setShowSettings(false)} />
-          )}
+          {showSettings && <Settings store={store} onClose={() => setShowSettings(false)} />}
         </Flex>
       </Tabs.List>
     </Tabs>

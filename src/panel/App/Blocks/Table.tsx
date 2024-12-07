@@ -1,6 +1,6 @@
-import React from "react";
-import { createStyles, rem, Table } from "@mantine/core";
-import { MockType } from "../types/mock";
+import React from 'react';
+import { Table, createStyles, rem } from '@mantine/core';
+import { MockType } from '@mokku/types';
 
 export type TableSchema<T> = Array<{
   header: React.ReactNode;
@@ -20,41 +20,38 @@ export interface TableWrapperProps<T> {
 
 const useStyles = createStyles((theme) => ({
   groupRow: {
-    background: `${
-      theme.colorScheme === "dark" ? "#080808" : theme.colors.gray[2]
-    }`,
+    background: `${theme.colorScheme === 'dark' ? '#080808' : theme.colors.gray[2]}`
   },
   selectedRow: {
     background: `${
-      theme.colorScheme === "dark"
+      theme.colorScheme === 'dark'
         ? theme.fn.rgba(theme.colors.blue[7], 0.25)
         : theme.colors.blue[0]
-    } !important`,
+    } !important`
   },
   rows: {
     height: 50,
-    "&:hover": {
-      cursor: "pointer",
-    },
+    '&:hover': {
+      cursor: 'pointer'
+    }
   },
   th: {
-    background:
-      theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.white,
+    background: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
     borderBottom: `${rem(1)} solid ${
-      theme.colorScheme === "dark" ? theme.colors.dark[4] : theme.colors.gray[3]
+      theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3]
     }`,
-    position: "sticky",
+    position: 'sticky',
     top: 0,
-    zIndex: 1,
+    zIndex: 1
   },
   table: {
-    position: "relative",
-    borderCollapse: "collapse",
-    width: "100%",
+    position: 'relative',
+    borderCollapse: 'collapse',
+    width: '100%',
     borderBottom: `${rem(1)} solid ${
-      theme.colorScheme === "dark" ? theme.colors.dark[4] : theme.colors.gray[3]
-    }`,
-  },
+      theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3]
+    }`
+  }
 }));
 
 export const TableWrapper = <
@@ -68,18 +65,14 @@ export const TableWrapper = <
   schema,
   data,
   onRowClick,
-  selectedRowId,
+  selectedRowId
 }: TableWrapperProps<T>) => {
   const { classes } = useStyles();
 
   const ths = (
     <tr>
       {schema.map(({ header, minWidth, maxWidth, width, style }, index) => (
-        <th
-          style={{ minWidth, maxWidth, width, ...style }}
-          key={index}
-          className={classes.th}
-        >
+        <th style={{ minWidth, maxWidth, width, ...style }} key={index} className={classes.th}>
           {header}
         </th>
       ))}
@@ -90,8 +83,7 @@ export const TableWrapper = <
     const rowMockHasGroup = row.type !== MockType.GROUP && row.groupId;
 
     if (rowMockHasGroup) {
-      const hasGroupExpanded = data.find((item) => item.id === row.groupId)
-        ?.expanded;
+      const hasGroupExpanded = data.find((item) => item.id === row.groupId)?.expanded;
       if (hasGroupExpanded === false) {
         return null;
       }
@@ -103,10 +95,9 @@ export const TableWrapper = <
         onClick={() => {
           onRowClick(row);
         }}
-        className={`${selectedRowId === row.id ? classes.selectedRow : ""} ${
-          rowMockHasGroup ? classes.groupRow : ""
-        } ${classes.rows}`}
-      >
+        className={`${selectedRowId === row.id ? classes.selectedRow : ''} ${
+          rowMockHasGroup ? classes.groupRow : ''
+        } ${classes.rows}`}>
         {schema.map(({ content, maxWidth, style }, index) => (
           <td key={index} style={{ maxWidth, ...style }}>
             {content(row)}

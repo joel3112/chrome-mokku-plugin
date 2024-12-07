@@ -1,54 +1,49 @@
-import React, { useEffect, useState } from "react";
-import { useChromeStore, useLogStore } from "../store";
-import { AddGroup } from "../Groups/AddGroup/AddGroup";
-import { AddMock } from "../Mocks/AddMock/AddMock";
-import { LogDetails } from "../Logs/LogDetails/LogDetails";
-import { Button, createStyles, Drawer, Flex } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
-import {
-  ActionInFormEnum,
-  IMockGroup,
-  IMockResponse,
-  MockType,
-} from "../types/mock";
-import { isJsonValid } from "../Mocks/AddMock/utils";
-import { getMockFromLog } from "../Logs/log.util";
-import { get } from "lodash";
+import React, { useEffect, useState } from 'react';
+import { get } from 'lodash';
+import { Button, Drawer, Flex, createStyles } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import { ActionInFormEnum, IMockGroup, IMockResponse, MockType } from '@mokku/types';
+import { AddGroup } from '../Groups/AddGroup/AddGroup';
+import { LogDetails } from '../Logs/LogDetails/LogDetails';
+import { getMockFromLog } from '../Logs/log.util';
+import { AddMock } from '../Mocks/AddMock/AddMock';
+import { isJsonValid } from '../Mocks/AddMock/utils';
+import { useChromeStore, useLogStore } from '../store';
 
 enum ModalType {
-  Group = "GROUP",
-  Mock = "MOCK",
-  Log = "LOG",
+  Group = 'GROUP',
+  Mock = 'MOCK',
+  Log = 'LOG'
 }
 
 const useStyles = createStyles((theme) => ({
   content: {
-    display: "grid",
-    gridTemplateRows: "auto 1fr",
-    overflow: "hidden auto",
-    scrollBehavior: "smooth",
+    display: 'grid',
+    gridTemplateRows: 'auto 1fr',
+    overflow: 'hidden auto',
+    scrollBehavior: 'smooth'
   },
   header: {
     paddingBlock: 13,
     paddingInline: 16,
     borderBottom: `1px solid ${
-      theme.colorScheme === "dark" ? theme.colors.dark[4] : theme.colors.gray[4]
-    }`,
+      theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[4]
+    }`
   },
   body: {
-    display: "flex",
+    display: 'flex'
   },
   footer: {
-    background: "inherit",
+    background: 'inherit',
     padding: 16,
     borderTop: `1px solid ${
-      theme.colorScheme === "dark" ? theme.colors.dark[4] : theme.colors.gray[4]
+      theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[4]
     }`,
-    position: "sticky",
+    position: 'sticky',
     bottom: 0,
-    width: "100%",
-    zIndex: 1000,
-  },
+    width: '100%',
+    zIndex: 1000
+  }
 }));
 
 export const getActionInForm = (selected: IMockGroup | IMockResponse) => {
@@ -62,7 +57,7 @@ export const getActionInForm = (selected: IMockGroup | IMockResponse) => {
   }
   return ActionInFormEnum.UPDATE;
 };
-export const FORM_ID = "FORM_ID";
+export const FORM_ID = 'FORM_ID';
 
 export const Modal = () => {
   const store = useChromeStore((state) => state.store);
@@ -75,7 +70,7 @@ export const Modal = () => {
   const [order, setOrder] = useState<ModalType[]>([]);
 
   const [opened, { open, close }] = useDisclosure(false);
-  const [title, setTitle] = React.useState("");
+  const [title, setTitle] = React.useState('');
   const [formState, setFormState] = React.useState({});
 
   const handleModalInstance = (modalType: ModalType, condition: boolean) => {
@@ -94,9 +89,8 @@ export const Modal = () => {
 
   useEffect(() => {
     if (selectedGroup) {
-      const isNewGroup =
-        getActionInForm(selectedGroup) !== ActionInFormEnum.UPDATE;
-      setTitle(isNewGroup ? "Add Group" : "Update Group");
+      const isNewGroup = getActionInForm(selectedGroup) !== ActionInFormEnum.UPDATE;
+      setTitle(isNewGroup ? 'Add Group' : 'Update Group');
       open();
     }
     handleModalInstance(ModalType.Group, !!selectedGroup);
@@ -104,9 +98,8 @@ export const Modal = () => {
 
   useEffect(() => {
     if (selectedMock) {
-      const isNewMock =
-        getActionInForm(selectedMock) !== ActionInFormEnum.UPDATE;
-      setTitle(isNewMock ? "Add Mock" : "Update Mock");
+      const isNewMock = getActionInForm(selectedMock) !== ActionInFormEnum.UPDATE;
+      setTitle(isNewMock ? 'Add Mock' : 'Update Mock');
       open();
     }
     handleModalInstance(ModalType.Mock, !!selectedMock);
@@ -114,7 +107,7 @@ export const Modal = () => {
 
   useEffect(() => {
     if (selectedLog) {
-      setTitle("Log Details");
+      setTitle('Log Details');
       open();
     }
     handleModalInstance(ModalType.Log, !!selectedLog);
@@ -150,12 +143,12 @@ export const Modal = () => {
   const componentOrderMap = {
     MOCK: Mock,
     GROUP: Group,
-    LOG: Log,
+    LOG: Log
   };
 
   const { classes } = useStyles();
 
-  const response = formState["response"];
+  const response = formState['response'];
   const jsonValid = response ? isJsonValid(response) : true;
 
   const handleClose = () => {
@@ -169,15 +162,15 @@ export const Modal = () => {
   };
 
   const mockButtons = [
-    { color: "red", onClick: handleClose, children: "Close" },
-    { form: FORM_ID, type: "submit", disabled: !jsonValid, children: "Save" },
+    { color: 'red', onClick: handleClose, children: 'Close' },
+    { form: FORM_ID, type: 'submit', disabled: !jsonValid, children: 'Save' }
   ];
 
   const logButtons = [
     {
       onClick: () => {
         close();
-        setTitle("Add Mock");
+        setTitle('Add Mock');
         setTimeout(() => {
           setSelectedLog();
           if (selectedLog.isMocked) {
@@ -187,9 +180,9 @@ export const Modal = () => {
           }
         }, 200);
       },
-      children: !selectedLog?.isMocked ? "Add Mock" : "Edit Mock",
-      disabled: !jsonValid,
-    },
+      children: !selectedLog?.isMocked ? 'Add Mock' : 'Edit Mock',
+      disabled: !jsonValid
+    }
   ];
 
   return (
@@ -199,8 +192,7 @@ export const Modal = () => {
       position="right"
       padding={0}
       size="auto"
-      autoFocus
-    >
+      autoFocus>
       <Drawer.Overlay opacity={0.4} />
       <Drawer.Content className={classes.content}>
         <Drawer.Header className={classes.header}>
@@ -214,10 +206,7 @@ export const Modal = () => {
           ))}
         </Drawer.Body>
 
-        <Flex
-          className={classes.footer}
-          justify={selectedLog ? "end" : "space-between"}
-        >
+        <Flex className={classes.footer} justify={selectedLog ? 'end' : 'space-between'}>
           {(selectedLog ? logButtons : mockButtons).map((option) => (
             <Button key={option.children} {...option} radius="md" compact />
           ))}

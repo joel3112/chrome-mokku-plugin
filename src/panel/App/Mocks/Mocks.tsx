@@ -1,33 +1,33 @@
-import React, { forwardRef } from "react";
-import {
-  ActionIcon,
-  Code,
-  createStyles,
-  Flex,
-  LoadingOverlay,
-  Menu,
-  Select,
-  Switch,
-  Text,
-} from "@mantine/core";
-import { TableSchema, TableWrapper } from "../Blocks/Table";
-import { IMockGroup, IMockResponse, MockType } from "../types";
-import { useChromeStore, useChromeStoreState, useGlobalStore } from "../store";
-import { shallow } from "zustand/shallow";
+import React, { forwardRef } from 'react';
 import {
   MdDeleteOutline,
   MdOutlineContentCopy,
   MdOutlineExpandLess,
   MdOutlineExpandMore,
   MdOutlineModeEditOutline,
-  MdOutlineMoreHoriz,
-} from "react-icons/md";
-import { useMockActions } from "./Mocks.action";
-import { Placeholder } from "../Blocks/Placeholder";
-import { useGroupActions } from "../Groups/Group.action";
-import { storeActions } from "../service/storeActions";
-import { MethodTag, StatusTag } from "../Blocks/Tag";
-import { uniqueItemsByKeys } from "../utils/uniqueItemsByKeys";
+  MdOutlineMoreHoriz
+} from 'react-icons/md';
+import { shallow } from 'zustand/shallow';
+import {
+  ActionIcon,
+  Code,
+  Flex,
+  LoadingOverlay,
+  Menu,
+  Select,
+  Switch,
+  Text,
+  createStyles
+} from '@mantine/core';
+import { uniqueItemsByKeys } from '@mokku/services';
+import { useChromeStore, useChromeStoreState, useGlobalStore } from '@mokku/store';
+import { IMockGroup, IMockResponse, MockType } from '@mokku/types';
+import { Placeholder } from '../Blocks/Placeholder';
+import { TableSchema, TableWrapper } from '../Blocks/Table';
+import { MethodTag, StatusTag } from '../Blocks/Tag';
+import { useGroupActions } from '../Groups/Group.action';
+import { storeActions } from '../service/storeActions';
+import { useMockActions } from './Mocks.action';
 
 interface GetSchemeProps {
   toggleMock: (mock: IMockResponse) => void;
@@ -47,23 +47,23 @@ interface GetSchemeProps {
 const useStyles = createStyles((theme) => ({
   more: {
     color: theme.colors.blue[5],
-    cursor: "pointer",
-    fontSize: 20,
+    cursor: 'pointer',
+    fontSize: 20
   },
   menuOptionBlue: {
     color: theme.colors.blue[5],
     height: 28,
-    fontSize: 13,
+    fontSize: 13
   },
   menuOptionRed: {
     color: theme.colors.red[7],
     height: 28,
-    fontSize: 13,
-  },
+    fontSize: 13
+  }
 }));
 
 const Name = ({ children, active }: { children: string; active: boolean }) => (
-  <Text c={active ? "" : "dimmed"} opacity={active ? 1 : 0.7} truncate>
+  <Text c={active ? '' : 'dimmed'} opacity={active ? 1 : 0.7} truncate>
     {children}
   </Text>
 );
@@ -80,38 +80,33 @@ const getSchema = ({
   toggleGroup,
   deleteGroup,
   duplicateGroup,
-  editGroup,
+  editGroup
 }: GetSchemeProps): TableSchema<IMockResponse | IMockGroup> => {
   const { classes } = useStyles();
   const store = useChromeStore((state) => state.store);
 
   return [
     {
-      header: "",
+      header: '',
       content: (data) =>
         data.type === MockType.GROUP && (
           <Flex align="center">
-            {!data.expanded ? (
-              <MdOutlineExpandMore size={18} />
-            ) : (
-              <MdOutlineExpandLess size={18} />
-            )}
+            {!data.expanded ? <MdOutlineExpandMore size={18} /> : <MdOutlineExpandLess size={18} />}
           </Flex>
         ),
-      width: 5,
+      width: 5
     },
     {
-      header: "Name",
+      header: 'Name',
       content: (data) => {
         if (data.type !== MockType.GROUP) {
-          const mustMockActive = (mock: IMockResponse) =>
-            mock.active && isActiveGroupByMock(mock);
+          const mustMockActive = (mock: IMockResponse) => mock.active && isActiveGroupByMock(mock);
 
           const scenarioOptions = getMockScenarios(data).map((scenario) => ({
             label: scenario.name,
             value: scenario.id,
             active: mustMockActive(scenario),
-            status: scenario.status,
+            status: scenario.status
           }));
 
           const scenariosSettinsEnabled = store.settings.enabledScenarios;
@@ -145,16 +140,14 @@ const getSchema = ({
                   input: {
                     ...(!mustMockActive(data) && {
                       color: `${theme.colors.dark[2]}`,
-                      opacity: 0.7,
+                      opacity: 0.7
                     }),
-                    textOverflow: "ellipsis",
-                  },
+                    textOverflow: 'ellipsis'
+                  }
                 })}
                 itemComponent={SelectItem}
                 onChange={(value) => {
-                  selectMockScenario(
-                    getMockScenarios(data).find((m) => m.id === value)
-                  );
+                  selectMockScenario(getMockScenarios(data).find((m) => m.id === value));
                 }}
               />
             </div>
@@ -162,9 +155,7 @@ const getSchema = ({
         }
 
         const totalMocksInGroup = getMocksByGroup(data.id).length;
-        const activeMocksInGroup = getMocksByGroup(data.id).filter(
-          (mock) => mock.active
-        ).length;
+        const activeMocksInGroup = getMocksByGroup(data.id).filter((mock) => mock.active).length;
         return (
           <Flex align="baseline" justify="space-between" gap={8}>
             <Name active={data.active}>{data.name}</Name>
@@ -172,16 +163,15 @@ const getSchema = ({
               mr={12}
               opacity={0.7}
               c="dimmed"
-              size="xs"
-            >{`${activeMocksInGroup}/${totalMocksInGroup}`}</Text>
+              size="xs">{`${activeMocksInGroup}/${totalMocksInGroup}`}</Text>
           </Flex>
         );
       },
       width: 300,
-      maxWidth: 300,
+      maxWidth: 300
     },
     {
-      header: "",
+      header: '',
       content: (data) => {
         let enabled = false;
         if (data.type !== MockType.GROUP && data.groupId) {
@@ -196,8 +186,7 @@ const getSchema = ({
               // this was not working with switch for some unknown reason
               event.stopPropagation();
             }}
-            style={{ cursor: "pointer" }}
-          >
+            style={{ cursor: 'pointer' }}>
             <Switch
               onLabel="ON"
               offLabel="OFF"
@@ -212,13 +201,12 @@ const getSchema = ({
           </div>
         );
       },
-      width: 60,
+      width: 60
     },
     {
-      header: "URL",
-      content: (data) =>
-        data.type !== MockType.GROUP ? <Code fz={11}>{data.url}</Code> : "",
-      minWidth: 130,
+      header: 'URL',
+      content: (data) => (data.type !== MockType.GROUP ? <Code fz={11}>{data.url}</Code> : ''),
+      minWidth: 130
     },
     {
       header: <Flex justify="end">Status</Flex>,
@@ -229,10 +217,10 @@ const getSchema = ({
             <StatusTag status={data.status} />
           </Flex>
         ),
-      width: 30,
+      width: 30
     },
     {
-      header: "",
+      header: '',
       content: (data) => (
         <div onClick={(event) => event.stopPropagation()}>
           <Menu position="bottom-end" offset={-8}>
@@ -241,10 +229,9 @@ const getSchema = ({
                 variant="transparent"
                 size="lg"
                 style={{
-                  height: "100%",
-                  minHeight: 32,
-                }}
-              >
+                  height: '100%',
+                  minHeight: 32
+                }}>
                 <MdOutlineMoreHoriz className={classes.more} />
               </ActionIcon>
             </Menu.Target>
@@ -252,20 +239,14 @@ const getSchema = ({
               <Menu.Item
                 className={classes.menuOptionBlue}
                 icon={<MdOutlineModeEditOutline />}
-                onClick={() =>
-                  data.type === MockType.GROUP
-                    ? editGroup(data)
-                    : editMock(data)
-                }
-              >
+                onClick={() => (data.type === MockType.GROUP ? editGroup(data) : editMock(data))}>
                 Edit
               </Menu.Item>
               {data.type === MockType.MOCK && (
                 <Menu.Item
                   className={classes.menuOptionBlue}
                   icon={<MdOutlineContentCopy />}
-                  onClick={() => duplicateMock(data)}
-                >
+                  onClick={() => duplicateMock(data)}>
                   Duplicate
                 </Menu.Item>
               )}
@@ -273,19 +254,16 @@ const getSchema = ({
                 className={classes.menuOptionRed}
                 icon={<MdDeleteOutline />}
                 onClick={() =>
-                  data.type === MockType.GROUP
-                    ? deleteGroup(data)
-                    : deleteMock(data)
-                }
-              >
+                  data.type === MockType.GROUP ? deleteGroup(data) : deleteMock(data)
+                }>
                 Delete
               </Menu.Item>
             </Menu.Dropdown>
           </Menu>
         </div>
       ),
-      width: 50,
-    },
+      width: 50
+    }
   ];
 };
 
@@ -295,7 +273,7 @@ const useMockStoreSelector = (state: useChromeStoreState) => ({
   selectedGroup: state.selectedGroup,
   setSelectedMock: state.setSelectedMock,
   selectedMock: state.selectedMock,
-  setStoreProperties: state.setStoreProperties,
+  setStoreProperties: state.setStoreProperties
 });
 
 export const Mocks = () => {
@@ -305,7 +283,7 @@ export const Mocks = () => {
     setSelectedMock,
     selectedGroup,
     setSelectedGroup,
-    setStoreProperties,
+    setStoreProperties
   } = useChromeStore(useMockStoreSelector, shallow);
   const search = useGlobalStore((state) => state.search).toLowerCase();
 
@@ -317,14 +295,9 @@ export const Mocks = () => {
     deleteMock,
     duplicateMock,
     toggleMock,
-    editMock,
+    editMock
   } = useMockActions();
-  const {
-    deleteGroup,
-    duplicateGroup,
-    toggleGroup,
-    editGroup,
-  } = useGroupActions();
+  const { deleteGroup, duplicateGroup, toggleGroup, editGroup } = useGroupActions();
 
   const schema = getSchema({
     isActiveGroupByMock,
@@ -338,43 +311,41 @@ export const Mocks = () => {
     toggleGroup,
     deleteGroup,
     duplicateGroup,
-    editGroup,
+    editGroup
   });
 
   const filteredMocks = [
     ...(store.groups || []).filter(
       (group) =>
-        (group?.name || "").toLowerCase().includes(search) ||
-        (group?.description || "").toLowerCase().includes(search)
+        (group?.name || '').toLowerCase().includes(search) ||
+        (group?.description || '').toLowerCase().includes(search)
     ),
     ...(store.mocks || []).filter(
       (mock) =>
-        (mock?.name || "").toLowerCase().includes(search) ||
-        (mock?.url || "").toLowerCase().includes(search) ||
-        (mock?.method || "").toLowerCase().includes(search) ||
-        (mock?.status || "").toString().includes(search)
-    ),
+        (mock?.name || '').toLowerCase().includes(search) ||
+        (mock?.url || '').toLowerCase().includes(search) ||
+        (mock?.method || '').toLowerCase().includes(search) ||
+        (mock?.status || '').toString().includes(search)
+    )
   ];
 
-  console.log("filteredMocks", filteredMocks);
+  console.log('filteredMocks', filteredMocks);
 
-  function organizeItems(
-    items: (IMockResponse | IMockGroup)[]
-  ): (IMockResponse | IMockGroup)[] {
+  function organizeItems(items: (IMockResponse | IMockGroup)[]): (IMockResponse | IMockGroup)[] {
     // Separate items into groups and mocks
     const groups = [];
     const mocks = [];
 
     items.forEach((item) => {
-      if (item.type === "group") {
+      if (item.type === 'group') {
         groups.push(item);
-      } else if (item.type === "mock") {
+      } else if (item.type === 'mock') {
         mocks.push(item);
       }
     });
 
     const uniqueMocks = store.settings.enabledScenarios
-      ? uniqueItemsByKeys(mocks, ["url", "method", "groupId"], "selected")
+      ? uniqueItemsByKeys(mocks, ['url', 'method', 'groupId'], 'selected')
       : mocks;
 
     // Map group IDs to their respective mocks
@@ -393,17 +364,13 @@ export const Mocks = () => {
     [...groups, ...uniqueMocks]
       .sort((a, b) => a.name.localeCompare(b.name))
       .forEach((item) => {
-        if (item.type === "group") {
+        if (item.type === 'group') {
           result.push(item);
           // Add mocks associated with this group
           if (groupedMocks[item.id]) {
-            result.push(
-              ...groupedMocks[item.id].sort((a, b) =>
-                a.name.localeCompare(b.name)
-              )
-            );
+            result.push(...groupedMocks[item.id].sort((a, b) => a.name.localeCompare(b.name)));
           }
-        } else if (item.type === "mock" && !item.groupId) {
+        } else if (item.type === 'mock' && !item.groupId) {
           result.push(item);
         }
       });
@@ -411,7 +378,7 @@ export const Mocks = () => {
     return result;
   }
 
-  console.log("organizeItems", organizeItems(filteredMocks));
+  console.log('organizeItems', organizeItems(filteredMocks));
 
   if (!store.mocks || !store.groups) {
     return <LoadingOverlay visible overlayBlur={2} />;
@@ -439,7 +406,7 @@ export const Mocks = () => {
     if (data.type === MockType.GROUP) {
       const updatedStore = storeActions.updateGroups(store, {
         ...data,
-        expanded: !data.expanded,
+        expanded: !data.expanded
       });
       storeActions.updateStoreInDB(updatedStore).then(setStoreProperties);
       return;

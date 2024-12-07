@@ -1,4 +1,5 @@
-import React from "react";
+import React from 'react';
+
 interface IProps {
   if: boolean | (() => boolean);
   children: React.ReactNode;
@@ -7,11 +8,11 @@ interface IProps {
 export const Show = (props: IProps) => {
   const { if: iff, children } = props;
 
-  if (typeof iff === "boolean" && iff) {
+  if (typeof iff === 'boolean' && iff) {
     return <>{children}</>;
   }
 
-  if (typeof iff === "function" && iff()) {
+  if (typeof iff === 'function' && iff()) {
     return <>{children}</>;
   }
 

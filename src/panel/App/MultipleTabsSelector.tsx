@@ -1,12 +1,12 @@
-import { Button, Card, Flex, Text, Title } from "@mantine/core";
-import React, { useEffect, useState } from "react";
-import { AppLoader } from "./AppLoader";
+import React, { useEffect, useState } from 'react';
+import { Button, Card, Flex, Text, Title } from '@mantine/core';
+import { AppLoader } from './AppLoader';
 
-const SELECTED_TAB_KEY = "mokku.temp.multi.tab.selection";
+const SELECTED_TAB_KEY = 'mokku.temp.multi.tab.selection';
 
 export const MultipleTabsSelector = ({ tabs }: { tabs: chrome.tabs.Tab[] }) => {
   const [selectedTab, setSelectedTab] = useState<chrome.tabs.Tab>(
-    tabs.length === 1 ? tabs[0] : undefined,
+    tabs.length === 1 ? tabs[0] : undefined
   );
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export const MultipleTabsSelector = ({ tabs }: { tabs: chrome.tabs.Tab[] }) => {
 
   const handleClick = (tab: chrome.tabs.Tab) => {
     setSelectedTab(tab);
-    localStorage.setItem(SELECTED_TAB_KEY, tab.id.toString() || "");
+    localStorage.setItem(SELECTED_TAB_KEY, tab.id.toString() || '');
   };
 
   if (selectedTab) {
@@ -36,9 +36,8 @@ export const MultipleTabsSelector = ({ tabs }: { tabs: chrome.tabs.Tab[] }) => {
           Multiple Active Windows
         </Title>
         <Text mb="16px" align="center">
-          Multiple browser windows are active (apart from this one). Mokku
-          cannot decide which one to mock, please select the tab you want to
-          mock from the following.
+          Multiple browser windows are active (apart from this one). Mokku cannot decide which one
+          to mock, please select the tab you want to mock from the following.
         </Text>
         {tabs.map((tab) => {
           return (

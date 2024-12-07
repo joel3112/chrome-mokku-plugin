@@ -2,8 +2,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "module": "commonjs",
-    "lib": ["es2016", "dom"],
-    "target": "es6",
+    "lib": ["es2018", "dom"],
+    "target": "es2018",
     "jsx": "react",
     "noImplicitAny": false,
     "sourceMap": false,
@@ -11,8 +11,10 @@
     "outDir": "dist/js",
     "noEmitOnError": true,
     "esModuleInterop": true,
+    "typeRoots": ["node_modules/@types", "src/types"],
     "paths": {
-      "@mokku/types": ["src/panel/App/types"],
+      "@mokku/types": ["src/types"],
+      "@mokku/services": ["src/services"],
       "@mokku/store": ["src/panel/App/store"]
     }
   }

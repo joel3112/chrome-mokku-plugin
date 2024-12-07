@@ -1,13 +1,13 @@
-import React from "react";
-import { ILog } from "@mokku/types";
-import { Center, Flex, Text, Title } from "@mantine/core";
+import React from 'react';
+import { Center, Flex, Text, Title } from '@mantine/core';
+import { ILog } from '@mokku/types';
 
 interface IProps {
-  requestHeaders: ILog["request"]["headers"];
-  responseHeaders: ILog["response"]["headers"];
+  requestHeaders: ILog['request']['headers'];
+  responseHeaders: ILog['response']['headers'];
 }
 
-const Headers = ({ headers }: { headers: ILog["request"]["headers"] }) => {
+const Headers = ({ headers }: { headers: ILog['request']['headers'] }) => {
   if (!headers || headers.length === 0) {
     return <Text fz="sm">No headers</Text>;
   }
@@ -26,10 +26,7 @@ const Headers = ({ headers }: { headers: ILog["request"]["headers"] }) => {
   );
 };
 
-export const LogDetailsHeader = ({
-  requestHeaders,
-  responseHeaders,
-}: IProps) => {
+export const LogDetailsHeader = ({ requestHeaders, responseHeaders }: IProps) => {
   if (!requestHeaders && !responseHeaders) {
     return (
       <Center>

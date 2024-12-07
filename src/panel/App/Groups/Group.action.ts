@@ -1,15 +1,14 @@
-import { notifications } from "@mantine/notifications";
-import { useCallback } from "react";
-import { shallow } from "zustand/shallow";
-import { storeActions } from "../service/storeActions";
-import { useGlobalStore } from "../store/useGlobalStore";
-import { useChromeStore, useChromeStoreState } from "../store/useMockStore";
-import { IMockGroup } from "../types/mock";
+import { useCallback } from 'react';
+import { shallow } from 'zustand/shallow';
+import { notifications } from '@mantine/notifications';
+import { useChromeStore, useChromeStoreState, useGlobalStore } from '@mokku/store';
+import { IMockGroup } from '@mokku/types';
+import { storeActions } from '../service/storeActions';
 
 const useGroupStoreSelector = (state: useChromeStoreState) => ({
   store: state.store,
   setStoreProperties: state.setStoreProperties,
-  setSelectedGroup: state.setSelectedGroup,
+  setSelectedGroup: state.setSelectedGroup
 });
 
 export const useGroupActions = () => {
@@ -22,9 +21,7 @@ export const useGroupActions = () => {
   const toggleGroup = useCallback(
     (groupToBeUpdated: IMockGroup) => {
       const updatedStore = storeActions.updateGroups(store, groupToBeUpdated);
-      const groupStatus = groupToBeUpdated.active
-        ? "is enabled"
-        : "is disabled";
+      const groupStatus = groupToBeUpdated.active ? 'is enabled' : 'is disabled';
       storeActions
         .updateStoreInDB(updatedStore)
         .then(setStoreProperties)
@@ -32,14 +29,14 @@ export const useGroupActions = () => {
           storeActions.refreshContentStore(tab.id);
           notifications.show({
             title: `"${groupToBeUpdated.name}" is ${groupStatus}`,
-            message: `Group ${groupStatus}`,
+            message: `Group ${groupStatus}`
           });
         })
         .catch(() => {
           notifications.show({
-            title: "Cannot updated group.",
-            message: "Something went wrong, unable to update group.",
-            color: "red",
+            title: 'Cannot updated group.',
+            message: 'Something went wrong, unable to update group.',
+            color: 'red'
           });
         });
     },
@@ -47,10 +44,7 @@ export const useGroupActions = () => {
   );
   const deleteGroup = useCallback(
     (groupToBeDeleted: IMockGroup) => {
-      const updatedStore = storeActions.deleteGroups(
-        store,
-        groupToBeDeleted.id
-      );
+      const updatedStore = storeActions.deleteGroups(store, groupToBeDeleted.id);
 
       storeActions
         .updateStoreInDB(updatedStore)
@@ -59,16 +53,15 @@ export const useGroupActions = () => {
           storeActions.refreshContentStore(tab.id);
           notifications.show({
             title: `"${groupToBeDeleted.name}" group deleted`,
-            message: `Group "${groupToBeDeleted.name}" is deleted successfully.`,
+            message: `Group "${groupToBeDeleted.name}" is deleted successfully.`
           });
         })
         .catch((error) => {
           console.log(error);
           notifications.show({
-            title: "Cannot delete group.",
-            message:
-              "Something went wrong, unable to delete group. Check console for error.",
-            color: "red",
+            title: 'Cannot delete group.',
+            message: 'Something went wrong, unable to delete group. Check console for error.',
+            color: 'red'
           });
         });
     },

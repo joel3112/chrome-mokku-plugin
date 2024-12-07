@@ -1,43 +1,37 @@
-import { Card, Flex, Textarea, TextInput } from "@mantine/core";
-import { v4 as uuidv4 } from "uuid";
-import React from "react";
-import {
-  ActionInFormEnum,
-  GroupStatusEnum,
-  IMockGroup,
-  IMockGroupRaw,
-} from "../../types";
-import { useForm } from "@mantine/form";
-import { storeActions } from "../../service/storeActions";
-import { useChromeStoreState } from "../../store/useMockStore";
-import { notifications } from "@mantine/notifications";
-import { useGlobalStore } from "../../store/useGlobalStore";
-import { FORM_ID, getActionInForm } from "../../Blocks/Modal";
-import { useStyles } from "../../Mocks/AddMock/AddMock.Form";
-import { SegmentedControl } from "../../Blocks/SegmentedControl";
+import React from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import { Card, Flex, TextInput, Textarea } from '@mantine/core';
+import { useForm } from '@mantine/form';
+import { notifications } from '@mantine/notifications';
+import { useChromeStoreState, useGlobalStore } from '@mokku/store';
+import { ActionInFormEnum, GroupStatusEnum, IMockGroup, IMockGroupRaw } from '@mokku/types';
+import { FORM_ID, getActionInForm } from '../../Blocks/Modal';
+import { SegmentedControl } from '../../Blocks/SegmentedControl';
+import { useStyles } from '../../Mocks/AddMock/AddMock.Form';
+import { storeActions } from '../../service/storeActions';
 
 export const AddGroupForm = ({
   store,
   selectedGroup,
   setSelectedGroup,
   setStoreProperties,
-  onClose,
+  onClose
 }: Pick<
   useChromeStoreState,
-  "store" | "selectedGroup" | "setSelectedGroup" | "setStoreProperties"
+  'store' | 'selectedGroup' | 'setSelectedGroup' | 'setStoreProperties'
 > & { onClose: () => void }) => {
   const {
-    classes: { wrapper, card },
+    classes: { wrapper, card }
   } = useStyles();
   const tab = useGlobalStore((state) => state.meta.tab);
 
   const form = useForm<IMockGroupRaw>({
     initialValues: {
       active: true,
-      name: "",
-      description: "",
-      ...selectedGroup,
-    },
+      name: '',
+      description: '',
+      ...selectedGroup
+    }
   });
 
   const action = getActionInForm(selectedGroup);
@@ -47,7 +41,7 @@ export const AddGroupForm = ({
     <form
       id={FORM_ID}
       onSubmit={form.onSubmit((values) => {
-        console.log("Submit group", values);
+        console.log('Submit group', values);
         if (!values.createdOn) {
           values.id = uuidv4();
         }
@@ -56,13 +50,9 @@ export const AddGroupForm = ({
         const storeAction = {
           [ActionInFormEnum.ADD]: storeActions.addGroups,
           [ActionInFormEnum.UPDATE]: storeActions.updateGroups,
-          [ActionInFormEnum.DUPLICATE]: storeActions.duplicateGroup,
+          [ActionInFormEnum.DUPLICATE]: storeActions.duplicateGroup
         };
-        const updatedStore = storeAction[action](
-          store,
-          values as IMockGroup,
-          originalId
-        );
+        const updatedStore = storeAction[action](store, values as IMockGroup, originalId);
 
         storeActions
           .updateStoreInDB(updatedStore)
@@ -71,24 +61,21 @@ export const AddGroupForm = ({
             onClose();
             storeActions.refreshContentStore(tab.id);
             notifications.show({
-              title: `${values.name} group ${isNewGroup ? "added" : "updated"}`,
-              message: `Group "${values.name}" has been ${
-                isNewGroup ? "added" : "updated"
-              }.`,
+              title: `${values.name} group ${isNewGroup ? 'added' : 'updated'}`,
+              message: `Group "${values.name}" has been ${isNewGroup ? 'added' : 'updated'}.`
             });
           })
           .catch((error) => {
-            console.error("Failed to update store:", error);
+            console.error('Failed to update store:', error);
             notifications.show({
-              title: `Cannot ${isNewGroup ? "add" : "update"} group.`,
+              title: `Cannot ${isNewGroup ? 'add' : 'update'} group.`,
               message: `Something went wrong, unable to ${
-                isNewGroup ? "add" : "update"
+                isNewGroup ? 'add' : 'update'
               } new group.`,
-              color: "red",
+              color: 'red'
             });
           });
-      })}
-    >
+      })}>
       <>
         <Card className={card} p={0}>
           <Flex direction="column" gap={16} className={wrapper}>
@@ -100,28 +87,22 @@ export const AddGroupForm = ({
                 data-autofocus
                 maw={340}
                 style={{ flex: 1 }}
-                {...form.getInputProps("name")}
+                {...form.getInputProps('name')}
               />
               <SegmentedControl
                 label="Status"
-                value={
-                  form.values.active
-                    ? GroupStatusEnum.ACTIVE
-                    : GroupStatusEnum.INACTIVE
-                }
-                onChange={(value) =>
-                  form.setFieldValue("active", value === GroupStatusEnum.ACTIVE)
-                }
+                value={form.values.active ? GroupStatusEnum.ACTIVE : GroupStatusEnum.INACTIVE}
+                onChange={(value) => form.setFieldValue('active', value === GroupStatusEnum.ACTIVE)}
                 data={[
-                  { label: "Active", value: GroupStatusEnum.ACTIVE },
-                  { label: "Inactive", value: GroupStatusEnum.INACTIVE },
+                  { label: 'Active', value: GroupStatusEnum.ACTIVE },
+                  { label: 'Inactive', value: GroupStatusEnum.INACTIVE }
                 ]}
               />
             </Flex>
             <Textarea
               label="Description"
               placeholder="Group case for goals mocks"
-              {...form.getInputProps("description")}
+              {...form.getInputProps('description')}
             />
           </Flex>
         </Card>

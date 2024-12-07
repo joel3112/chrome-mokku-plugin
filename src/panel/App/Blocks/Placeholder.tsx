@@ -1,6 +1,6 @@
-import * as React from "react";
-import { Flex, Paper, Text, Title } from "@mantine/core";
-import { usePaperStyles } from "../DisabledPlaceholder/DisabledPlaceholder";
+import * as React from 'react';
+import { Flex, Paper, Text, Title } from '@mantine/core';
+import { usePaperStyles } from '../DisabledPlaceholder/DisabledPlaceholder';
 
 interface PlaceholderProps {
   description: string;

@@ -17,7 +17,6 @@ export const StoreSchema = z.object({
       expanded: z.boolean().optional(),
     })
   ),
-  totalGroupsCreated: z.number().optional(),
   mocks: z.array(
     z.object({
       type: z.literal("mock"),
@@ -50,11 +49,5 @@ export const StoreSchema = z.object({
         .optional(),
     })
   ),
-  totalMocksCreated: z.number().optional(),
   collections: z.record(z.any()).optional(),
-  activityInfo: z
-    .object({
-      promoted: z.boolean(),
-    })
-    .optional(),
 });

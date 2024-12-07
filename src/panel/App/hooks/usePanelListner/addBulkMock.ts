@@ -1,12 +1,11 @@
 import { storeActions } from "../../service/storeActions";
-import { useChromeStore } from "../../store/useMockStore";
-import { IMockResponse, IStore } from "@mokku/types";
+import { IMockResponse } from "@mokku/types";
 import { notifications } from "@mantine/notifications";
-import { useGlobalStore } from "../../store/useGlobalStore";
+import { useChromeStore, useGlobalStore } from "@mokku/store";
 
 export const useAddBulkMock = () => {
   const setStoreProperties = useChromeStore(
-    (state) => state.setStoreProperties,
+    (state) => state.setStoreProperties
   );
   const tab = useGlobalStore((state) => state.meta.tab);
 

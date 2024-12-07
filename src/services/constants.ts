@@ -1,6 +1,6 @@
-import { IMethod } from "../interface/network";
+import { MethodEnum } from "@mokku/types";
 
-export const getNetworkMethodList = (): IMethod[] => [
+export const getNetworkMethodList = (): (keyof typeof MethodEnum)[] => [
   "GET",
   "POST",
   "PATCH",

@@ -6,12 +6,11 @@ import {
   GroupStatusEnum,
   IMockGroup,
   IMockGroupRaw,
-} from "../../types";
+} from "@mokku/types";
 import { useForm } from "@mantine/form";
 import { storeActions } from "../../service/storeActions";
-import { useChromeStoreState } from "../../store/useMockStore";
+import { useChromeStoreState, useGlobalStore } from "@mokku/store";
 import { notifications } from "@mantine/notifications";
-import { useGlobalStore } from "../../store/useGlobalStore";
 import { FORM_ID, getActionInForm } from "../../Blocks/Modal";
 import { useStyles } from "../../Mocks/AddMock/AddMock.Form";
 import { SegmentedControl } from "../../Blocks/SegmentedControl";

@@ -11,8 +11,12 @@ import {
   Text,
 } from "@mantine/core";
 import { TableSchema, TableWrapper } from "../Blocks/Table";
-import { IMockGroup, IMockResponse, MockType } from "../types";
-import { useChromeStore, useChromeStoreState, useGlobalStore } from "../store";
+import { IMockGroup, IMockResponse, MockType } from "@mokku/types";
+import {
+  useChromeStore,
+  useChromeStoreState,
+  useGlobalStore,
+} from "@mokku/store";
 import { shallow } from "zustand/shallow";
 import {
   MdDeleteOutline,
@@ -27,7 +31,7 @@ import { Placeholder } from "../Blocks/Placeholder";
 import { useGroupActions } from "../Groups/Group.action";
 import { storeActions } from "../service/storeActions";
 import { MethodTag, StatusTag } from "../Blocks/Tag";
-import { uniqueItemsByKeys } from "../utils/uniqueItemsByKeys";
+import { uniqueItemsByKeys } from "@mokku/services";
 
 interface GetSchemeProps {
   toggleMock: (mock: IMockResponse) => void;

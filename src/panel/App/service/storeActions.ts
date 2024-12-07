@@ -1,3 +1,4 @@
+import { defaultTheme, messageService } from "@mokku/services";
 import {
   IDynamicURLMap,
   IMockGroup,
@@ -5,10 +6,8 @@ import {
   IStore,
   IURLMap,
   MockType,
-} from "../types";
-import messageService from "./messageService";
+} from "@mokku/types";
 import { v4 as uuidv4 } from "uuid";
-import { defaultTheme } from "./theme";
 
 const getNetworkMethodMap = () => ({
   GET: [],
@@ -27,13 +26,8 @@ export const getDefaultStore = (): IStore => ({
     enabledScenarios: true,
   },
   groups: null,
-  totalGroupsCreated: 0,
   mocks: null,
-  totalMocksCreated: 0,
   collections: {},
-  activityInfo: {
-    promoted: false,
-  },
 });
 
 export const getStore = (name = storeName) => {
@@ -181,7 +175,6 @@ export const addGroups = (
         createdOn: new Date().getTime(),
       },
     ];
-    store.totalGroupsCreated++;
   });
 
   return store;
@@ -204,7 +197,6 @@ export const duplicateGroup = (
       createdOn: new Date().getTime(),
     },
   ];
-  store.totalGroupsCreated++;
 
   const mocksInCopiedGroup = store.mocks.filter(
     (mock) => mock.groupId === copiedGroupId
@@ -304,7 +296,6 @@ export const addMocks = (
         createdOn: new Date().getTime(),
       },
     ];
-    store.totalMocksCreated++;
   });
 
   return store;

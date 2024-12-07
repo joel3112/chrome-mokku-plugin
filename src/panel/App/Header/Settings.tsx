@@ -21,11 +21,11 @@ import { RiChromeFill } from "react-icons/ri";
 import { CiExport, CiImport, CiTrash } from "react-icons/ci";
 import { IStore } from "@mokku/types";
 import { notifications } from "@mantine/notifications";
-import { StoreSchema } from "../service/schema";
 import { storeActions, updateStoreInDB } from "../service/storeActions";
 import { useChromeStore } from "../store";
 import { useLocalStorage } from "@mantine/hooks";
 import { modals } from "@mantine/modals";
+import { downloadJsonFile, extractJsonFromFile } from "@mokku/services";
 
 const useStyles = createStyles((theme) => ({
   wrapper: {
@@ -40,38 +40,6 @@ const useStyles = createStyles((theme) => ({
     overflow: "auto",
   },
 }));
-
-const downloadJsonFile = (object: any, fileName: string) => {
-  const jsonString = JSON.stringify(object, null, 2);
-  const blob = new Blob([jsonString], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = fileName;
-  document.body.appendChild(a);
-
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-};
-
-const extractJsonFromFile = (file: File): Promise<any> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const jsonData = JSON.parse(reader.result as string);
-        const parsedData = StoreSchema.parse(jsonData);
-
-        resolve(parsedData);
-      } catch (error) {
-        reject(error);
-      }
-    };
-    reader.onerror = () => reject(new Error("Failed to read the file"));
-    reader.readAsText(file);
-  });
-};
 
 export const Settings = ({
   store,

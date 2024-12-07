@@ -6,9 +6,9 @@ import {
   useGlobalStore,
   useLogStore,
   useLogStoreState,
-} from "../store";
+} from "@mokku/store";
 import { TableSchema, TableWrapper } from "../Blocks/Table";
-import { ILog } from "../types/mock";
+import { ILog } from "@mokku/types";
 import { TbCpu, TbServer2 } from "react-icons/tb";
 import { shallow } from "zustand/shallow";
 import { getMockFromLog } from "./log.util";

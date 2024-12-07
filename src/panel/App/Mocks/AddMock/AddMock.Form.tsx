@@ -19,13 +19,12 @@ import {
   IMockResponseRaw,
   MethodEnum,
   MockStatusEnum,
-} from "../../types";
+} from "@mokku/types";
 import { useForm } from "@mantine/form";
 import { MdDeleteOutline } from "react-icons/md";
 import { storeActions } from "../../service/storeActions";
-import { useChromeStoreState } from "../../store/useMockStore";
+import { useChromeStoreState, useGlobalStore } from "@mokku/store";
 import { notifications } from "@mantine/notifications";
-import { useGlobalStore } from "../../store/useGlobalStore";
 import { FORM_ID, getActionInForm } from "../../Blocks/Modal";
 import { statusOptions } from "./data";
 import { SegmentedControl } from "../../Blocks/SegmentedControl";

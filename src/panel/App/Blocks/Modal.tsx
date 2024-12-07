@@ -10,7 +10,7 @@ import {
   IMockGroup,
   IMockResponse,
   MockType,
-} from "../types/mock";
+} from "@mokku/types";
 import { isJsonValid } from "../Mocks/AddMock/utils";
 import { getMockFromLog } from "../Logs/log.util";
 import { get } from "lodash";

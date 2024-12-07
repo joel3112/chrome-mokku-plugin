@@ -1,4 +1,4 @@
-import { IMockResponse, MethodEnum } from "../types";
+import { IMockResponse, MethodEnum } from "@mokku/types";
 import { Badge } from "@mantine/core";
 import React from "react";
 

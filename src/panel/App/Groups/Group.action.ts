@@ -2,9 +2,12 @@ import { notifications } from "@mantine/notifications";
 import { useCallback } from "react";
 import { shallow } from "zustand/shallow";
 import { storeActions } from "../service/storeActions";
-import { useGlobalStore } from "../store/useGlobalStore";
-import { useChromeStore, useChromeStoreState } from "../store/useMockStore";
-import { IMockGroup } from "../types/mock";
+import {
+  useChromeStore,
+  useChromeStoreState,
+  useGlobalStore,
+} from "@mokku/store";
+import { IMockGroup } from "@mokku/types";
 
 const useGroupStoreSelector = (state: useChromeStoreState) => ({
   store: state.store,

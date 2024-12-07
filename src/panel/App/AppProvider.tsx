@@ -7,7 +7,7 @@ import {
 
 import { useGlobalStoreState } from "./store";
 import { App } from "./App";
-import { defaultTheme } from "./service/theme";
+import { defaultTheme } from "@mokku/services";
 import { useLocalStorage } from "@mantine/hooks";
 import { ModalsProvider } from "@mantine/modals";
 

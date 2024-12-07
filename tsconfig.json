@@ -11,8 +11,10 @@
     "outDir": "dist/js",
     "noEmitOnError": true,
     "esModuleInterop": true,
+    "typeRoots": ["node_modules/@types", "src/types"],
     "paths": {
-      "@mokku/types": ["src/panel/App/types"],
+      "@mokku/types": ["src/types"],
+      "@mokku/services": ["src/services"],
       "@mokku/store": ["src/panel/App/store"]
     }
   }

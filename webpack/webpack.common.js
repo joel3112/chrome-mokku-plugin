@@ -52,6 +52,11 @@ module.exports = {
   },
   resolve: {
     extensions: [".ts", ".tsx", ".js"],
+    alias: {
+      "@mokku/types": path.resolve(__dirname, `${srcDir}types`),
+      "@mokku/services": path.resolve(__dirname, `${srcDir}services`),
+      "@mokku/store": path.resolve(__dirname, `${srcDir}panel/App/store`),
+    },
   },
   plugins: [
     // exclude locale files in moment

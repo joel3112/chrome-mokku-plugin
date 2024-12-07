@@ -1,4 +1,4 @@
-import { ILog, IMockResponseRaw, MethodEnum } from "../types/mock";
+import { ILog, IMockResponseRaw, MethodEnum } from "@mokku/types";
 
 export const getMockFromLog = (log: ILog): IMockResponseRaw => ({
   active: true,

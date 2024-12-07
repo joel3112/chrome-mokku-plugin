@@ -1,10 +1,9 @@
 import { get } from "lodash";
 import { wildcardPattern } from "wildcard-regex";
 import inject from "./contentScript/injectToDom";
-import { IEventMessage } from "./interface/message";
-import { IDynamicURLMap, ILog } from "./interface/mock";
 import messageService from "./services/message";
 import { getStore, storeActions } from "./panel/App/service/storeActions";
+import { IDynamicURLMap, IEventMessage, ILog } from "@mokku/types";
 
 const init = () => {
   let store, urlMap, dynamicUrlMap: IDynamicURLMap;

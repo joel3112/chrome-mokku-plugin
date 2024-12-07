@@ -1,18 +1,33 @@
-export const exportToJsonFile = (jsonData, fileName?: string) => {
-  let dataStr = JSON.stringify(jsonData);
-  let dataUri =
-    "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
-  const date = new Date();
+import { StoreSchema } from "./schema";
 
-  let exportFileDefaultName =
-    fileName ||
-    `mokku-mocks-${date.getDate()}-${
-      date.getMonth() + 1
-    }-${date.getFullYear()}.json`;
+export const downloadJsonFile = (object: any, fileName: string) => {
+  const jsonString = JSON.stringify(object, null, 2);
+  const blob = new Blob([jsonString], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
 
-  let linkElement = document.createElement("a");
-  linkElement.setAttribute("href", dataUri);
-  linkElement.setAttribute("download", exportFileDefaultName);
-  linkElement.click();
-  linkElement.remove();
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+export const extractJsonFromFile = (file: File): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const jsonData = JSON.parse(reader.result as string);
+        const parsedData = StoreSchema.parse(jsonData);
+
+        resolve(parsedData);
+      } catch (error) {
+        reject(error);
+      }
+    };
+    reader.onerror = () => reject(new Error("Failed to read the file"));
+    reader.readAsText(file);
+  });
 };

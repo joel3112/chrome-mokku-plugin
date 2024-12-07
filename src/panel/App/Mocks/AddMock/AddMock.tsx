@@ -1,8 +1,8 @@
 import React from "react";
 import { SideDrawer } from "../../Blocks/SideDrawer";
-import { useChromeStore, useChromeStoreState } from "../../store/useMockStore";
+import { useChromeStore, useChromeStoreState } from "@mokku/store";
 import { AddMockForm } from "./AddMock.Form";
-import { IMockResponseRaw } from "../../types/mock";
+import { IMockResponseRaw } from "@mokku/types";
 
 const useMockStoreSelector = (state: useChromeStoreState) => ({
   store: state.store,

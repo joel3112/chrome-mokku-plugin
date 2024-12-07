@@ -1,15 +1,10 @@
 import { v4 as uuidv4 } from "uuid";
-import { IEventMessage } from "../../../../interface/message";
-import messageService from "../../service/messageService";
-import { ILog } from "@mokku/types";
+import { IEventMessage, ILog } from "@mokku/types";
 import { useEffect, useRef, useState } from "react";
 import { getMockFromLog } from "../../Logs/log.util";
 import { useAddBulkMock } from "./addBulkMock";
-import {
-  useGlobalStore,
-  useGlobalStoreState,
-} from "../../store/useGlobalStore";
-import { useLogStore } from "../../store/useLogStore";
+import { useGlobalStore, useGlobalStoreState, useLogStore } from "@mokku/store";
+import { messageService } from "@mokku/services";
 
 const checkIfSameTab = (sender: chrome.tabs.Tab, tab: chrome.tabs.Tab) => {
   return sender.index === tab.index && sender.windowId === tab.windowId;
@@ -66,7 +61,7 @@ export const usePanelListener = (props: useGlobalStoreState["meta"]) => {
             break;
           }
         }
-      },
+      }
     );
 
     return () => {

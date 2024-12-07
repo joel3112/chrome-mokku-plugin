@@ -4,10 +4,9 @@ import { parse } from "query-string";
 
 import IdFactory from "./services/idFactory";
 import MessageBus from "./services/message/messageBus";
-import { IEventMessage } from "./interface/message";
-import { IMockResponse, ILog } from "./interface/mock";
 import { getHeaders } from "./services/helper";
 import messageService from "./services/message";
+import { IEventMessage, ILog, IMockResponse } from "@mokku/types";
 
 const messageBus = new MessageBus();
 const messageIdFactory = new IdFactory();
@@ -24,7 +23,7 @@ messageService.listen("HOOK", (data) => {
 const postMessage = (
   message: IEventMessage["message"],
   type: IEventMessage["type"],
-  ackRequired,
+  ackRequired
 ) => {
   const messageId = ackRequired ? messageIdFactory.getId() : null;
 
@@ -98,7 +97,7 @@ const getLog = (
       id: string;
     };
   },
-  response?: ILog["response"],
+  response?: ILog["response"]
 ): IEventMessage["message"] => {
   const separator = request.url.indexOf("?");
   const url = separator !== -1 ? request.url.substr(0, separator) : request.url;

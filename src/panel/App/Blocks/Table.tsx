@@ -1,6 +1,6 @@
 import React from "react";
 import { createStyles, rem, Table } from "@mantine/core";
-import { MockType } from "../types/mock";
+import { MockType } from "@mokku/types";
 
 export type TableSchema<T> = Array<{
   header: React.ReactNode;

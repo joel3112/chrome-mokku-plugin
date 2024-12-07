@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { AppProvider } from "./AppProvider";
+import React, { useEffect, useState } from 'react';
+import { AppProvider } from './AppProvider';
 
 /**
  * case:
@@ -9,14 +9,14 @@ import { AppProvider } from "./AppProvider";
  */
 export const getDomain = (url: string) => {
   if (!url) {
-    return "";
+    return '';
   }
   let domain = url;
-  domain = domain.replace("https://", "");
-  domain = domain.replace("http://", "");
-  domain = domain.replace("https://", "");
-  domain = domain.replace("http://", "");
-  const domainLastIndex = domain.indexOf("/");
+  domain = domain.replace('https://', '');
+  domain = domain.replace('http://', '');
+  domain = domain.replace('https://', '');
+  domain = domain.replace('http://', '');
+  const domainLastIndex = domain.indexOf('/');
   if (domainLastIndex !== -1) {
     domain = domain.substr(0, domainLastIndex);
   }
@@ -26,8 +26,8 @@ export const getDomain = (url: string) => {
 export const AppLoader = ({ tab }: { tab: chrome.tabs.Tab }) => {
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState(false);
-  const host = getDomain(tab.url) || "invalid";
-  const isLocalhost = (tab.url || "").includes("http://localhost");
+  const host = getDomain(tab.url) || 'invalid';
+  const isLocalhost = (tab.url || '').includes('http://localhost');
   const storeKey = `mokku.extension.active.${host}`;
 
   useEffect(() => {
@@ -42,9 +42,7 @@ export const AppLoader = ({ tab }: { tab: chrome.tabs.Tab }) => {
   }, []);
 
   if (!loading) {
-    return (
-      <AppProvider host={host} tab={tab} active={active} storeKey={storeKey} />
-    );
+    return <AppProvider host={host} tab={tab} active={active} storeKey={storeKey} />;
   }
 
   return null;

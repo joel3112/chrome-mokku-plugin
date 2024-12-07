@@ -1,33 +1,31 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const StoreSchema = z.object({
-  theme: z.enum(["dark", "light"]).optional(),
+  theme: z.enum(['dark', 'light']).optional(),
   active: z.boolean().optional(),
   settings: z.object({
-    enabledScenarios: z.boolean().optional(),
+    enabledScenarios: z.boolean().optional()
   }),
   groups: z.array(
     z.object({
-      type: z.literal("group"),
+      type: z.literal('group'),
       name: z.string(),
       description: z.string(),
       id: z.string(),
       active: z.boolean(),
       createdOn: z.number(),
-      expanded: z.boolean().optional(),
+      expanded: z.boolean().optional()
     })
   ),
   mocks: z.array(
     z.object({
-      type: z.literal("mock"),
-      method: z.enum(["GET", "POST", "PUT", "PATCH", "DELETE"]),
+      type: z.literal('mock'),
+      method: z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']),
       createdOn: z.number(),
       url: z.string(),
       status: z.number(),
       response: z.string().optional(),
-      headers: z
-        .array(z.object({ name: z.string(), value: z.string() }))
-        .optional(),
+      headers: z.array(z.object({ name: z.string(), value: z.string() })).optional(),
       delay: z.number().optional(),
       name: z.string().optional(),
       id: z.string(),
@@ -42,12 +40,12 @@ export const StoreSchema = z.object({
           z.object({
             body: z.record(z.any()),
             params: z.record(z.any()),
-            queryParams: z.record(z.any()),
+            queryParams: z.record(z.any())
           })
         )
         .returns(z.string())
-        .optional(),
+        .optional()
     })
   ),
-  collections: z.record(z.any()).optional(),
+  collections: z.record(z.any()).optional()
 });

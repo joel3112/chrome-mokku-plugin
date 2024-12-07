@@ -1,16 +1,15 @@
-import React from "react";
-import { TbRefresh } from "react-icons/tb";
-import { ActionIcon } from "@mantine/core";
+import React from 'react';
+import { TbRefresh } from 'react-icons/tb';
+import { ActionIcon } from '@mantine/core';
 
 export const RefreshButton = () => {
   return (
     <ActionIcon
       variant="outline"
-      color={"blue"}
+      color={'blue'}
       onClick={() => window.location.reload()}
       title="Refresh Extension"
-      radius="md"
-    >
+      radius="md">
       <TbRefresh />
     </ActionIcon>
   );

@@ -1,7 +1,7 @@
-import { isNull } from "lodash";
+import { isNull } from 'lodash';
 
 export const getResponse = (response) => {
-  let result = "";
+  let result = '';
   try {
     result = JSON.stringify(JSON.parse(response), undefined, 2);
   } catch {
@@ -16,8 +16,8 @@ export const parseJSONIfPossible = (original: string) => {
     const json = JSON.parse(original);
     result = {
       original,
-      parsed: typeof json === "object" && !isNull(json),
-      json,
+      parsed: typeof json === 'object' && !isNull(json),
+      json
     };
   } catch {
     result = { original, parsed: false, json: {} };

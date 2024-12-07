@@ -1,12 +1,6 @@
-import {
-  IStore,
-  IURLMap,
-  IDynamicURLMap,
-  IMockResponse,
-  IMockGroup,
-} from "@mokku/types";
-import { getStore, getDefaultStore } from "../service/storeActions";
-import { create } from "zustand";
+import { create } from 'zustand';
+import { IDynamicURLMap, IMockGroup, IMockResponse, IStore, IURLMap } from '@mokku/types';
+import { getDefaultStore, getStore } from '../service/storeActions';
 
 export type StoreProperties = {
   store: IStore;
@@ -42,5 +36,5 @@ export const useChromeStore = create<useChromeStoreState>((set, get) => ({
   selectedGroup: undefined,
   setSelectedGroup: (group?: IMockGroup) => {
     set({ selectedGroup: group });
-  },
+  }
 }));

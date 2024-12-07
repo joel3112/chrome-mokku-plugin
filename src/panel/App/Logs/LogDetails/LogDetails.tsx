@@ -1,9 +1,9 @@
-import React from "react";
-import { ILog } from "@mokku/types";
-import { Card, createStyles, Flex, rem, Tabs, TextInput } from "@mantine/core";
-import { LogDetailsJSON } from "./LogDetails.JSON";
-import { LogDetailsHeader } from "./LogDetails.Header";
-import { SideDrawer } from "../../Blocks/SideDrawer";
+import React from 'react';
+import { Card, Flex, Tabs, TextInput, createStyles, rem } from '@mantine/core';
+import { ILog } from '@mokku/types';
+import { SideDrawer } from '../../Blocks/SideDrawer';
+import { LogDetailsHeader } from './LogDetails.Header';
+import { LogDetailsJSON } from './LogDetails.JSON';
 
 interface IProps {
   log: ILog;
@@ -12,41 +12,41 @@ interface IProps {
 
 const useStyles = createStyles((theme) => ({
   tabList: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between'
   },
   panel: {
     flexGrow: 2,
-    padding: "0 !important",
-    overflow: "auto",
+    padding: '0 !important',
+    overflow: 'auto'
   },
   tabs: {
-    height: "100%",
+    height: '100%'
   },
   card: {
-    display: "flex",
-    flexDirection: "column",
-    background: "transparent",
-    height: "100%",
-    borderRadius: 0,
+    display: 'flex',
+    flexDirection: 'column',
+    background: 'transparent',
+    height: '100%',
+    borderRadius: 0
   },
   wrapper: {
-    height: "100%",
-    overflow: "auto",
+    height: '100%',
+    overflow: 'auto',
     paddingBlock: 12,
     paddingInline: 20,
-    "label:not([class*=SegmentedControl])": {
+    'label:not([class*=SegmentedControl])': {
       fontSize: rem(13),
-      marginBottom: 4,
+      marginBottom: 4
     },
     textarea: {
-      overflowY: "clip",
-    },
+      overflowY: 'clip'
+    }
   },
   jsonWrapper: {
-    maxWidth: "100%",
-  },
+    maxWidth: '100%'
+  }
 }));
 
 export const LogDetails = ({ log }: IProps) => {
@@ -59,7 +59,7 @@ export const LogDetails = ({ log }: IProps) => {
           <TextInput label="URL" readOnly value={log.request?.url} />
 
           <Tabs defaultValue="response" className={classes.tabs}>
-            <Flex style={{ height: "100%" }} direction="column">
+            <Flex style={{ height: '100%' }} direction="column">
               <Tabs.List className={classes.tabList}>
                 <Flex>
                   <Tabs.Tab value="response">Response</Tabs.Tab>

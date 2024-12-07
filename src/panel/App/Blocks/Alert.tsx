@@ -1,5 +1,5 @@
-import { Button, Flex, Modal } from "@mantine/core";
-import React from "react";
+import React from 'react';
+import { Button, Flex, Modal } from '@mantine/core';
 
 type AlertProps = {
   opened: boolean;
@@ -15,14 +15,7 @@ type AlertProps = {
   }[];
 };
 
-export const Alert = ({
-  opened,
-  onClose,
-  title,
-  content,
-  actions,
-  size = "md",
-}: AlertProps) => {
+export const Alert = ({ opened, onClose, title, content, actions, size = 'md' }: AlertProps) => {
   return (
     <Modal
       opened={opened}
@@ -31,8 +24,7 @@ export const Alert = ({
       size={size}
       title={title}
       overlayProps={{ opacity: 0.3 }}
-      centered
-    >
+      centered>
       <Flex gap={4} direction="column" mb={16}>
         {content}
       </Flex>
@@ -44,8 +36,7 @@ export const Alert = ({
               action.onClick();
             }}
             color={action.color}
-            variant={action.variant}
-          >
+            variant={action.variant}>
             {action.text}
           </Button>
         ))}

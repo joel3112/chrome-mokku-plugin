@@ -1,14 +1,14 @@
-import { IMockResponse, MethodEnum } from "@mokku/types";
-import { Badge } from "@mantine/core";
-import React from "react";
+import React from 'react';
+import { Badge } from '@mantine/core';
+import { IMockResponse, MethodEnum } from '@mokku/types';
 
-export const MethodTag = ({ method }: Pick<IMockResponse, "method">) => {
+export const MethodTag = ({ method }: Pick<IMockResponse, 'method'>) => {
   const colorByMethod = {
-    [MethodEnum.GET]: "blue",
-    [MethodEnum.POST]: "green",
-    [MethodEnum.PUT]: "orange",
-    [MethodEnum.PATCH]: "yellow",
-    [MethodEnum.DELETE]: "red",
+    [MethodEnum.GET]: 'blue',
+    [MethodEnum.POST]: 'green',
+    [MethodEnum.PUT]: 'orange',
+    [MethodEnum.PATCH]: 'yellow',
+    [MethodEnum.DELETE]: 'red'
   };
 
   return (
@@ -20,26 +20,21 @@ export const MethodTag = ({ method }: Pick<IMockResponse, "method">) => {
 
 export const StatusTag = ({
   status,
-  onClick,
-}: Pick<IMockResponse, "status"> & {
+  onClick
+}: Pick<IMockResponse, 'status'> & {
   onClick?: () => void;
 }) => {
   const initialNumber = Math.floor(status / 100).toString();
   const colorByNumber = {
-    1: "blue",
-    2: "green",
-    3: "violet",
-    4: "yellow",
-    5: "red",
+    1: 'blue',
+    2: 'green',
+    3: 'violet',
+    4: 'yellow',
+    5: 'red'
   };
 
   return (
-    <Badge
-      color={colorByNumber[initialNumber]}
-      radius="sm"
-      size="sm"
-      onClick={onClick}
-    >
+    <Badge color={colorByNumber[initialNumber]} radius="sm" size="sm" onClick={onClick}>
       {status}
     </Badge>
   );

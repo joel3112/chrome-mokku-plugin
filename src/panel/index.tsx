@@ -1,9 +1,8 @@
-import * as React from "react";
-import { createRoot } from "react-dom/client";
-
-import "../dashboard/index.scss";
-import { MultipleTabsSelector } from "./App/MultipleTabsSelector";
-import { AppLoader } from "./App/AppLoader";
+import * as React from 'react';
+import { createRoot } from 'react-dom/client';
+import '../dashboard/index.scss';
+import { AppLoader } from './App/AppLoader';
+import { MultipleTabsSelector } from './App/MultipleTabsSelector';
 
 /**
  * case:
@@ -13,21 +12,21 @@ import { AppLoader } from "./App/AppLoader";
  */
 export const getDomain = (url: string) => {
   if (!url) {
-    return "";
+    return '';
   }
   let domain = url;
-  domain = domain.replace("https://", "");
-  domain = domain.replace("http://", "");
-  domain = domain.replace("https://", "");
-  domain = domain.replace("http://", "");
-  const domainLastIndex = domain.indexOf("/");
+  domain = domain.replace('https://', '');
+  domain = domain.replace('http://', '');
+  domain = domain.replace('https://', '');
+  domain = domain.replace('http://', '');
+  const domainLastIndex = domain.indexOf('/');
   if (domainLastIndex !== -1) {
     domain = domain.substr(0, domainLastIndex);
   }
   return domain;
 };
 
-const rootElement = document.getElementById("root");
+const rootElement = document.getElementById('root');
 const root = createRoot(rootElement);
 
 chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {

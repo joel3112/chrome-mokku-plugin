@@ -1,17 +1,16 @@
-import xhook from "xhook";
-import { v4 as uuidv4 } from "uuid";
-import { parse } from "query-string";
-
-import IdFactory from "./services/idFactory";
-import MessageBus from "./services/message/messageBus";
-import { getHeaders } from "./services/helper";
-import messageService from "./services/message";
-import { IEventMessage, ILog, IMockResponse } from "@mokku/types";
+import { parse } from 'query-string';
+import { v4 as uuidv4 } from 'uuid';
+import xhook from 'xhook';
+import { IEventMessage, ILog, IMockResponse } from '@mokku/types';
+import { getHeaders } from './services/helper';
+import IdFactory from './services/idFactory';
+import messageService from './services/message';
+import MessageBus from './services/message/messageBus';
 
 const messageBus = new MessageBus();
 const messageIdFactory = new IdFactory();
 
-messageService.listen("HOOK", (data) => {
+messageService.listen('HOOK', (data) => {
   messageBus.dispatch(data.id, data.message);
 });
 
@@ -21,8 +20,8 @@ messageService.listen("HOOK", (data) => {
  * message id was not the problem but function in message bus was
  */
 const postMessage = (
-  message: IEventMessage["message"],
-  type: IEventMessage["type"],
+  message: IEventMessage['message'],
+  type: IEventMessage['type'],
   ackRequired
 ) => {
   const messageId = ackRequired ? messageIdFactory.getId() : null;
@@ -30,10 +29,10 @@ const postMessage = (
   const messageObject: IEventMessage = {
     id: messageId,
     message,
-    to: "CONTENT",
-    from: "HOOK",
-    extensionName: "MOKKU",
-    type,
+    to: 'CONTENT',
+    from: 'HOOK',
+    extensionName: 'MOKKU',
+    type
   };
 
   messageService.send(messageObject);
@@ -47,13 +46,13 @@ const postMessage = (
 
 xhook.before(function (request, callback) {
   request.mokku = {
-    id: uuidv4(),
+    id: uuidv4()
   };
 
-  const data: IEventMessage["message"] = getLog(request);
-  postMessage(data, "LOG", false);
+  const data: IEventMessage['message'] = getLog(request);
+  postMessage(data, 'LOG', false);
 
-  postMessage(data, "NOTIFICATION", true)
+  postMessage(data, 'NOTIFICATION', true)
     .then((data: { mockResponse: IMockResponse }) => {
       if (data && data.mockResponse) {
         const mock = data.mockResponse;
@@ -64,14 +63,14 @@ xhook.before(function (request, callback) {
               return final;
             }, {})
           : {
-              "content-type": "application/json; charset=UTF-8",
+              'content-type': 'application/json; charset=UTF-8'
             };
 
         const finalResponse = {
           status: mock.status,
-          text: mock.response ? mock.response : "",
+          text: mock.response ? mock.response : '',
           headers,
-          type: "json",
+          type: 'json'
         };
 
         if (mock.delay) {
@@ -86,35 +85,33 @@ xhook.before(function (request, callback) {
       }
     })
     .catch(() => {
-      console.log("something went wrong!");
+      console.log('something went wrong!');
     });
 });
 
 const getLog = (
-  request: Omit<ILog["request"], "headers"> & {
+  request: Omit<ILog['request'], 'headers'> & {
     headers: Record<string, string>;
     mokku?: {
       id: string;
     };
   },
-  response?: ILog["response"]
-): IEventMessage["message"] => {
-  const separator = request.url.indexOf("?");
+  response?: ILog['response']
+): IEventMessage['message'] => {
+  const separator = request.url.indexOf('?');
   const url = separator !== -1 ? request.url.substr(0, separator) : request.url;
   const queryParams =
-    separator !== -1
-      ? JSON.stringify(parse(request.url.substr(separator)))
-      : undefined;
+    separator !== -1 ? JSON.stringify(parse(request.url.substr(separator))) : undefined;
 
   let body = request.body;
 
   try {
-    if (typeof body === "object") {
+    if (typeof body === 'object') {
       const stringifiedBody = JSON.stringify(body);
       body = stringifiedBody;
     }
   } catch (e) {
-    body = "Unsupported body type!";
+    body = 'Unsupported body type!';
   }
 
   return {
@@ -122,53 +119,53 @@ const getLog = (
       url,
       body,
       queryParams,
-      method: request.method || "GET",
-      headers: getHeaders(request.headers),
+      method: request.method || 'GET',
+      headers: getHeaders(request.headers)
     },
     response,
-    id: request.mokku?.id,
+    id: request.mokku?.id
   };
 };
 
 xhook.after(function (request, originalResponse) {
   try {
-    if (typeof originalResponse.clone === "function") {
+    if (typeof originalResponse.clone === 'function') {
       const response = originalResponse.clone();
-      if (typeof response.text === "string") {
-        const data: IEventMessage["message"] = getLog(request, {
+      if (typeof response.text === 'string') {
+        const data: IEventMessage['message'] = getLog(request, {
           status: response.status,
           response: response.text,
-          headers: getHeaders(response.headers),
+          headers: getHeaders(response.headers)
         });
-        postMessage(data, "LOG", false);
+        postMessage(data, 'LOG', false);
       } else {
         response.text().then((streamedResponse) => {
-          const data: IEventMessage["message"] = getLog(request, {
+          const data: IEventMessage['message'] = getLog(request, {
             status: response.status,
             response: streamedResponse,
-            headers: getHeaders(response.headers),
+            headers: getHeaders(response.headers)
           });
-          postMessage(data, "LOG", false);
+          postMessage(data, 'LOG', false);
         });
       }
     } else {
-      const data: IEventMessage["message"] = getLog(request, {
+      const data: IEventMessage['message'] = getLog(request, {
         status: originalResponse.status,
         response:
-          typeof originalResponse.text === "string"
+          typeof originalResponse.text === 'string'
             ? originalResponse.text
-            : "Cannot parse response, logging libraries can cause this.",
-        headers: getHeaders(originalResponse.headers),
+            : 'Cannot parse response, logging libraries can cause this.',
+        headers: getHeaders(originalResponse.headers)
       });
-      postMessage(data, "LOG", false);
+      postMessage(data, 'LOG', false);
     }
   } catch (error) {
-    const data: IEventMessage["message"] = getLog(request, {
+    const data: IEventMessage['message'] = getLog(request, {
       status: 0,
       response: undefined,
-      headers: [],
+      headers: []
     });
-    postMessage(data, "LOG", false);
-    console.log("INJECT_ERROR", error);
+    postMessage(data, 'LOG', false);
+    console.log('INJECT_ERROR', error);
   }
 });

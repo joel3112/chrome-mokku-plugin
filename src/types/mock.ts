@@ -1,30 +1,30 @@
 export enum MethodEnum {
-  GET = "GET",
-  POST = "POST",
-  PATCH = "PATCH",
-  PUT = "PUT",
-  DELETE = "DELETE",
+  GET = 'GET',
+  POST = 'POST',
+  PATCH = 'PATCH',
+  PUT = 'PUT',
+  DELETE = 'DELETE'
 }
 
 export enum MockType {
-  GROUP = "group",
-  MOCK = "mock",
+  GROUP = 'group',
+  MOCK = 'mock'
 }
 
 export enum MockStatusEnum {
-  ACTIVE = "ACTIVE",
-  INACTIVE = "INACTIVE",
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE'
 }
 
 export enum GroupStatusEnum {
-  ACTIVE = "ACTIVE",
-  INACTIVE = "INACTIVE",
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE'
 }
 
 export enum ActionInFormEnum {
-  ADD = "ADD",
-  UPDATE = "UPDATE",
-  DUPLICATE = "DUPLICATE",
+  ADD = 'ADD',
+  UPDATE = 'UPDATE',
+  DUPLICATE = 'DUPLICATE'
 }
 
 export type Headers = Array<{ name: string; value: string }>;
@@ -82,7 +82,7 @@ export interface IMockResponse {
     body: Record<string, any>;
     params: Record<string, any>;
     queryParams: Record<string, any>;
-  }) => IMockResponse["response"];
+  }) => IMockResponse['response'];
 }
 
 export interface IWorkspace {
@@ -97,7 +97,7 @@ export type IMockResponseRaw = Partial<IMockResponse>;
 
 export interface IStore {
   active: boolean;
-  theme: "dark" | "light";
+  theme: 'dark' | 'light';
   settings: {
     enabledScenarios: boolean;
   };
@@ -115,7 +115,7 @@ export interface IStore {
   >;
 }
 
-export type DBNameType = "mokku.extension.main.db";
+export type DBNameType = 'mokku.extension.main.db';
 
 export type IDB = Record<DBNameType, IStore>;
 

@@ -1,5 +1,5 @@
-import { create } from "zustand";
-import { ILog } from "@mokku/types";
+import { create } from 'zustand';
+import { ILog } from '@mokku/types';
 
 export type useLogStoreState = {
   logs: ILog[];
@@ -16,23 +16,23 @@ export const useLogStore = create<useLogStoreState>((set, get) => ({
   logs: [],
   addLog: (log: ILog) => {
     set({
-      logs: [log, ...get().logs],
+      logs: [log, ...get().logs]
     });
   },
   updateLog: (log: ILog) => {
     set({
-      logs: get().logs.map((item) => (item.id === log.id ? log : item)),
+      logs: get().logs.map((item) => (item.id === log.id ? log : item))
     });
   },
   upsertLog: (log: ILog) => {
     const logExist = get().logs.find(({ id }) => id === log.id);
     if (logExist) {
       set({
-        logs: get().logs.map((item) => (item.id === log.id ? log : item)),
+        logs: get().logs.map((item) => (item.id === log.id ? log : item))
       });
     } else {
       set({
-        logs: [log, ...get().logs],
+        logs: [log, ...get().logs]
       });
     }
   },
@@ -42,5 +42,5 @@ export const useLogStore = create<useLogStoreState>((set, get) => ({
   selectedLog: undefined,
   setSelectedLog: (log?: ILog) => {
     set({ selectedLog: log });
-  },
+  }
 }));

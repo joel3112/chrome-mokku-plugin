@@ -1,11 +1,11 @@
-import { MethodEnum } from "@mokku/types";
+import { MethodEnum } from '@mokku/types';
 
 export const getNetworkMethodList = (): (keyof typeof MethodEnum)[] => [
-  "GET",
-  "POST",
-  "PATCH",
-  "PUT",
-  "DELETE",
+  'GET',
+  'POST',
+  'PATCH',
+  'PUT',
+  'DELETE'
 ];
 
 export const getNetworkMethodMap = () => ({
@@ -13,5 +13,5 @@ export const getNetworkMethodMap = () => ({
   POST: null,
   PATCH: null,
   PUT: null,
-  DELETE: null,
+  DELETE: null
 });

@@ -9,7 +9,8 @@
     "watch:example": "npx http-server example",
     "clean": "rimraf dist",
     "test": "npx jest",
-    "docsify": "docsify"
+    "docsify": "docsify",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\""
   },
   "author": "",
   "license": "MIT",

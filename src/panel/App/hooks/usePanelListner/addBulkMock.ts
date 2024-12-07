@@ -1,12 +1,10 @@
-import { storeActions } from "../../service/storeActions";
-import { IMockResponse } from "@mokku/types";
-import { notifications } from "@mantine/notifications";
-import { useChromeStore, useGlobalStore } from "@mokku/store";
+import { notifications } from '@mantine/notifications';
+import { useChromeStore, useGlobalStore } from '@mokku/store';
+import { IMockResponse } from '@mokku/types';
+import { storeActions } from '../../service/storeActions';
 
 export const useAddBulkMock = () => {
-  const setStoreProperties = useChromeStore(
-    (state) => state.setStoreProperties
-  );
+  const setStoreProperties = useChromeStore((state) => state.setStoreProperties);
   const tab = useGlobalStore((state) => state.meta.tab);
 
   const addBulkMock = async (mocks: IMockResponse[]) => {
@@ -19,16 +17,15 @@ export const useAddBulkMock = () => {
       .then(() => {
         storeActions.refreshContentStore(tab.id);
         notifications.show({
-          title: "Network calls mocked successfully.",
-          message:
-            "Current recording of network calls has been mock successfully.",
+          title: 'Network calls mocked successfully.',
+          message: 'Current recording of network calls has been mock successfully.'
         });
       })
       .catch((e) => {
         console.log(e);
         notifications.show({
-          title: "Cannot mock network calls.",
-          message: "Something went wrong, check console for more.",
+          title: 'Cannot mock network calls.',
+          message: 'Something went wrong, check console for more.'
         });
       });
   };

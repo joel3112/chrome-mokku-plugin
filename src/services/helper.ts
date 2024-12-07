@@ -1,4 +1,4 @@
-import { find, groupBy, map } from "lodash";
+import { find, groupBy, map } from 'lodash';
 
 export const isValidJSON = (
   json: string
@@ -11,7 +11,7 @@ export const isValidJSON = (
     let lineNumber = undefined;
     const jsonErrorRegex = new RegExp(/(?<=\bposition\s)(\w+)/g);
     const stringifiedError = e.toString();
-    if (stringifiedError !== "Unexpected end of JSON input") {
+    if (stringifiedError !== 'Unexpected end of JSON input') {
       const x = jsonErrorRegex.exec(stringifiedError);
       position = x && x.length > 0 ? parseInt(x[0], 10) : undefined;
       if (position) {
@@ -20,7 +20,7 @@ export const isValidJSON = (
           if (i === position) {
             break;
           }
-          if (json[i] === "\n") {
+          if (json[i] === '\n') {
             lineNumber++;
           }
         }
@@ -29,11 +29,9 @@ export const isValidJSON = (
       jsonErrorRegex.lastIndex = 0;
     }
     return {
-      error: `${stringifiedError}${
-        lineNumber ? " and at line number " + lineNumber : ""
-      }`,
+      error: `${stringifiedError}${lineNumber ? ' and at line number ' + lineNumber : ''}`,
       position,
-      lineNumber,
+      lineNumber
     };
   }
 };
@@ -48,28 +46,19 @@ export const getError = (errors: Record<string, string | string[]>) => {
 };
 
 export const getHeaders = (headers: Record<string, string>) => {
-  if (typeof headers === "object") {
+  if (typeof headers === 'object') {
     return Object.keys(headers).map((name) => ({
       name,
-      value: headers[name],
+      value: headers[name]
     }));
   }
   return [];
 };
 
-export const uniqueItemsByKeys = <T>(
-  array: T[],
-  keys: (keyof T)[],
-  priorityKey = "selected"
-) => {
+export const uniqueItemsByKeys = <T>(array: T[], keys: (keyof T)[], priorityKey = 'selected') => {
   // Crear un mapa de agrupación usando una clave única basada en las claves especificadas
-  const grouped = groupBy(array, (item) =>
-    keys.map((key) => item[key]).join("|")
-  );
+  const grouped = groupBy(array, (item) => keys.map((key) => item[key]).join('|'));
 
   // Iterar sobre los grupos y priorizar según el priorityKey
-  return map(
-    grouped,
-    (group) => find(group, (item) => item[priorityKey]) || group[0]
-  );
+  return map(grouped, (group) => find(group, (item) => item[priorityKey]) || group[0]);
 };

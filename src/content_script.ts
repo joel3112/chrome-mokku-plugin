@@ -1,9 +1,9 @@
-import { get } from "lodash";
-import { wildcardPattern } from "wildcard-regex";
-import inject from "./contentScript/injectToDom";
-import messageService from "./services/message";
-import { getStore, storeActions } from "./panel/App/service/storeActions";
-import { IDynamicURLMap, IEventMessage, ILog } from "@mokku/types";
+import { get } from 'lodash';
+import { wildcardPattern } from 'wildcard-regex';
+import { IDynamicURLMap, IEventMessage, ILog } from '@mokku/types';
+import inject from './contentScript/injectToDom';
+import { getStore, storeActions } from './panel/App/service/storeActions';
+import messageService from './services/message';
 
 const init = () => {
   let store, urlMap, dynamicUrlMap: IDynamicURLMap;
@@ -23,8 +23,8 @@ const init = () => {
         }
       }
 
-      const url1 = url.replace("://", "-");
-      const key = url1.split("/").length;
+      const url1 = url.replace('://', '-');
+      const key = url1.split('/').length;
 
       let i = 0;
       while (i < key) {
@@ -44,7 +44,7 @@ const init = () => {
 
       return stack;
     } catch (error) {
-      console.error(">> Error in getMockPath", error);
+      console.error('>> Error in getMockPath', error);
       return [];
     }
   };
@@ -57,8 +57,7 @@ const init = () => {
     });
   };
 
-  const hasGroupActive = (mock) =>
-    storeActions.isActiveGroupByMock(store, mock);
+  const hasGroupActive = (mock) => storeActions.isActiveGroupByMock(store, mock);
 
   const isActiveSelectedMock = (mock) => {
     const hasEscenarios = storeActions.hasMultipleScenarios(store, mock);
@@ -87,14 +86,11 @@ const init = () => {
     return { mock: null, path: null };
   };
 
-  messageService.listen("CONTENT", (data: IEventMessage) => {
-    if (data.type === "LOG") {
+  messageService.listen('CONTENT', (data: IEventMessage) => {
+    if (data.type === 'LOG') {
       const message = data.message as ILog;
 
-      const mockPaths = getMockPath(
-        message.request.url,
-        message.request.method
-      );
+      const mockPaths = getMockPath(message.request.url, message.request.method);
       const { mock, path } = getActiveMockWithPath(mockPaths);
 
       if (mock && hasGroupActive(mock)) {
@@ -104,24 +100,24 @@ const init = () => {
 
       messageService.send({
         message,
-        type: "LOG",
-        from: "CONTENT",
-        to: "PANEL",
+        type: 'LOG',
+        from: 'CONTENT',
+        to: 'PANEL'
       });
       return;
     }
 
-    if (data.type === "NOTIFICATION" && data.message === "UPDATE_STORE") {
+    if (data.type === 'NOTIFICATION' && data.message === 'UPDATE_STORE') {
       updateStore();
       return;
     }
 
-    const response: Omit<IEventMessage, "type"> = {
+    const response: Omit<IEventMessage, 'type'> = {
       id: data.id,
-      from: "CONTENT",
-      to: "HOOK",
-      extensionName: "MOKKU",
-      message: {},
+      from: 'CONTENT',
+      to: 'HOOK',
+      extensionName: 'MOKKU',
+      message: {}
     };
 
     const request = (data.message as ILog).request;
@@ -137,7 +133,7 @@ const init = () => {
 };
 
 const host = location.host;
-const isLocalhost = location.href.includes("http://localhost");
+const isLocalhost = location.href.includes('http://localhost');
 
 chrome.storage.local.get([`mokku.extension.active.${host}`], function (result) {
   let active = result[`mokku.extension.active.${host}`];
@@ -152,8 +148,8 @@ chrome.storage.local.get([`mokku.extension.active.${host}`], function (result) {
   // tell the panel about the new injection (host might have changed)
   messageService.send({
     message: host,
-    type: "INIT",
-    from: "CONTENT",
-    to: "PANEL",
+    type: 'INIT',
+    from: 'CONTENT',
+    to: 'PANEL'
   });
 });

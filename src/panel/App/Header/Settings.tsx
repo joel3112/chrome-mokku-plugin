@@ -4,6 +4,8 @@ import {
   ActionIcon,
   Button,
   Card,
+  Center,
+  Checkbox,
   ColorScheme,
   createStyles,
   FileButton,
@@ -86,12 +88,16 @@ export const Settings = ({
     (state) => state.setStoreProperties
   );
 
+  const updateUI = (res) => {
+    setStoreProperties(res);
+    onClose();
+  };
+
   useEffect(() => {
     if (file) {
       extractJsonFromFile(file)
         .then((jsonData) => {
-          onClose();
-          updateStoreInDB({ ...store, ...jsonData }).then(setStoreProperties);
+          updateStoreInDB({ ...store, ...jsonData }).then(updateUI);
           notifications.show({
             title: `Import data`,
             message: `Data imported successfully`,
@@ -126,8 +132,7 @@ export const Settings = ({
       labels: { confirm: "Clear", cancel: "No don't clear it" },
       confirmProps: { color: "red" },
       onConfirm: () => {
-        onClose();
-        storeActions.resetStoreInDB().then(setStoreProperties);
+        storeActions.resetStoreInDB().then(updateUI);
         notifications.show({
           title: `Clear data`,
           message: `All data cleared successfully`,
@@ -149,13 +154,30 @@ export const Settings = ({
         </ActionIcon>
       </Flex>
       <Flex direction="column" align="center" gap="100px">
-        <Flex direction="column" align="center" gap="16px">
-          <Title order={4}>Settings</Title>
+        <Flex direction="column" gap="16px">
+          <Center>
+            <Title order={4}>Settings</Title>
+          </Center>
+          <Checkbox
+            defaultChecked={store.settings.enabledScenarios}
+            onChange={(event) => {
+              updateStoreInDB({
+                ...store,
+                settings: {
+                  ...store.settings,
+                  enabledScenarios: event.target.checked,
+                },
+              }).then(updateUI);
+            }}
+            label="Enable scenarios"
+            description="The mocks with same URL and method will be grouped together"
+            mb={12}
+          />
           <Text style={{ maxWidth: 480 }} fz="sm">
             You can import and export your data, change the theme, and clear
             all.
           </Text>
-          <Flex direction="column" align="center">
+          <Flex direction="column">
             <Flex gap="8px">
               <FileButton
                 onChange={setFile}
@@ -209,14 +231,16 @@ export const Settings = ({
           </Flex>
         </Flex>
 
-        <Flex direction="column" align="center" gap="16px">
-          <Title order={4}>Support the Mokku's Development</Title>
+        <Flex direction="column" gap="16px">
+          <Center>
+            <Title order={4}>Support the Mokku's Development</Title>
+          </Center>
           <Text style={{ maxWidth: 480 }} fz="sm">
             Hi there 👋, I am an Indie developer, who works in his spare time to
             develop Mokku and help other developers around the world, your
             support is highly appreciated to keep the project alive.
           </Text>
-          <Flex direction="column" align="center">
+          <Flex direction="column">
             <Flex gap="8px">
               <Button
                 size="xs"

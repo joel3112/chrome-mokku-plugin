@@ -83,6 +83,7 @@ const getSchema = ({
   editGroup,
 }: GetSchemeProps): TableSchema<IMockResponse | IMockGroup> => {
   const { classes } = useStyles();
+  const store = useChromeStore((state) => state.store);
 
   return [
     {
@@ -113,7 +114,8 @@ const getSchema = ({
             status: scenario.status,
           }));
 
-          if (scenarioOptions.length === 1) {
+          const scenariosSettinsEnabled = store.settings.enabledScenarios;
+          if (scenarioOptions.length === 1 || !scenariosSettinsEnabled) {
             return <Name active={mustMockActive(data)}>{data.name}</Name>;
           }
 
@@ -371,11 +373,9 @@ export const Mocks = () => {
       }
     });
 
-    const uniqueMocks = uniqueItemsByKeys(
-      mocks,
-      ["url", "method", "groupId"],
-      "selected"
-    );
+    const uniqueMocks = store.settings.enabledScenarios
+      ? uniqueItemsByKeys(mocks, ["url", "method", "groupId"], "selected")
+      : mocks;
 
     // Map group IDs to their respective mocks
     const groupedMocks = {};

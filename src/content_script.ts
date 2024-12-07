@@ -63,7 +63,7 @@ const init = () => {
 
   const isActiveSelectedMock = (mock) => {
     const hasEscenarios = storeActions.hasMultipleScenarios(store, mock);
-    if (hasEscenarios) {
+    if (hasEscenarios && store.settings.enabledScenarios) {
       return mock.selected && mock.active;
     }
     return mock.active;

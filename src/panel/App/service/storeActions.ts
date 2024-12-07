@@ -23,6 +23,9 @@ const storeName = "mokku.extension.main.db";
 export const getDefaultStore = (): IStore => ({
   theme: defaultTheme,
   active: false,
+  settings: {
+    enabledScenarios: true,
+  },
   groups: null,
   totalGroupsCreated: 0,
   mocks: null,

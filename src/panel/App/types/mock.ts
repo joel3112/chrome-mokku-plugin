@@ -92,6 +92,9 @@ export type IMockResponseRaw = Partial<IMockResponse>;
 export interface IStore {
   active: boolean;
   theme: "dark" | "light";
+  settings: {
+    enabledScenarios: boolean;
+  };
   groups: IMockGroup[];
   totalGroupsCreated: number;
   mocks: IMockResponse[];

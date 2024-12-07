@@ -5,12 +5,12 @@ const srcDir = "../src/";
 
 module.exports = {
   entry: {
-    options: path.join(__dirname, srcDir + "options.ts"),
-    background: path.join(__dirname, srcDir + "background.ts"),
-    content_script: path.join(__dirname, srcDir + "content_script.ts"),
-    devtool: path.join(__dirname, srcDir + "devtool.ts"),
-    panel: path.join(__dirname, srcDir + "panel/index.tsx"),
-    inject: path.join(__dirname, srcDir + "inject.ts"),
+    options: path.join(__dirname, `${srcDir}options.ts`),
+    background: path.join(__dirname, `${srcDir}background.ts`),
+    content_script: path.join(__dirname, `${srcDir}content_script.ts`),
+    devtool: path.join(__dirname, `${srcDir}devtool.ts`),
+    panel: path.join(__dirname, `${srcDir}panel/index.tsx`),
+    inject: path.join(__dirname, `${srcDir}inject.ts`),
   },
   output: {
     path: path.join(__dirname, "../dist/js"),
@@ -58,9 +58,5 @@ module.exports = {
       "@mokku/store": path.resolve(__dirname, `${srcDir}panel/App/store`),
     },
   },
-  plugins: [
-    // exclude locale files in moment
-    new webpack.IgnorePlugin({ resourceRegExp: /moment\/locale\// }),
-    new CopyPlugin([{ from: ".", to: "../" }], { context: "public" }),
-  ],
+  plugins: [new CopyPlugin([{ from: ".", to: "../" }], { context: "public" })],
 };

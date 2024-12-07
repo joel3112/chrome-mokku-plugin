@@ -2,6 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "module": "commonjs",
+    "lib": ["es2016", "dom"],
     "target": "es6",
     "jsx": "react",
     "noImplicitAny": false,

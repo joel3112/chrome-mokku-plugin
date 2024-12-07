@@ -1,7 +1,8 @@
 import React from "react";
-import { SideDrawer, SideDrawerHeader } from "../../Blocks/SideDrawer";
+import { SideDrawer } from "../../Blocks/SideDrawer";
 import { useChromeStore, useChromeStoreState } from "../../store/useMockStore";
 import { AddMockForm } from "./AddMock.Form";
+import { IMockResponseRaw } from "../../types/mock";
 
 const useMockStoreSelector = (state: useChromeStoreState) => ({
   store: state.store,
@@ -10,7 +11,12 @@ const useMockStoreSelector = (state: useChromeStoreState) => ({
   setStoreProperties: state.setStoreProperties,
 });
 
-export const AddMock = () => {
+type AddMockProps = {
+  onClose: () => void;
+  onFormChange?: (values: IMockResponseRaw) => void;
+};
+
+export const AddMock = ({ onClose, onFormChange }: AddMockProps) => {
   const {
     store,
     selectedMock,
@@ -19,13 +25,15 @@ export const AddMock = () => {
   } = useChromeStore(useMockStoreSelector);
 
   return (
-    <SideDrawer minWidth={480}>
+    <SideDrawer minWidth={520}>
       <AddMockForm
         key={`${selectedMock.id}-${selectedMock.url}`}
         store={store}
         selectedMock={selectedMock}
         setSelectedMock={setSelectedMock}
         setStoreProperties={setStoreProperties}
+        onClose={onClose}
+        onFormChange={onFormChange}
       />
     </SideDrawer>
   );

@@ -3,70 +3,82 @@ import {
   Card,
   createStyles,
   Flex,
-  SegmentedControl,
+  JsonInput,
+  NumberInput,
+  rem,
+  Select,
   Tabs,
-  Text,
   Textarea,
   TextInput,
-  Title,
-  JsonInput,
 } from "@mantine/core";
 import { v4 as uuidv4 } from "uuid";
-import React from "react";
-import { SideDrawerHeader } from "../../Blocks/SideDrawer";
+import React, { useEffect } from "react";
 import {
-  IMockResponseRaw,
+  ActionInFormEnum,
   IMockResponse,
+  IMockResponseRaw,
   MethodEnum,
   MockStatusEnum,
 } from "../../types";
 import { useForm } from "@mantine/form";
-import { MdClose, MdDeleteOutline } from "react-icons/md";
+import { MdDeleteOutline } from "react-icons/md";
 import { storeActions } from "../../service/storeActions";
 import { useChromeStoreState } from "../../store/useMockStore";
 import { notifications } from "@mantine/notifications";
 import { useGlobalStore } from "../../store/useGlobalStore";
-import { isJsonValid } from "./utils";
+import { FORM_ID, getActionInForm } from "../../Blocks/Modal";
+import { statusOptions } from "./data";
+import { SegmentedControl } from "../../Blocks/SegmentedControl";
 
-const useStyles = createStyles((theme) => ({
+export const useStyles = createStyles((theme) => ({
   flexGrow: {
     flexGrow: 2,
   },
   card: {
     display: "flex",
     flexDirection: "column",
-    padding: "0 !important",
+    background: "transparent",
     height: "100%",
     borderRadius: 0,
   },
   wrapper: {
-    padding: 12,
     height: "100%",
     overflow: "auto",
-    paddingTop: 0,
+    paddingBlock: 12,
+    paddingInline: 20,
+    "label:not([class*=SegmentedControl])": {
+      fontSize: rem(13),
+      marginBottom: 4,
+    },
+    textarea: {
+      overflowY: "clip",
+    },
   },
   tabs: {
     flexGrow: 2,
     display: "flex",
     flexDirection: "column",
   },
-  footer: {
-    padding: 12,
-    borderTop: `1px solid ${theme.colors.gray[2]}`,
-  },
 }));
+
+type AddMockFormProps = Pick<
+  useChromeStoreState,
+  "store" | "selectedMock" | "setSelectedMock" | "setStoreProperties"
+> & {
+  onClose: () => void;
+  onFormChange?: (values: IMockResponseRaw) => void;
+};
 
 export const AddMockForm = ({
   store,
   selectedMock,
   setSelectedMock,
   setStoreProperties,
-}: Pick<
-  useChromeStoreState,
-  "store" | "selectedMock" | "setSelectedMock" | "setStoreProperties"
->) => {
+  onFormChange,
+  onClose,
+}: AddMockFormProps) => {
   const {
-    classes: { flexGrow, wrapper, tabs, footer, card },
+    classes: { flexGrow, wrapper, tabs, card },
   } = useStyles();
   const tab = useGlobalStore((state) => state.meta.tab);
 
@@ -75,21 +87,34 @@ export const AddMockForm = ({
       headers: [],
       status: 200,
       delay: 500,
-      method: "GET",
+      method: MethodEnum.POST,
       active: true,
+      groupId: "",
+      name: "",
+      description: "",
+      url: "",
       ...selectedMock,
     },
   });
-  const isNewMock = !selectedMock.id;
-  const response = form.values["response"];
-  const jsonValid = response ? isJsonValid(response) : true;
+
+  const action = getActionInForm(selectedMock);
+  const isNewMock = action !== ActionInFormEnum.UPDATE;
+
+  const isGroupSelectedActive = store.groups.find(
+    (group) => group.id === form.values.groupId
+  )?.active;
+
+  useEffect(() => {
+    onFormChange?.(form.values);
+  }, [form.values]);
 
   return (
     <form
+      id={FORM_ID}
       style={{ height: "100%" }}
       onSubmit={form.onSubmit((values) => {
-        console.log(899, values);
-        if (!values.id) {
+        console.log("Submit mock", values);
+        if (!values.createdOn) {
           values.id = uuidv4();
         }
         try {
@@ -97,15 +122,23 @@ export const AddMockForm = ({
         } catch (e) {
           values.status = 200;
         }
-        const updatedStore = isNewMock
-          ? storeActions.addMocks(store, values as IMockResponse)
-          : storeActions.updateMocks(store, values as IMockResponse);
+
+        const storeAction = {
+          [ActionInFormEnum.ADD]: storeActions.addMocks,
+          [ActionInFormEnum.UPDATE]: storeActions.updateMocks,
+          [ActionInFormEnum.DUPLICATE]: storeActions.addMocks,
+        };
+        const updatedStore = storeAction[action](
+          store,
+          values as IMockResponse
+        );
+
         storeActions
           .updateStoreInDB(updatedStore)
           .then(setStoreProperties)
           .then(() => {
+            onClose();
             storeActions.refreshContentStore(tab.id);
-            setSelectedMock();
             notifications.show({
               title: `${values.name} mock ${isNewMock ? "added" : "updated"}`,
               message: `Mock "${values.name}" has been ${
@@ -113,7 +146,8 @@ export const AddMockForm = ({
               }.`,
             });
           })
-          .catch(() => {
+          .catch((error) => {
+            console.error("Failed to add mock:", error);
             notifications.show({
               title: `Cannot ${isNewMock ? "add" : "update"} mock.`,
               message: `Something went wrong, unable to ${
@@ -125,94 +159,89 @@ export const AddMockForm = ({
       })}
     >
       <>
-        <Card className={card}>
-          <SideDrawerHeader>
-            <Title order={6}>{isNewMock ? "Add Mock" : "Update Mock"}</Title>
-            <MdClose
-              style={{ cursor: "pointer" }}
-              onClick={() => setSelectedMock()}
-            />
-          </SideDrawerHeader>
+        <Card className={card} p={0}>
           <Flex direction="column" gap={16} className={wrapper}>
-            <Flex gap={12} align="center">
-              <Flex direction="column">
-                <Text fw={500} fz="sm">
-                  Status
-                </Text>
-                <SegmentedControl
-                  value={
-                    form.values.active
-                      ? MockStatusEnum.ACTIVE
-                      : MockStatusEnum.INACTIVE
-                  }
-                  onChange={(value) =>
-                    form.setFieldValue(
-                      "active",
-                      value === MockStatusEnum.ACTIVE,
-                    )
-                  }
-                  size="xs"
-                  data={[
-                    { label: "Active", value: MockStatusEnum.ACTIVE },
-                    { label: "Inactive", value: MockStatusEnum.INACTIVE },
-                  ]}
-                />
-              </Flex>
+            <Flex gap={30} align="flex-end" justify="space-between">
               <TextInput
                 required
                 label="Name"
                 placeholder="Goals Success"
-                className={flexGrow}
+                data-autofocus
+                maw={340}
+                style={{ flex: 1 }}
                 {...form.getInputProps("name")}
               />
-            </Flex>
-            <Flex gap={12} align="center">
-              <Textarea
-                className={flexGrow}
-                label="Description"
-                placeholder="Success case for goals API"
-                {...form.getInputProps("description")}
-              />
-            </Flex>
-            <Flex gap={12} align="center">
-              <TextInput
-                className={flexGrow}
-                label="URL"
-                required
-                placeholder="https://api.awesomeapp.com/goals"
-                {...form.getInputProps("url")}
-              />
-            </Flex>
-            <Flex gap={12} align="center">
-              <Flex direction="column">
-                <Text>Method</Text>
-                <SegmentedControl
-                  value={form.values.method}
-                  onChange={(value) =>
-                    form.setFieldValue("method", value as MethodEnum)
-                  }
-                  size="xs"
-                  data={[
-                    { label: "GET", value: MethodEnum.GET },
-                    { label: "POST", value: MethodEnum.POST },
-                    { label: "PUT", value: MethodEnum.PUT },
-                    { label: "PATCH", value: MethodEnum.PATCH },
-                    { label: "DELETE", value: MethodEnum.DELETE },
-                  ]}
-                />
-              </Flex>
-              <TextInput
-                required
+              <SegmentedControl
                 label="Status"
-                type="number"
-                placeholder="200"
-                {...form.getInputProps("status")}
+                value={
+                  form.values.active
+                    ? MockStatusEnum.ACTIVE
+                    : MockStatusEnum.INACTIVE
+                }
+                onChange={(value) =>
+                  form.setFieldValue("active", value === MockStatusEnum.ACTIVE)
+                }
+                data={[
+                  { label: "Active", value: MockStatusEnum.ACTIVE },
+                  { label: "Inactive", value: MockStatusEnum.INACTIVE },
+                ]}
               />
-              <TextInput
+            </Flex>
+            <Select
+              label="Group"
+              placeholder="Select group"
+              data={store.groups.map((g) => ({ label: g.name, value: g.id }))}
+              description={
+                !isGroupSelectedActive &&
+                form.values.groupId &&
+                "⚠️ Group is disabled"
+              }
+              inputWrapperOrder={["label", "input", "description"]}
+              allowDeselect
+              {...form.getInputProps("groupId")}
+            />
+            <Textarea
+              label="Description"
+              placeholder="Success case for goals API"
+              {...form.getInputProps("description")}
+            />
+            <TextInput
+              label="URL"
+              required
+              placeholder="https://api.awesomeapp.com/goals"
+              {...form.getInputProps("url")}
+            />
+            <Select
+              required
+              label="Status"
+              placeholder="Select status"
+              data={statusOptions}
+              allowDeselect
+              searchable
+              {...form.getInputProps("status")}
+            />
+            <Flex gap={30} align="flex-end" justify="space-between">
+              <SegmentedControl
+                label="Method"
+                value={form.values.method}
+                onChange={(value) =>
+                  form.setFieldValue("method", value as MethodEnum)
+                }
+                data={[
+                  { label: "GET", value: MethodEnum.GET },
+                  { label: "POST", value: MethodEnum.POST },
+                  { label: "PUT", value: MethodEnum.PUT },
+                  { label: "PATCH", value: MethodEnum.PATCH },
+                  { label: "DELETE", value: MethodEnum.DELETE },
+                ]}
+              />
+              <NumberInput
                 required
+                step={500}
+                contentEditable={false}
+                min={500}
                 label="Delay (ms)"
                 placeholder="500"
-                type="number"
                 {...form.getInputProps("delay")}
               />
             </Flex>
@@ -244,7 +273,7 @@ export const AddMockForm = ({
                           name: "",
                           value: "",
                         },
-                        0,
+                        0
                       );
                     }}
                   >
@@ -275,23 +304,6 @@ export const AddMockForm = ({
                   </Flex>
                 </Tabs.Panel>
               </Tabs>
-            </Flex>
-          </Flex>
-          <Flex className={footer} justify="space-between">
-            <Text color="red">
-              {jsonValid ? "" : "Response JSON not valid"}
-            </Text>
-            <Flex justify="flex-end" gap={4}>
-              <Button
-                color="red"
-                compact
-                onClick={() => setSelectedMock(undefined)}
-              >
-                Close
-              </Button>
-              <Button compact type="submit" disabled={!jsonValid}>
-                {isNewMock ? "Add Mock" : "Update Mock"}
-              </Button>
             </Flex>
           </Flex>
         </Card>

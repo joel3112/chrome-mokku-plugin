@@ -1,18 +1,19 @@
 import React from "react";
-import { Button, Flex, useMantineTheme, Tooltip, Text } from "@mantine/core";
+import { Button, Code, Flex, Tooltip, useMantineTheme } from "@mantine/core";
 import { get } from "lodash";
 import {
+  useChromeStore,
   useGlobalStore,
   useLogStore,
   useLogStoreState,
-  useChromeStore,
 } from "../store";
 import { TableSchema, TableWrapper } from "../Blocks/Table";
 import { ILog } from "../types/mock";
-import { TbServer2, TbCpu } from "react-icons/tb";
+import { TbCpu, TbServer2 } from "react-icons/tb";
 import { shallow } from "zustand/shallow";
 import { getMockFromLog } from "./log.util";
 import { Placeholder } from "../Blocks/Placeholder";
+import { MethodTag, StatusTag } from "../Blocks/Tag";
 
 const useLogStoreSelector = (state: useLogStoreState) => ({
   logs: state.logs,
@@ -20,22 +21,13 @@ const useLogStoreSelector = (state: useLogStoreState) => ({
   selectedLog: state.selectedLog,
 });
 
-const getRowColor = (data) => {
-  const status = data.response?.status;
-  if (status !== undefined) {
-    if ((status >= 500 && status < 600) || status === 0) {
-      return "red";
-    }
-  }
-};
-
 export const Logs = () => {
   const {
     colors: { blue },
   } = useMantineTheme();
   const { logs, selectedLog, setSelectedLog } = useLogStore(
     useLogStoreSelector,
-    shallow,
+    shallow
   );
   const store = useChromeStore((state) => state.store);
   const search = useGlobalStore((state) => state.search).toLowerCase();
@@ -44,8 +36,9 @@ export const Logs = () => {
     (log) =>
       (log.request?.method || "").toLowerCase().includes(search) ||
       (log.request?.url || "").toLowerCase().includes(search) ||
-      (log.response?.status || "").toString().includes(search),
+      (log.response?.status || "").toString().includes(search)
   );
+
   const setSelectedMock = useChromeStore((state) => state.setSelectedMock);
   const schema: TableSchema<ILog> = [
     {
@@ -67,22 +60,17 @@ export const Logs = () => {
       width: 40,
     },
     {
-      header: "Method",
-      content: (data) => (
-        <Text color={getRowColor(data)}>{data.request?.method}</Text>
-      ),
-    },
-    {
       header: "URL",
-      content: (data) => (
-        <Text color={getRowColor(data)}>{data.request?.url}</Text>
-      ),
-    },
-    {
-      header: "Status",
-      content: (data) => (
-        <Text color={getRowColor(data)}>{data.response?.status}</Text>
-      ),
+      content: (data) =>
+        data.request && data.response ? (
+          <Flex gap={8} align="center">
+            <MethodTag method={data.request.method} />
+            <StatusTag status={data.response.status} />
+            <Code fz={11}>{data.request.url}</Code>
+          </Flex>
+        ) : (
+          <></>
+        ),
     },
     {
       header: "Action",
@@ -95,7 +83,9 @@ export const Logs = () => {
           }}
         >
           <Button
-            variant="subtle"
+            variant="light"
+            radius="md"
+            size="xs"
             compact
             onClick={() => {
               if (data.isMocked) {

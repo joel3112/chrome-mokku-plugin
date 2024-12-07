@@ -11,6 +11,7 @@ export const RecordButton = () => {
     <ActionIcon
       variant="outline"
       color={recording ? "red" : "blue"}
+      radius="md"
       onClick={() => {
         if (recording) {
           notifications.show({

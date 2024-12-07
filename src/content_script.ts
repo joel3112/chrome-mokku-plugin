@@ -4,7 +4,7 @@ import inject from "./contentScript/injectToDom";
 import { IEventMessage } from "./interface/message";
 import { IDynamicURLMap, ILog } from "./interface/mock";
 import messageService from "./services/message";
-import { getStore } from "./panel/App/service/storeActions";
+import { getStore, storeActions } from "./panel/App/service/storeActions";
 
 const init = () => {
   let store, urlMap, dynamicUrlMap: IDynamicURLMap;
@@ -15,31 +15,32 @@ const init = () => {
   });
 
   const getMockPath = (url: string, method: string) => {
-    // this will moved to store.ts
-    if (urlMap[url]) {
-      if (urlMap[url][method]) {
-        return urlMap[url][method];
+    try {
+      // this will moved to store.ts
+      if (urlMap[url]) {
+        if (urlMap[url][method]) {
+          return urlMap[url][method];
+        }
       }
-    }
 
-    const url1 = url.replace("://", "-");
-    const key = url1.split("/").length;
-    // match all dynamics route
-    const stack = dynamicUrlMap[key];
-    if (!stack) return [];
+      const url1 = url.replace("://", "-");
+      const key = url1.split("/").length;
 
-    let i = 0;
-    while (i < stack.length) {
-      // there is more to it will be used when
-      // action are introduced
-      const s = stack[i];
-      if (s.method === method && !!s.match(url1)) {
-        return [s.getterKey];
+      let i = 0;
+      const stack = [];
+      while (i < key) {
+        const s = dynamicUrlMap[i]?.[0];
+        if (s && s.method === method && !!s.match(url1)) {
+          stack.push(s.getterKey);
+        }
+        i++;
       }
-      i++;
-    }
 
-    return [];
+      return stack;
+    } catch (error) {
+      console.error(">> Error in getMockPath", error);
+      return [];
+    }
   };
 
   const updateStore = () => {
@@ -50,6 +51,16 @@ const init = () => {
     });
   };
 
+  const isEnabledActiveMock = (mock) => {
+    let enabled = false;
+    if (mock.groupId) {
+      enabled = storeActions.isActiveGroupByMock(store, mock);
+    } else {
+      enabled = true;
+    }
+    return enabled;
+  };
+
   const getActiveMockWithPath = (paths: string[]) => {
     let mock = null;
     let path = null;
@@ -57,7 +68,7 @@ const init = () => {
       const tempMock = get(store, tempPath, null);
       if (tempMock.active) {
         mock = tempMock;
-        path = path;
+        path = tempPath;
         return true;
       }
       return false;
@@ -72,13 +83,14 @@ const init = () => {
   messageService.listen("CONTENT", (data: IEventMessage) => {
     if (data.type === "LOG") {
       const message = data.message as ILog;
+
       const mockPaths = getMockPath(
         message.request.url,
-        message.request.method,
+        message.request.method
       );
       const { mock, path } = getActiveMockWithPath(mockPaths);
 
-      if (mock) {
+      if (mock && isEnabledActiveMock(mock)) {
         message.isMocked = mock.active;
         message.mockPath = path;
       }
@@ -109,7 +121,7 @@ const init = () => {
     const mockPaths = getMockPath(request.url, request.method);
     const { mock } = getActiveMockWithPath(mockPaths);
 
-    if (mock && mock.active) {
+    if (mock && isEnabledActiveMock(mock)) {
       (response.message as ILog).mockResponse = mock;
     }
 

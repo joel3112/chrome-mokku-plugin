@@ -1,7 +1,7 @@
 import React from "react";
 import { ILog } from "@mokku/types";
-import { Center, JsonInput, Text } from "@mantine/core";
-import { getResponse, parseJSONIfPossible } from "./LogDetails.utils";
+import { Center, createStyles, JsonInput, Text } from "@mantine/core";
+import { parseJSONIfPossible } from "./LogDetails.utils";
 
 interface IProps {
   response: ILog["response"]["response"];
@@ -9,7 +9,17 @@ interface IProps {
   id: string;
 }
 
+export const useStyles = createStyles((theme) => ({
+  wrapper: {
+    textarea: {
+      overflowY: "clip",
+    },
+  },
+}));
+
 export const LogDetailsJSON = ({ response, isRequestPending, id }: IProps) => {
+  const { classes } = useStyles();
+
   if (isRequestPending) {
     return (
       <Center pt={64}>
@@ -30,7 +40,15 @@ export const LogDetailsJSON = ({ response, isRequestPending, id }: IProps) => {
 
   if (responseJson.parsed) {
     const formatted = JSON.stringify(responseJson.json, null, 4);
-    return <JsonInput autosize value={formatted} />;
+    return (
+      <JsonInput
+        autosize
+        value={formatted}
+        className={classes.wrapper}
+        size="xs"
+        formatOnBlur
+      />
+    );
   }
 
   return (

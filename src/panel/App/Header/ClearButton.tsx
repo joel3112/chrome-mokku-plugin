@@ -11,6 +11,7 @@ export const ClearButton = () => {
       color={"blue"}
       onClick={() => clearLogs()}
       title="Clear Logs"
+      radius="md"
     >
       <TbClearAll />
     </ActionIcon>

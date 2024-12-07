@@ -1,12 +1,15 @@
-import { match as getMatcher } from "path-to-regexp";
+import { wildcardPattern } from "wildcard-regex";
 import {
   IDynamicURLMap,
+  IMockGroup,
   IMockResponse,
-  IMockResponseRaw,
   IStore,
   IURLMap,
-} from "@mokku/types";
+  MockType,
+} from "../types";
 import messageService from "./messageService";
+import { v4 as uuidv4 } from "uuid";
+import { defaultTheme } from "./theme";
 
 const getNetworkMethodMap = () => ({
   GET: [],
@@ -19,8 +22,10 @@ const getNetworkMethodMap = () => ({
 const storeName = "mokku.extension.main.db";
 
 export const getDefaultStore = (): IStore => ({
-  theme: "light",
+  theme: defaultTheme,
   active: false,
+  groups: [],
+  totalGroupsCreated: 0,
   mocks: [],
   totalMocksCreated: 0,
   collections: {},
@@ -63,8 +68,12 @@ export const updateStoreInDB = (store: IStore) => {
       } catch (error) {
         reject(error);
       }
-    },
+    }
   );
+};
+
+export const resetStoreInDB = () => {
+  return updateStoreInDB(getDefaultStore());
 };
 
 export const getURLMapWithStore = (store: IStore) => {
@@ -75,11 +84,13 @@ export const getURLMapWithStore = (store: IStore) => {
     if (mock.dynamic) {
       const url = mock.url.replace("://", "-");
       const key = url.split("/").length;
+
+      const regex = wildcardPattern(mock.url);
       const matcher: IDynamicURLMap[number][0] = {
         getterKey: `mocks[${index}]`,
         method: mock.method,
         url: url,
-        match: getMatcher(url, { decode: window.decodeURIComponent }),
+        match: (s: string) => new RegExp(regex).test(s),
       };
       if (dynamicUrlMap[key]) {
         dynamicUrlMap[key].push(matcher);
@@ -113,9 +124,141 @@ export const getURLMapWithStore = (store: IStore) => {
   return { urlMap, dynamicUrlMap, store };
 };
 
+export const getMocksByGroup = (store: IStore, groupId: string) => {
+  return store.mocks.filter((mock) => mock.groupId === groupId);
+};
+
+export const isActiveGroupByMock = (store: IStore, mock: IMockResponse) => {
+  return store.groups.find((group) => group.id === mock.groupId)?.active;
+};
+
+export const addGroups = (
+  oldStore: IStore,
+  dirtyNewGroup: IMockGroup | IMockGroup[]
+) => {
+  const store = { ...oldStore };
+
+  // standardize mock
+  const newGroups = Array.isArray(dirtyNewGroup)
+    ? dirtyNewGroup
+    : [dirtyNewGroup];
+
+  newGroups.forEach((group) => {
+    store.groups = [
+      ...store.groups,
+      {
+        ...group,
+        type: MockType.GROUP,
+        expanded: false,
+        createdOn: new Date().getTime(),
+      },
+    ];
+    store.totalGroupsCreated++;
+  });
+
+  return store;
+};
+
+export const duplicateGroup = (
+  oldStore: IStore,
+  dirtyNewGroup: IMockGroup,
+  copiedGroupId: string
+) => {
+  const store = { ...oldStore };
+  const newGroup = dirtyNewGroup;
+
+  store.groups = [
+    ...store.groups,
+    {
+      ...newGroup,
+      type: MockType.GROUP,
+      expanded: false,
+      createdOn: new Date().getTime(),
+    },
+  ];
+  store.totalGroupsCreated++;
+
+  const mocksInCopiedGroup = store.mocks.filter(
+    (mock) => mock.groupId === copiedGroupId
+  );
+  const newMocks = mocksInCopiedGroup.map((mock) => {
+    return {
+      ...mock,
+      id: uuidv4(),
+      groupId: newGroup.id ?? "",
+    };
+  });
+  return addMocks(store, newMocks);
+};
+
+type PartialGroupWithId = { id: IMockGroup["id"] } & Partial<IMockGroup>;
+
+export const updateGroups = (
+  oldStore: IStore,
+  dirtyNewGroup: PartialGroupWithId | Array<PartialGroupWithId>
+) => {
+  const store = { ...oldStore };
+
+  // standardize mock
+  const newGroups = Array.isArray(dirtyNewGroup)
+    ? dirtyNewGroup
+    : [dirtyNewGroup];
+
+  const newGroupsMap: Record<string, PartialGroupWithId> = {};
+  newGroups.forEach((mock) => {
+    newGroupsMap[mock.id] = mock;
+  });
+
+  const newStoreGroups = store.groups.map((storeGroup) => {
+    const groupToBeUpdated = newGroupsMap[storeGroup.id];
+    if (groupToBeUpdated) {
+      return { ...storeGroup, ...groupToBeUpdated };
+    } else {
+      return storeGroup;
+    }
+  });
+
+  store.groups = newStoreGroups;
+  return { ...store, groups: newStoreGroups };
+};
+
+export const deleteGroups = (
+  draftStore: IStore,
+  dirtyGroupId: string | string[]
+) => {
+  const groupIdsSet = Array.isArray(dirtyGroupId)
+    ? new Set(dirtyGroupId)
+    : new Set([dirtyGroupId]);
+
+  const groups = draftStore.groups.filter((group) => {
+    if (groupIdsSet.has(group.id)) {
+      return false;
+    }
+    return true;
+  });
+  const mocks = draftStore.mocks.filter((mock) => {
+    if (groupIdsSet.has(mock.groupId)) {
+      return false;
+    }
+    return true;
+  });
+
+  const store = {
+    ...draftStore,
+    groups,
+    mocks,
+  };
+
+  return store;
+};
+
+const isDynamicUrl = (pattern: string) => {
+  return pattern.includes("*");
+};
+
 export const addMocks = (
   oldStore: IStore,
-  dirtyNewMock: IMockResponse | IMockResponse[],
+  dirtyNewMock: IMockResponse | IMockResponse[]
 ) => {
   const store = { ...oldStore };
 
@@ -123,8 +266,16 @@ export const addMocks = (
   const newMocks = Array.isArray(dirtyNewMock) ? dirtyNewMock : [dirtyNewMock];
 
   newMocks.forEach((mock) => {
-    const dynamic = mock.url.includes("(.*)") || mock.url.includes("/:");
-    store.mocks = [...store.mocks, { ...mock, dynamic }];
+    const dynamic = isDynamicUrl(mock.url);
+    store.mocks = [
+      ...store.mocks,
+      {
+        ...mock,
+        dynamic,
+        type: MockType.MOCK,
+        createdOn: new Date().getTime(),
+      },
+    ];
     store.totalMocksCreated++;
   });
 
@@ -135,7 +286,7 @@ type PartialMockWithId = { id: IMockResponse["id"] } & Partial<IMockResponse>;
 
 export const updateMocks = (
   oldStore: IStore,
-  dirtyNewMock: PartialMockWithId | Array<PartialMockWithId>,
+  dirtyNewMock: PartialMockWithId | Array<PartialMockWithId>
 ) => {
   const store = { ...oldStore };
 
@@ -150,9 +301,7 @@ export const updateMocks = (
   const newStoreMocks = store.mocks.map((storeMock) => {
     const mockToBeUpdated = newMocksMap[storeMock.id];
     if (mockToBeUpdated) {
-      const dynamic =
-        mockToBeUpdated.url.includes("(.*)") ||
-        mockToBeUpdated.url.includes("/:");
+      const dynamic = isDynamicUrl(mockToBeUpdated.url);
       return { ...storeMock, ...mockToBeUpdated, dynamic };
     } else {
       return storeMock;
@@ -165,7 +314,7 @@ export const updateMocks = (
 
 export const deleteMocks = (
   draftStore: IStore,
-  dirtyMockId: string | string[],
+  dirtyMockId: string | string[]
 ) => {
   const mockIdsSet = Array.isArray(dirtyMockId)
     ? new Set(dirtyMockId)
@@ -194,16 +343,23 @@ export const refreshContentStore = (tabId?: number) => {
       to: "CONTENT",
       type: "NOTIFICATION",
     },
-    tabId,
+    tabId
   );
 };
 
 export const storeActions = {
+  getMocksByGroup,
+  isActiveGroupByMock,
+  deleteGroups,
+  updateGroups,
+  addGroups,
+  duplicateGroup,
   deleteMocks,
   updateMocks,
   addMocks,
   getURLMapWithStore,
   updateStoreInDB,
+  resetStoreInDB,
   getStore,
   getDefaultStore,
   refreshContentStore,

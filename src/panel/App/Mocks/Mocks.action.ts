@@ -15,9 +15,23 @@ const useMockStoreSelector = (state: useChromeStoreState) => ({
 export const useMockActions = () => {
   const { store, setSelectedMock, setStoreProperties } = useChromeStore(
     useMockStoreSelector,
-    shallow,
+    shallow
   );
   const tab = useGlobalStore((state) => state.meta.tab);
+
+  const getMocksByGroup = useCallback(
+    (groupId: string) => {
+      return storeActions.getMocksByGroup(store, groupId);
+    },
+    [store.mocks]
+  );
+
+  const isActiveGroupByMock = useCallback(
+    (mock: IMockResponse) => {
+      return storeActions.isActiveGroupByMock(store, mock);
+    },
+    [store.groups]
+  );
 
   const toggleMock = useCallback(
     (mockToBeUpdated: IMockResponse) => {
@@ -41,7 +55,7 @@ export const useMockActions = () => {
           });
         });
     },
-    [store, setStoreProperties],
+    [store, setStoreProperties]
   );
   const deleteMock = useCallback(
     (mockToBeDeleted: IMockResponse) => {
@@ -67,21 +81,28 @@ export const useMockActions = () => {
           });
         });
     },
-    [store, setStoreProperties],
+    [store, setStoreProperties]
   );
   const duplicateMock = useCallback(
     (mock: IMockResponse) => {
-      setSelectedMock({ ...mock, id: undefined });
+      setSelectedMock({ ...mock, id: undefined, createdOn: undefined });
     },
-    [setSelectedMock],
+    [setSelectedMock]
   );
 
   const editMock = useCallback(
     (mock: IMockResponse) => {
       setSelectedMock(mock);
     },
-    [setSelectedMock],
+    [setSelectedMock]
   );
 
-  return { toggleMock, deleteMock, duplicateMock, editMock };
+  return {
+    getMocksByGroup,
+    isActiveGroupByMock,
+    toggleMock,
+    deleteMock,
+    duplicateMock,
+    editMock,
+  };
 };

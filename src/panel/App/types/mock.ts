@@ -1,4 +1,4 @@
-export type IMethod = "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
+// export type IMethod = "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
 
 export enum MethodEnum {
   GET = "GET",
@@ -8,9 +8,25 @@ export enum MethodEnum {
   DELETE = "DELETE",
 }
 
+export enum MockType {
+  GROUP = "group",
+  MOCK = "mock",
+}
+
 export enum MockStatusEnum {
   ACTIVE = "ACTIVE",
   INACTIVE = "INACTIVE",
+}
+
+export enum GroupStatusEnum {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+}
+
+export enum ActionInFormEnum {
+  ADD = "ADD",
+  UPDATE = "UPDATE",
+  DUPLICATE = "DUPLICATE",
 }
 
 export type Headers = Array<{ name: string; value: string }>;
@@ -18,7 +34,7 @@ export type Headers = Array<{ name: string; value: string }>;
 export interface ILog {
   request?: {
     url: string;
-    method: IMethod;
+    method: MethodEnum;
     body?: string;
     queryParams?: string;
     headers: Headers;
@@ -36,7 +52,20 @@ export interface ILog {
   mockPath?: string;
 }
 
+export interface IMockGroup {
+  type: MockType.GROUP;
+  name: string;
+  description: string;
+  id: string;
+  active: boolean;
+  createdOn: number;
+  expanded?: boolean;
+}
+
+export type IMockGroupRaw = Partial<IMockGroup>;
+
 export interface IMockResponse {
+  type: MockType.MOCK;
   method: MethodEnum;
   createdOn: number;
   url: string;
@@ -46,8 +75,10 @@ export interface IMockResponse {
   delay?: number;
   name?: string;
   id: string;
+  groupId?: string;
   dynamic?: boolean;
   active: boolean;
+  selected: boolean;
   description: string;
   action?: (req: {
     body: Record<string, any>;
@@ -61,6 +92,11 @@ export type IMockResponseRaw = Partial<IMockResponse>;
 export interface IStore {
   active: boolean;
   theme: "dark" | "light";
+  settings: {
+    enabledScenarios: boolean;
+  };
+  groups: IMockGroup[];
+  totalGroupsCreated: number;
   mocks: IMockResponse[];
   totalMocksCreated: number;
   activityInfo: {
@@ -69,6 +105,7 @@ export interface IStore {
   collections: Record<
     string,
     {
+      groups: IMockGroup[];
       mocks: IMockResponse[];
       id: number;
       active: boolean;
@@ -88,9 +125,6 @@ export interface IURLMap {
 
 export interface IDynamicURLMap {
   [urlLength: number]: Array<{
-    match: (
-      s: string,
-    ) => boolean | { path: string; params: Record<string, string> };
     method: string;
     getterKey: string;
     url: string;

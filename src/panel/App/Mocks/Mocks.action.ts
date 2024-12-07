@@ -15,9 +15,30 @@ const useMockStoreSelector = (state: useChromeStoreState) => ({
 export const useMockActions = () => {
   const { store, setSelectedMock, setStoreProperties } = useChromeStore(
     useMockStoreSelector,
-    shallow,
+    shallow
   );
   const tab = useGlobalStore((state) => state.meta.tab);
+
+  const getMocksByGroup = useCallback(
+    (groupId: string) => {
+      return storeActions.getMocksByGroup(store, groupId);
+    },
+    [store.mocks]
+  );
+
+  const getMockScenarios = useCallback(
+    (mock: IMockResponse) => {
+      return storeActions.getMockScenarios(store, mock);
+    },
+    [store.mocks]
+  );
+
+  const isActiveGroupByMock = useCallback(
+    (mock: IMockResponse) => {
+      return storeActions.isActiveGroupByMock(store, mock);
+    },
+    [store.groups]
+  );
 
   const toggleMock = useCallback(
     (mockToBeUpdated: IMockResponse) => {
@@ -41,7 +62,7 @@ export const useMockActions = () => {
           });
         });
     },
-    [store, setStoreProperties],
+    [store, setStoreProperties]
   );
   const deleteMock = useCallback(
     (mockToBeDeleted: IMockResponse) => {
@@ -67,21 +88,51 @@ export const useMockActions = () => {
           });
         });
     },
-    [store, setStoreProperties],
+    [store, setStoreProperties]
   );
   const duplicateMock = useCallback(
     (mock: IMockResponse) => {
-      setSelectedMock({ ...mock, id: undefined });
+      setSelectedMock({
+        ...mock,
+        name: "",
+        description: "",
+        id: undefined,
+        createdOn: undefined,
+        selected: false,
+      });
     },
-    [setSelectedMock],
+    [setSelectedMock]
   );
 
   const editMock = useCallback(
     (mock: IMockResponse) => {
       setSelectedMock(mock);
     },
-    [setSelectedMock],
+    [setSelectedMock]
   );
 
-  return { toggleMock, deleteMock, duplicateMock, editMock };
+  const selectMockScenario = useCallback(
+    (mock: IMockResponse) => {
+      const scenarios = getMockScenarios(mock);
+      const mocksUpdated = scenarios.map((m) => ({
+        ...m,
+        selected: m.id === mock.id,
+      }));
+
+      const updatedStore = storeActions.updateMocks(store, mocksUpdated);
+      storeActions.updateStoreInDB(updatedStore).then(setStoreProperties);
+    },
+    [store, setStoreProperties]
+  );
+
+  return {
+    getMocksByGroup,
+    getMockScenarios,
+    selectMockScenario,
+    isActiveGroupByMock,
+    toggleMock,
+    deleteMock,
+    duplicateMock,
+    editMock,
+  };
 };

@@ -1,6 +1,6 @@
 import React from "react";
 import { ActionIcon, useMantineColorScheme } from "@mantine/core";
-import { TbSun, TbMoonStars } from "react-icons/tb";
+import { TbMoonStars, TbSun } from "react-icons/tb";
 
 export const ThemeButton = () => {
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
@@ -14,6 +14,7 @@ export const ThemeButton = () => {
       color={dark ? "yellow" : "blue"}
       onClick={() => toggleColorScheme()}
       title="Toggle Theme"
+      radius="md"
     >
       {dark ? <TbSun /> : <TbMoonStars />}
     </ActionIcon>

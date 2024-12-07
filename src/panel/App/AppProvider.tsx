@@ -1,26 +1,24 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
-  MantineProvider,
-  ColorSchemeProvider,
   ColorScheme,
+  ColorSchemeProvider,
+  MantineProvider,
 } from "@mantine/core";
 
 import { useGlobalStoreState } from "./store";
 import { App } from "./App";
+import { defaultTheme } from "./service/theme";
+import { useLocalStorage } from "@mantine/hooks";
+import { ModalsProvider } from "@mantine/modals";
 
 export const AppProvider = (props: useGlobalStoreState["meta"]) => {
-  const [colorScheme, setColorScheme] = useState<ColorScheme>("light");
-  const toggleColorScheme = (value?: ColorScheme) =>
-    setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"));
+  const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
+    key: "color-scheme",
+    defaultValue: defaultTheme,
+  });
 
-  useEffect(() => {
-    const theme = (localStorage.getItem("theme") || "light") as ColorScheme;
-    setColorScheme(theme);
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("theme", colorScheme);
-  }, [colorScheme]);
+  const toggleColorScheme = () =>
+    setColorScheme((current) => (current === "dark" ? "light" : "dark"));
 
   return (
     <ColorSchemeProvider
@@ -32,7 +30,9 @@ export const AppProvider = (props: useGlobalStoreState["meta"]) => {
         withNormalizeCSS
         theme={{ colorScheme }}
       >
-        <App {...props} />
+        <ModalsProvider>
+          <App {...props} />
+        </ModalsProvider>
       </MantineProvider>
     </ColorSchemeProvider>
   );

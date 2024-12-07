@@ -1,20 +1,19 @@
 import React, { useState } from "react";
 import { shallow } from "zustand/shallow";
-import { Tabs, Flex, createStyles, Input, Button } from "@mantine/core";
-import { MdAdd } from "react-icons/md";
+import { Button, Flex, Input, Tabs } from "@mantine/core";
 import { TbSearch } from "react-icons/tb";
 import {
   useChromeStore,
   useGlobalStore,
-  ViewEnum,
   useGlobalStoreState,
+  ViewEnum,
 } from "../store";
 import { ThemeButton } from "./ThemeButton";
 import { RefreshButton } from "./RefreshButton";
 import { ClearButton } from "./ClearButton";
 import { RecordButton } from "./RecordButton";
 import { SwitchButton } from "./SwitchButton";
-import { SupportUs } from "./SupportUs";
+import { Settings } from "./Settings";
 
 const viewSelector = (state: useGlobalStoreState) => ({
   view: state.view,
@@ -26,27 +25,44 @@ const viewSelector = (state: useGlobalStoreState) => ({
 export const Header = () => {
   const { view, setView, search, setSearch } = useGlobalStore(
     viewSelector,
-    shallow,
+    shallow
   );
+
+  const store = useChromeStore((state) => state.store);
   const setSelectedMock = useChromeStore((state) => state.setSelectedMock);
-  const [showSupportUs, setShowSupportUs] = useState(false);
+  const setSelectedGroup = useChromeStore((state) => state.setSelectedGroup);
+  const [showSettings, setShowSettings] = useState(false);
+  const HEIGHT_TABS = 50;
 
   return (
     <Tabs defaultValue={ViewEnum.MOCKS} value={view} onTabChange={setView}>
-      <Tabs.List style={{ width: "100%" }}>
+      <Tabs.List style={{ width: "100%", height: HEIGHT_TABS }}>
         <Flex justify="space-between" align="center" style={{ width: "100%" }}>
           <Flex align="center">
-            <Tabs.Tab value={ViewEnum.MOCKS}>Mocks</Tabs.Tab>
-            <Tabs.Tab value={ViewEnum.LOGS}>Logs</Tabs.Tab>
+            <Tabs.Tab value={ViewEnum.MOCKS} style={{ height: HEIGHT_TABS }}>
+              Mocks
+            </Tabs.Tab>
+            <Tabs.Tab value={ViewEnum.LOGS} style={{ height: HEIGHT_TABS }}>
+              Logs
+            </Tabs.Tab>
             <Flex align="center" gap={8}>
-              <Button
-                onClick={() => setSelectedMock({})}
-                leftIcon={<MdAdd />}
-                size="xs"
-                variant="subtle"
-              >
-                Add Mock
-              </Button>
+              <Flex align="center" gap={0}>
+                <Button
+                  onClick={() => setSelectedGroup({})}
+                  size="xs"
+                  variant="subtle"
+                >
+                  + Add Group
+                </Button>
+                <Button
+                  onClick={() => setSelectedMock({})}
+                  size="xs"
+                  variant="subtle"
+                >
+                  + Add Mock
+                </Button>
+              </Flex>
+
               <Input
                 icon={<TbSearch />}
                 placeholder="Search..."
@@ -60,18 +76,18 @@ export const Header = () => {
           </Flex>
           <Flex gap="4px" style={{ paddingRight: 4 }}>
             <Button
-              onClick={() => setShowSupportUs(true)}
+              onClick={() => setShowSettings(true)}
               size="xs"
               variant="subtle"
             >
-              Support Mokku
+              Settings
             </Button>
             <ThemeButton />
             <RefreshButton />
             <SwitchButton />
           </Flex>
-          {showSupportUs && (
-            <SupportUs onClose={() => setShowSupportUs(false)} />
+          {showSettings && (
+            <Settings store={store} onClose={() => setShowSettings(false)} />
           )}
         </Flex>
       </Tabs.List>

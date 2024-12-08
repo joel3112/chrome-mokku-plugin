@@ -101,18 +101,8 @@ export interface IStore {
   settings: {
     enabledScenarios: boolean;
   };
-  workspaces?: IWorkspace[];
   groups: IMockGroup[];
   mocks: IMockResponse[];
-  collections: Record<
-    string,
-    {
-      groups: IMockGroup[];
-      mocks: IMockResponse[];
-      id: number;
-      active: boolean;
-    }
-  >;
 }
 
 export type DBNameType = 'mokku.extension.main.db';

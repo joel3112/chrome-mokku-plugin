@@ -2,12 +2,12 @@ import { get } from 'lodash';
 import { wildcardPattern } from 'wildcard-regex';
 import { IDynamicURLMap, IEventMessage, ILog } from '@mokku/types';
 import inject from './contentScript/injectToDom';
-import { getStore, storeActions } from './panel/App/service/storeActions';
+import { storeActions } from './panel/App/service/storeActions';
 import messageService from './services/message';
 
 const init = () => {
   let store, urlMap, dynamicUrlMap: IDynamicURLMap;
-  getStore().then((a) => {
+  storeActions.getStore().then((a) => {
     store = a.store;
     urlMap = a.urlMap;
     dynamicUrlMap = a.dynamicUrlMap;
@@ -50,7 +50,7 @@ const init = () => {
   };
 
   const updateStore = () => {
-    getStore().then((x) => {
+    storeActions.getStore().then((x) => {
       store = x.store;
       urlMap = x.urlMap;
       dynamicUrlMap = x.dynamicUrlMap;

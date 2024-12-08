@@ -95,7 +95,7 @@ export interface IWorkspace {
 
 export type IMockResponseRaw = Partial<IMockResponse>;
 
-export interface IStore {
+export interface IWorkspaceStore {
   active: boolean;
   theme: 'dark' | 'light';
   settings: {
@@ -107,7 +107,7 @@ export interface IStore {
 
 export type DBNameType = 'mokku.extension.main.db';
 
-export type IDB = Record<DBNameType, IStore>;
+export type IDB = Record<DBNameType, IWorkspaceStore>;
 
 export interface IURLMap {
   [url: string]: {

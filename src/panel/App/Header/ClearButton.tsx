@@ -1,7 +1,7 @@
 import React from 'react';
 import { TbClearAll } from 'react-icons/tb';
 import { ActionIcon } from '@mantine/core';
-import { useLogStore } from '../store/useLogStore';
+import { useLogStore } from '@mokku/store';
 
 export const ClearButton = () => {
   const clearLogs = useLogStore((state) => state.clearLogs);

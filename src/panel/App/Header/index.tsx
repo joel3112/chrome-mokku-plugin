@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { TbSearch } from 'react-icons/tb';
 import { shallow } from 'zustand/shallow';
 import { Button, Flex, Input, Tabs } from '@mantine/core';
-import { ViewEnum, useChromeStore, useGlobalStore, useGlobalStoreState } from '../store';
+import { ViewEnum, useChromeStore, useGlobalStore, useGlobalStoreState } from '@mokku/store';
 import { ClearButton } from './ClearButton';
 import { RecordButton } from './RecordButton';
 import { RefreshButton } from './RefreshButton';
@@ -20,7 +20,7 @@ const viewSelector = (state: useGlobalStoreState) => ({
 export const Header = () => {
   const { view, setView, search, setSearch } = useGlobalStore(viewSelector, shallow);
 
-  const store = useChromeStore((state) => state.store);
+  const workspaceStore = useChromeStore((state) => state.workspaceStore);
   const setSelectedMock = useChromeStore((state) => state.setSelectedMock);
   const setSelectedGroup = useChromeStore((state) => state.setSelectedGroup);
   const [showSettings, setShowSettings] = useState(false);
@@ -66,7 +66,9 @@ export const Header = () => {
             <RefreshButton />
             <SwitchButton />
           </Flex>
-          {showSettings && <Settings store={store} onClose={() => setShowSettings(false)} />}
+          {showSettings && (
+            <Settings store={workspaceStore} onClose={() => setShowSettings(false)} />
+          )}
         </Flex>
       </Tabs.List>
     </Tabs>

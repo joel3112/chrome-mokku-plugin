@@ -62,16 +62,15 @@ export const useStyles = createStyles((theme) => ({
 
 type AddMockFormProps = Pick<
   useChromeStoreState,
-  'store' | 'selectedMock' | 'setSelectedMock' | 'setStoreProperties'
+  'workspaceStore' | 'selectedMock' | 'setStoreProperties'
 > & {
   onClose: () => void;
   onFormChange?: (values: IMockResponseRaw) => void;
 };
 
 export const AddMockForm = ({
-  store,
+  workspaceStore,
   selectedMock,
-  setSelectedMock,
   setStoreProperties,
   onFormChange,
   onClose
@@ -100,7 +99,7 @@ export const AddMockForm = ({
   const isNewMock = action !== ActionInFormEnum.UPDATE;
   const isDuplicateMock = action === ActionInFormEnum.DUPLICATE;
 
-  const isGroupSelectedActive = store.groups.find(
+  const isGroupSelectedActive = workspaceStore.groups.find(
     (group) => group.id === form.values.groupId
   )?.active;
 
@@ -127,7 +126,7 @@ export const AddMockForm = ({
           [ActionInFormEnum.UPDATE]: storeActions.updateMocks,
           [ActionInFormEnum.DUPLICATE]: storeActions.addMocks
         };
-        const updatedStore = storeAction[action](store, {
+        const updatedStore = storeAction[action](workspaceStore, {
           ...values,
           groupId: values.groupId || ''
         } as IMockResponse);
@@ -178,7 +177,7 @@ export const AddMockForm = ({
             <Select
               label="Group"
               placeholder="Select group"
-              data={store.groups.map((g) => ({ label: g.name, value: g.id }))}
+              data={workspaceStore.groups.map((g) => ({ label: g.name, value: g.id }))}
               description={!isGroupSelectedActive && form.values.groupId && '⚠️ Group is disabled'}
               inputWrapperOrder={['label', 'input', 'description']}
               allowDeselect

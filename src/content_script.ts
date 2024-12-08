@@ -6,9 +6,9 @@ import { storeActions } from './panel/App/service/storeActions';
 import messageService from './services/message';
 
 const init = () => {
-  let store, urlMap, dynamicUrlMap: IDynamicURLMap;
+  let workspaceStore, urlMap, dynamicUrlMap: IDynamicURLMap;
   storeActions.getStore().then((a) => {
-    store = a.store;
+    workspaceStore = a.workspaceStore;
     urlMap = a.urlMap;
     dynamicUrlMap = a.dynamicUrlMap;
   });
@@ -51,17 +51,17 @@ const init = () => {
 
   const updateStore = () => {
     storeActions.getStore().then((x) => {
-      store = x.store;
+      workspaceStore = x.workspaceStore;
       urlMap = x.urlMap;
       dynamicUrlMap = x.dynamicUrlMap;
     });
   };
 
-  const hasGroupActive = (mock) => storeActions.isActiveGroupByMock(store, mock);
+  const hasGroupActive = (mock) => storeActions.isActiveGroupByMock(workspaceStore, mock);
 
   const isActiveSelectedMock = (mock) => {
-    const hasEscenarios = storeActions.hasMultipleScenarios(store, mock);
-    if (hasEscenarios && store.settings.enabledScenarios) {
+    const hasEscenarios = storeActions.hasMultipleScenarios(workspaceStore, mock);
+    if (hasEscenarios && workspaceStore.settings.enabledScenarios) {
       return mock.selected && mock.active;
     }
     return mock.active;
@@ -71,7 +71,7 @@ const init = () => {
     let mock = null;
     let path = null;
     paths.some((tempPath) => {
-      const tempMock = get(store, tempPath, null);
+      const tempMock = get(workspaceStore, tempPath, null);
       if (isActiveSelectedMock(tempMock)) {
         mock = tempMock;
         path = tempPath;

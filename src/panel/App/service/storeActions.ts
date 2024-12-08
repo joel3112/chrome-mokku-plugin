@@ -1,6 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
 import { defaultTheme, messageService } from '@mokku/services';
-import { IDynamicURLMap, IMockGroup, IMockResponse, IStore, IURLMap, MockType } from '@mokku/types';
+import {
+  IDynamicURLMap,
+  IMockGroup,
+  IMockResponse,
+  IURLMap,
+  IWorkspaceStore,
+  MockType
+} from '@mokku/types';
 
 const getNetworkMethodMap = () => ({
   GET: [],
@@ -12,7 +19,7 @@ const getNetworkMethodMap = () => ({
 
 const storeName = 'mokku.extension.main.db';
 
-const getDefaultStore = (): IStore => ({
+const getDefaultStore = (): IWorkspaceStore => ({
   theme: defaultTheme,
   active: false,
   settings: {
@@ -24,19 +31,19 @@ const getDefaultStore = (): IStore => ({
 
 const getStore = (name = storeName) => {
   return new Promise<{
-    store: IStore;
+    workspaceStore: IWorkspaceStore;
     urlMap: IURLMap;
     dynamicUrlMap: IDynamicURLMap;
   }>((resolve) => {
     chrome.storage.local.get([name], function (result) {
-      const store = { ...getDefaultStore(), ...result[name] } as IStore;
-      const { urlMap, dynamicUrlMap } = getURLMapWithStore(store);
+      const _workspaceStore = { ...getDefaultStore(), ...result[name] } as IWorkspaceStore;
+      const { urlMap, dynamicUrlMap } = getURLMapWithStore(_workspaceStore);
 
       resolve({
-        store: {
-          ...store,
-          mocks: store.mocks || [],
-          groups: store.groups || []
+        workspaceStore: {
+          ..._workspaceStore,
+          mocks: _workspaceStore.mocks || [],
+          groups: _workspaceStore.groups || []
         },
         urlMap: urlMap,
         dynamicUrlMap
@@ -45,24 +52,26 @@ const getStore = (name = storeName) => {
   });
 };
 
-const updateStoreInDB = (store: IStore) => {
-  return new Promise<{ store: IStore; urlMap: IURLMap; dynamicUrlMap }>((resolve, reject) => {
-    try {
-      chrome.storage.local.set({ [storeName]: store }, () => {
-        const { dynamicUrlMap, urlMap } = getURLMapWithStore(store);
-        resolve({
-          store: store as IStore,
-          urlMap: urlMap,
-          dynamicUrlMap: dynamicUrlMap
+const updateStoreInDB = (workspaceStore: IWorkspaceStore) => {
+  return new Promise<{ workspaceStore: IWorkspaceStore; urlMap: IURLMap; dynamicUrlMap }>(
+    (resolve, reject) => {
+      try {
+        chrome.storage.local.set({ [storeName]: workspaceStore }, () => {
+          const { dynamicUrlMap, urlMap } = getURLMapWithStore(workspaceStore);
+          resolve({
+            workspaceStore: workspaceStore as IWorkspaceStore,
+            urlMap: urlMap,
+            dynamicUrlMap: dynamicUrlMap
+          });
         });
-      });
-    } catch (error) {
-      reject(error);
+      } catch (error) {
+        reject(error);
+      }
     }
-  });
+  );
 };
 
-const resetStore = (resetStore?: IStore) => {
+const resetStore = (resetStore?: IWorkspaceStore) => {
   const store = resetStore || {
     ...getDefaultStore(),
     mocks: [],
@@ -71,7 +80,7 @@ const resetStore = (resetStore?: IStore) => {
   return updateStoreInDB(store);
 };
 
-const getURLMapWithStore = (store: IStore) => {
+const getURLMapWithStore = (store: IWorkspaceStore) => {
   const urlMap: IURLMap = {};
   const dynamicUrlMap: IDynamicURLMap = {};
 
@@ -104,11 +113,11 @@ const getURLMapWithStore = (store: IStore) => {
   return { urlMap, dynamicUrlMap, store };
 };
 
-const getMocksByGroup = (store: IStore, groupId: string) => {
+const getMocksByGroup = (store: IWorkspaceStore, groupId: string) => {
   return store.mocks.filter((mock) => mock.groupId === groupId);
 };
 
-const getMockScenarios = (store: IStore, mock: IMockResponse) => {
+const getMockScenarios = (store: IWorkspaceStore, mock: IMockResponse) => {
   const scenarios = store.mocks.filter(
     (m) => m.groupId === mock.groupId && m.method === mock.method && m.url === mock.url
   );
@@ -116,11 +125,11 @@ const getMockScenarios = (store: IStore, mock: IMockResponse) => {
   return scenarios;
 };
 
-const hasMultipleScenarios = (store: IStore, mock: IMockResponse) => {
+const hasMultipleScenarios = (store: IWorkspaceStore, mock: IMockResponse) => {
   return getMockScenarios(store, mock).length > 1;
 };
 
-const isActiveGroupByMock = (store: IStore, mock: IMockResponse) => {
+const isActiveGroupByMock = (store: IWorkspaceStore, mock: IMockResponse) => {
   if (!mock.groupId) {
     return true;
   }
@@ -128,7 +137,7 @@ const isActiveGroupByMock = (store: IStore, mock: IMockResponse) => {
   return store.groups.find((group) => group.id === mock.groupId)?.active;
 };
 
-const addGroups = (oldStore: IStore, dirtyNewGroup: IMockGroup | IMockGroup[]) => {
+const addGroups = (oldStore: IWorkspaceStore, dirtyNewGroup: IMockGroup | IMockGroup[]) => {
   const store = { ...oldStore };
 
   // standardize mock
@@ -149,7 +158,11 @@ const addGroups = (oldStore: IStore, dirtyNewGroup: IMockGroup | IMockGroup[]) =
   return store;
 };
 
-const duplicateGroup = (oldStore: IStore, dirtyNewGroup: IMockGroup, copiedGroupId: string) => {
+const duplicateGroup = (
+  oldStore: IWorkspaceStore,
+  dirtyNewGroup: IMockGroup,
+  copiedGroupId: string
+) => {
   const store = { ...oldStore };
   const newGroup = dirtyNewGroup;
 
@@ -177,7 +190,7 @@ const duplicateGroup = (oldStore: IStore, dirtyNewGroup: IMockGroup, copiedGroup
 type PartialGroupWithId = { id: IMockGroup['id'] } & Partial<IMockGroup>;
 
 const updateGroups = (
-  oldStore: IStore,
+  oldStore: IWorkspaceStore,
   dirtyNewGroup: PartialGroupWithId | Array<PartialGroupWithId>
 ) => {
   const store = { ...oldStore };
@@ -203,7 +216,7 @@ const updateGroups = (
   return { ...store, groups: newStoreGroups };
 };
 
-const deleteGroups = (draftStore: IStore, dirtyGroupId: string | string[]) => {
+const deleteGroups = (draftStore: IWorkspaceStore, dirtyGroupId: string | string[]) => {
   const groupIdsSet = Array.isArray(dirtyGroupId) ? new Set(dirtyGroupId) : new Set([dirtyGroupId]);
 
   const groups = draftStore.groups.filter((group) => {
@@ -232,7 +245,7 @@ const isDynamicUrl = (pattern: string) => {
   return pattern.includes('*');
 };
 
-const addMocks = (oldStore: IStore, dirtyNewMock: IMockResponse | IMockResponse[]) => {
+const addMocks = (oldStore: IWorkspaceStore, dirtyNewMock: IMockResponse | IMockResponse[]) => {
   const store = { ...oldStore };
 
   // standardize mock
@@ -257,7 +270,7 @@ const addMocks = (oldStore: IStore, dirtyNewMock: IMockResponse | IMockResponse[
 type PartialMockWithId = { id: IMockResponse['id'] } & Partial<IMockResponse>;
 
 const updateMocks = (
-  oldStore: IStore,
+  oldStore: IWorkspaceStore,
   dirtyNewMock: PartialMockWithId | Array<PartialMockWithId>
 ) => {
   const store = { ...oldStore };
@@ -284,7 +297,7 @@ const updateMocks = (
   return { ...store, mocks: newStoreMocks };
 };
 
-const deleteMocks = (draftStore: IStore, dirtyMockId: string | string[]) => {
+const deleteMocks = (draftStore: IWorkspaceStore, dirtyMockId: string | string[]) => {
   const mockIdsSet = Array.isArray(dirtyMockId) ? new Set(dirtyMockId) : new Set([dirtyMockId]);
 
   const mocks = draftStore.mocks.filter((mock) => {

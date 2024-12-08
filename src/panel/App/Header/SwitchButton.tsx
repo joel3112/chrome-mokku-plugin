@@ -1,7 +1,7 @@
 import React from 'react';
 import { ImSwitch } from 'react-icons/im';
 import { ActionIcon } from '@mantine/core';
-import { useGlobalStore } from '../store/useGlobalStore';
+import { useGlobalStore } from '@mokku/store';
 
 export const SwitchButton = () => {
   const active = useGlobalStore((state) => state.meta.active);

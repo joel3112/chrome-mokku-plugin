@@ -8,8 +8,8 @@ export const useAddBulkMock = () => {
   const tab = useGlobalStore((state) => state.meta.tab);
 
   const addBulkMock = async (mocks: IMockResponse[]) => {
-    const { store } = await storeActions.getStore();
-    const updatedStore = storeActions.addMocks(store, mocks);
+    const { workspaceStore } = await storeActions.getStore();
+    const updatedStore = storeActions.addMocks(workspaceStore, mocks);
 
     storeActions
       .updateStoreInDB(updatedStore)

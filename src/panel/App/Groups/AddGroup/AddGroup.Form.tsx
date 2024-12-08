@@ -10,16 +10,19 @@ import { SegmentedControl } from '../../Blocks/SegmentedControl';
 import { useStyles } from '../../Mocks/AddMock/AddMock.Form';
 import { storeActions } from '../../service/storeActions';
 
+type AddGroupFormProps = Pick<
+  useChromeStoreState,
+  'workspaceStore' | 'selectedGroup' | 'setStoreProperties'
+> & {
+  onClose: () => void;
+};
+
 export const AddGroupForm = ({
-  store,
+  workspaceStore,
   selectedGroup,
-  setSelectedGroup,
   setStoreProperties,
   onClose
-}: Pick<
-  useChromeStoreState,
-  'store' | 'selectedGroup' | 'setSelectedGroup' | 'setStoreProperties'
-> & { onClose: () => void }) => {
+}: AddGroupFormProps) => {
   const {
     classes: { wrapper, card }
   } = useStyles();
@@ -52,7 +55,7 @@ export const AddGroupForm = ({
           [ActionInFormEnum.UPDATE]: storeActions.updateGroups,
           [ActionInFormEnum.DUPLICATE]: storeActions.duplicateGroup
         };
-        const updatedStore = storeAction[action](store, values as IMockGroup, originalId);
+        const updatedStore = storeAction[action](workspaceStore, values as IMockGroup, originalId);
 
         storeActions
           .updateStoreInDB(updatedStore)

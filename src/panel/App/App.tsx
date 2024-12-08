@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Flex } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
+import { ViewEnum, useChromeStore, useGlobalStore, useGlobalStoreState } from '@mokku/store';
 import { Modal } from './Blocks/Modal';
 import { Show } from './Blocks/Show';
 import { DisabledPlaceholder } from './DisabledPlaceholder/DisabledPlaceholder';
@@ -8,7 +9,6 @@ import { Header } from './Header';
 import { Logs } from './Logs/Logs';
 import { Mocks } from './Mocks/Mocks';
 import { usePanelListener } from './hooks/usePanelListner';
-import { ViewEnum, useChromeStore, useGlobalStore, useGlobalStoreState } from './store';
 
 export const App = (props: useGlobalStoreState['meta']) => {
   const state = usePanelListener(props);

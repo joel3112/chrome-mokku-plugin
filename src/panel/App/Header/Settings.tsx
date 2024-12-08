@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { AiFillGithub } from 'react-icons/ai';
 import { BsPaypal } from 'react-icons/bs';
 import { CiExport, CiImport, CiTrash } from 'react-icons/ci';
@@ -9,6 +9,7 @@ import { SiBuymeacoffee } from 'react-icons/si';
 import {
   ActionIcon,
   Button,
+  type ButtonProps,
   Card,
   Center,
   Checkbox,
@@ -23,7 +24,7 @@ import { useLocalStorage } from '@mantine/hooks';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { downloadJsonFile, extractJsonFromFile } from '@mokku/services';
-import { IStore } from '@mokku/types';
+import { IWorkspaceStore } from '@mokku/types';
 import { storeActions } from '../service/storeActions';
 import { useChromeStore } from '../store';
 
@@ -41,12 +42,28 @@ const useStyles = createStyles((theme) => ({
   }
 }));
 
-export const Settings = ({ store, onClose }: { store: IStore; onClose: () => void }) => {
+const SettingsButton = (
+  props: Omit<ButtonProps, 'size' | 'variant' | 'radius' | 'style'> & {
+    children: ReactNode;
+    onClick: () => void;
+  }
+) => (
+  <Button
+    size="xs"
+    variant="outline"
+    radius="md"
+    style={{ width: 240, marginBottom: 12 }}
+    {...props}
+  />
+);
+
+export const Settings = ({ store, onClose }: { store: IWorkspaceStore; onClose: () => void }) => {
+  const setStoreProperties = useChromeStore((state) => state.setStoreProperties);
   const [colorScheme] = useLocalStorage<ColorScheme>({ key: 'color-scheme' });
   const { classes } = useStyles();
+
   const [file, setFile] = useState<File | null>(null);
   const resetRef = useRef<() => void>(null);
-  const setStoreProperties = useChromeStore((state) => state.setStoreProperties);
 
   const updateUI = (res) => {
     setStoreProperties(res);
@@ -78,6 +95,14 @@ export const Settings = ({ store, onClose }: { store: IStore; onClose: () => voi
         });
     }
   }, [file]);
+
+  const handleExport = () => {
+    downloadJsonFile(store, 'mokku-data.json');
+    notifications.show({
+      title: `Export data`,
+      message: `Data exported successfully, check your downloads`
+    });
+  };
 
   const handleClear = () =>
     modals.openConfirmModal({
@@ -112,8 +137,8 @@ export const Settings = ({ store, onClose }: { store: IStore; onClose: () => voi
           <MdClose />
         </ActionIcon>
       </Flex>
-      <Flex direction="column" align="center" gap="100px">
-        <Flex direction="column" gap="16px">
+      <Flex direction="column" align="center" gap={100}>
+        <Flex direction="column" gap={16}>
           <Center>
             <Title order={4}>Settings</Title>
           </Center>
@@ -140,50 +165,24 @@ export const Settings = ({ store, onClose }: { store: IStore; onClose: () => voi
             <Flex gap="8px">
               <FileButton onChange={setFile} resetRef={resetRef} accept="application/json">
                 {(props) => (
-                  <Button
-                    size="xs"
-                    leftIcon={<CiImport />}
-                    variant="outline"
-                    radius="md"
-                    style={{ width: 240, marginBottom: 12 }}
-                    {...props}>
+                  <SettingsButton leftIcon={<CiImport />} {...props}>
                     Import JSON
-                  </Button>
+                  </SettingsButton>
                 )}
               </FileButton>
-
-              <Button
-                size="xs"
-                leftIcon={<CiExport />}
-                variant="outline"
-                radius="md"
-                style={{ width: 240, marginBottom: 12 }}
-                onClick={() => {
-                  downloadJsonFile(store, 'mokku-data.json');
-                  notifications.show({
-                    title: `Export data`,
-                    message: `Data exported successfully, check your downloads`
-                  });
-                }}>
+              <SettingsButton leftIcon={<CiExport />} onClick={handleExport}>
                 Export JSON
-              </Button>
+              </SettingsButton>
             </Flex>
             <Flex gap="8px">
-              <Button
-                size="xs"
-                color="red"
-                radius="md"
-                leftIcon={<CiTrash />}
-                variant="outline"
-                style={{ width: 240, marginBottom: 12 }}
-                onClick={handleClear}>
+              <SettingsButton color="red" leftIcon={<CiTrash />} onClick={handleClear}>
                 Clear data
-              </Button>
+              </SettingsButton>
             </Flex>
           </Flex>
         </Flex>
 
-        <Flex direction="column" gap="16px">
+        <Flex direction="column" gap={16}>
           <Center>
             <Title order={4}>Support the Mokku's Development</Title>
           </Center>
@@ -193,64 +192,48 @@ export const Settings = ({ store, onClose }: { store: IStore; onClose: () => voi
             project alive.
           </Text>
           <Flex direction="column">
-            <Flex gap="8px">
-              <Button
-                size="xs"
-                radius="md"
+            <Flex gap={8}>
+              <SettingsButton
                 leftIcon={<BsPaypal />}
-                variant="outline"
-                style={{ width: 240, marginBottom: 12 }}
                 onClick={() =>
                   chrome.tabs.create({
                     url: 'https://paypal.me/mukuljainx?country.x=IN&locale.x=en_GB'
                   })
                 }>
                 Paypal Me
-              </Button>
-              <Button
-                size="xs"
-                radius="md"
+              </SettingsButton>
+              <SettingsButton
                 color="orange"
                 leftIcon={<SiBuymeacoffee />}
-                variant="outline"
-                style={{ width: 240, marginBottom: 12 }}
                 onClick={() =>
                   chrome.tabs.create({
                     url: 'https://www.buymeacoffee.com/mukuljainx'
                   })
                 }>
                 Buy me a Coffee
-              </Button>
+              </SettingsButton>
             </Flex>
-            <Flex gap="8px">
-              <Button
-                size="xs"
-                radius="md"
+            <Flex gap={8}>
+              <SettingsButton
                 color={colorScheme === 'dark' ? 'gray' : 'dark'}
                 leftIcon={<AiFillGithub />}
-                variant="outline"
-                style={{ width: 240, marginBottom: 12 }}
                 onClick={() =>
                   chrome.tabs.create({
                     url: 'https://github.com/mukuljainx/mokku-bug-trakcer/issues'
                   })
                 }>
                 Raise Issue on Github
-              </Button>
-              <Button
-                size="xs"
-                radius="md"
+              </SettingsButton>
+              <SettingsButton
                 color="indigo"
                 leftIcon={<RiChromeFill />}
-                variant="outline"
-                style={{ width: 240, marginBottom: 12 }}
                 onClick={() =>
                   chrome.tabs.create({
                     url: 'https://chrome.google.com/webstore/detail/mokku/llflfcikklhgamfmnjkgpdadpmdplmji'
                   })
                 }>
                 Review on Chrome Store
-              </Button>
+              </SettingsButton>
             </Flex>
           </Flex>
         </Flex>

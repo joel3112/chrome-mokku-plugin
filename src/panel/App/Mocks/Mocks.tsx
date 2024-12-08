@@ -41,7 +41,6 @@ interface GetSchemeProps {
   toggleGroup: (group: IMockGroup) => void;
   deleteGroup: (group: IMockGroup) => void;
   editGroup: (group: IMockGroup) => void;
-  duplicateGroup: (group: IMockGroup) => void;
 }
 
 const useStyles = createStyles((theme) => ({
@@ -79,11 +78,10 @@ const getSchema = ({
   editMock,
   toggleGroup,
   deleteGroup,
-  duplicateGroup,
   editGroup
 }: GetSchemeProps): TableSchema<IMockResponse | IMockGroup> => {
   const { classes } = useStyles();
-  const store = useChromeStore((state) => state.store);
+  const workspaceStore = useChromeStore((state) => state.workspaceStore);
 
   return [
     {
@@ -109,7 +107,7 @@ const getSchema = ({
             status: scenario.status
           }));
 
-          const scenariosSettinsEnabled = store.settings.enabledScenarios;
+          const scenariosSettinsEnabled = workspaceStore.settings.enabledScenarios;
           if (scenarioOptions.length === 1 || !scenariosSettinsEnabled) {
             return <Name active={mustMockActive(data)}>{data.name}</Name>;
           }
@@ -268,8 +266,7 @@ const getSchema = ({
 };
 
 const useMockStoreSelector = (state: useChromeStoreState) => ({
-  store: state.store,
-  setSelectedGroup: state.setSelectedGroup,
+  workspaceStore: state.workspaceStore,
   selectedGroup: state.selectedGroup,
   setSelectedMock: state.setSelectedMock,
   selectedMock: state.selectedMock,
@@ -277,14 +274,8 @@ const useMockStoreSelector = (state: useChromeStoreState) => ({
 });
 
 export const Mocks = () => {
-  const {
-    store,
-    selectedMock,
-    setSelectedMock,
-    selectedGroup,
-    setSelectedGroup,
-    setStoreProperties
-  } = useChromeStore(useMockStoreSelector, shallow);
+  const { workspaceStore, selectedMock, setSelectedMock, selectedGroup, setStoreProperties } =
+    useChromeStore(useMockStoreSelector, shallow);
   const search = useGlobalStore((state) => state.search).toLowerCase();
 
   const {
@@ -297,7 +288,7 @@ export const Mocks = () => {
     toggleMock,
     editMock
   } = useMockActions();
-  const { deleteGroup, duplicateGroup, toggleGroup, editGroup } = useGroupActions();
+  const { deleteGroup, toggleGroup, editGroup } = useGroupActions();
 
   const schema = getSchema({
     isActiveGroupByMock,
@@ -310,17 +301,16 @@ export const Mocks = () => {
     editMock,
     toggleGroup,
     deleteGroup,
-    duplicateGroup,
     editGroup
   });
 
   const filteredMocks = [
-    ...(store.groups || []).filter(
+    ...(workspaceStore.groups || []).filter(
       (group) =>
         (group?.name || '').toLowerCase().includes(search) ||
         (group?.description || '').toLowerCase().includes(search)
     ),
-    ...(store.mocks || []).filter(
+    ...(workspaceStore.mocks || []).filter(
       (mock) =>
         (mock?.name || '').toLowerCase().includes(search) ||
         (mock?.url || '').toLowerCase().includes(search) ||
@@ -344,7 +334,7 @@ export const Mocks = () => {
       }
     });
 
-    const uniqueMocks = store.settings.enabledScenarios
+    const uniqueMocks = workspaceStore.settings.enabledScenarios
       ? uniqueItemsByKeys(mocks, ['url', 'method', 'groupId'], 'selected')
       : mocks;
 
@@ -380,11 +370,11 @@ export const Mocks = () => {
 
   console.log('organizeItems', organizeItems(filteredMocks));
 
-  if (!store.mocks || !store.groups) {
+  if (!workspaceStore.mocks || !workspaceStore.groups) {
     return <LoadingOverlay visible overlayBlur={2} />;
   }
 
-  if (store.mocks.length === 0 && store.groups.length === 0) {
+  if (workspaceStore.mocks.length === 0 && workspaceStore.groups.length === 0) {
     return (
       <Placeholder
         title="No Mocks created yet."
@@ -404,7 +394,7 @@ export const Mocks = () => {
 
   const selectRow = (data: IMockResponse | IMockGroup) => {
     if (data.type === MockType.GROUP) {
-      const updatedStore = storeActions.updateGroups(store, {
+      const updatedStore = storeActions.updateGroups(workspaceStore, {
         ...data,
         expanded: !data.expanded
       });

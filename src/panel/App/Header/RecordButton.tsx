@@ -2,7 +2,7 @@ import React from 'react';
 import { TbPlayerRecordFilled } from 'react-icons/tb';
 import { ActionIcon } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { useGlobalStore } from '../store/useGlobalStore';
+import { useGlobalStore } from '@mokku/store';
 
 export const RecordButton = () => {
   const recording = useGlobalStore((state) => state.recording);

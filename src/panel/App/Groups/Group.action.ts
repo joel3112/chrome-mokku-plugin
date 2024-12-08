@@ -6,13 +6,13 @@ import { IMockGroup } from '@mokku/types';
 import { storeActions } from '../service/storeActions';
 
 const useGroupStoreSelector = (state: useChromeStoreState) => ({
-  store: state.store,
+  workspaceStore: state.workspaceStore,
   setStoreProperties: state.setStoreProperties,
   setSelectedGroup: state.setSelectedGroup
 });
 
 export const useGroupActions = () => {
-  const { store, setSelectedGroup, setStoreProperties } = useChromeStore(
+  const { workspaceStore, setSelectedGroup, setStoreProperties } = useChromeStore(
     useGroupStoreSelector,
     shallow
   );
@@ -20,7 +20,7 @@ export const useGroupActions = () => {
 
   const toggleGroup = useCallback(
     (groupToBeUpdated: IMockGroup) => {
-      const updatedStore = storeActions.updateGroups(store, groupToBeUpdated);
+      const updatedStore = storeActions.updateGroups(workspaceStore, groupToBeUpdated);
       const groupStatus = groupToBeUpdated.active ? 'is enabled' : 'is disabled';
       storeActions
         .updateStoreInDB(updatedStore)
@@ -40,11 +40,11 @@ export const useGroupActions = () => {
           });
         });
     },
-    [store, setStoreProperties]
+    [workspaceStore, setStoreProperties]
   );
   const deleteGroup = useCallback(
     (groupToBeDeleted: IMockGroup) => {
-      const updatedStore = storeActions.deleteGroups(store, groupToBeDeleted.id);
+      const updatedStore = storeActions.deleteGroups(workspaceStore, groupToBeDeleted.id);
 
       storeActions
         .updateStoreInDB(updatedStore)
@@ -65,7 +65,7 @@ export const useGroupActions = () => {
           });
         });
     },
-    [store, setStoreProperties]
+    [workspaceStore, setStoreProperties]
   );
   const duplicateGroup = useCallback(
     (group: IMockGroup) => {

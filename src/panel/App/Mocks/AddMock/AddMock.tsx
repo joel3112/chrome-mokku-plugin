@@ -5,9 +5,8 @@ import { SideDrawer } from '../../Blocks/SideDrawer';
 import { AddMockForm } from './AddMock.Form';
 
 const useMockStoreSelector = (state: useChromeStoreState) => ({
-  store: state.store,
+  workspaceStore: state.workspaceStore,
   selectedMock: state.selectedMock,
-  setSelectedMock: state.setSelectedMock,
   setStoreProperties: state.setStoreProperties
 });
 
@@ -17,16 +16,14 @@ type AddMockProps = {
 };
 
 export const AddMock = ({ onClose, onFormChange }: AddMockProps) => {
-  const { store, selectedMock, setSelectedMock, setStoreProperties } =
-    useChromeStore(useMockStoreSelector);
+  const { workspaceStore, selectedMock, setStoreProperties } = useChromeStore(useMockStoreSelector);
 
   return (
     <SideDrawer minWidth={520}>
       <AddMockForm
         key={`${selectedMock.id}-${selectedMock.url}`}
-        store={store}
+        workspaceStore={workspaceStore}
         selectedMock={selectedMock}
-        setSelectedMock={setSelectedMock}
         setStoreProperties={setStoreProperties}
         onClose={onClose}
         onFormChange={onFormChange}

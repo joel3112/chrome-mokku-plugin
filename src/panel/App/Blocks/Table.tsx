@@ -67,7 +67,7 @@ export const TableWrapper = <
   onRowClick,
   selectedRowId
 }: TableWrapperProps<T>) => {
-  const { classes } = useStyles();
+  const { classes, cx } = useStyles();
 
   const ths = (
     <tr>
@@ -95,9 +95,10 @@ export const TableWrapper = <
         onClick={() => {
           onRowClick(row);
         }}
-        className={`${selectedRowId === row.id ? classes.selectedRow : ''} ${
-          rowMockHasGroup ? classes.groupRow : ''
-        } ${classes.rows}`}>
+        className={cx(classes.rows, {
+          [classes.selectedRow]: selectedRowId === row.id,
+          [classes.groupRow]: rowMockHasGroup
+        })}>
         {schema.map(({ content, maxWidth, style }, index) => (
           <td key={index} style={{ maxWidth, ...style }}>
             {content(row)}

@@ -24,7 +24,7 @@ import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { downloadJsonFile, extractJsonFromFile } from '@mokku/services';
 import { IStore } from '@mokku/types';
-import { storeActions, updateStoreInDB } from '../service/storeActions';
+import { storeActions } from '../service/storeActions';
 import { useChromeStore } from '../store';
 
 const useStyles = createStyles((theme) => ({
@@ -57,7 +57,7 @@ export const Settings = ({ store, onClose }: { store: IStore; onClose: () => voi
     if (file) {
       extractJsonFromFile(file)
         .then((jsonData) => {
-          updateStoreInDB({ ...store, ...jsonData }).then(updateUI);
+          storeActions.resetStore({ ...store, ...jsonData }).then(updateUI);
           notifications.show({
             title: `Import data`,
             message: `Data imported successfully`
@@ -92,7 +92,7 @@ export const Settings = ({ store, onClose }: { store: IStore; onClose: () => voi
       labels: { confirm: 'Clear', cancel: "No don't clear it" },
       confirmProps: { color: 'red' },
       onConfirm: () => {
-        storeActions.resetStoreInDB().then(updateUI);
+        storeActions.resetStore().then(updateUI);
         notifications.show({
           title: `Clear data`,
           message: `All data cleared successfully`
@@ -120,13 +120,14 @@ export const Settings = ({ store, onClose }: { store: IStore; onClose: () => voi
           <Checkbox
             defaultChecked={store.settings.enabledScenarios}
             onChange={(event) => {
-              updateStoreInDB({
+              const updatedStore = {
                 ...store,
                 settings: {
                   ...store.settings,
                   enabledScenarios: event.target.checked
                 }
-              }).then(updateUI);
+              };
+              storeActions.resetStore(updatedStore).then(updateUI);
             }}
             label="Enable scenarios"
             description="The mocks with same URL and method will be grouped together"

@@ -3,9 +3,11 @@ import { z } from 'zod';
 export const StoreSchema = z.object({
   theme: z.enum(['dark', 'light']).optional(),
   active: z.boolean().optional(),
-  settings: z.object({
-    enabledScenarios: z.boolean().optional()
-  }),
+  settings: z
+    .object({
+      enabledScenarios: z.boolean().optional()
+    })
+    .optional(),
   groups: z.array(
     z.object({
       type: z.literal('group'),

@@ -63,8 +63,8 @@ export const updateStoreInDB = (store: IStore) => {
   });
 };
 
-export const resetStoreInDB = () => {
-  const store = {
+const resetStore = (resetStore?: IStore) => {
+  const store = resetStore || {
     ...getDefaultStore(),
     mocks: [],
     groups: []
@@ -346,7 +346,7 @@ export const storeActions = {
   addMocks,
   getURLMapWithStore,
   updateStoreInDB,
-  resetStoreInDB,
+  resetStore,
   getStore,
   getDefaultStore,
   refreshContentStore

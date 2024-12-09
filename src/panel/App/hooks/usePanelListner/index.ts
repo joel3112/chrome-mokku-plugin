@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { messageService } from '@mokku/services';
+import { messageService, uniqueItemsByKeys } from '@mokku/services';
 import { useGlobalStore, useGlobalStoreState, useLogStore } from '@mokku/store';
 import { IEventMessage, ILog } from '@mokku/types';
 import { getMockFromLog } from '../../Logs/log.util';
@@ -20,7 +20,12 @@ export const usePanelListener = (props: useGlobalStoreState['meta']) => {
   useEffect(() => {
     if (!isRecording) {
       if (recordings.current.length) {
-        addBulkMock(recordings.current);
+        const uniqueBulkMocks = uniqueItemsByKeys(recordings.current, [
+          'url',
+          'method',
+          'response'
+        ]);
+        addBulkMock(uniqueBulkMocks);
         recordings.current = [];
       }
     }

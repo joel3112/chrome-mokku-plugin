@@ -24,11 +24,10 @@ import { useLocalStorage } from '@mantine/hooks';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { downloadJsonFile, extractJsonFromFile } from '@mokku/services';
-import { IWorkspaceStore } from '@mokku/types';
 import { storeActions } from '../service/storeActions';
-import { useChromeStore } from '../store';
+import { StoreProperties, useChromeStore } from '../store';
 
-const useStyles = createStyles((theme) => ({
+const useStyles = createStyles(() => ({
   wrapper: {
     position: 'fixed',
     left: 0,
@@ -57,73 +56,89 @@ const SettingsButton = (
   />
 );
 
-export const Settings = ({ store, onClose }: { store: IWorkspaceStore; onClose: () => void }) => {
+export const Settings = ({ onClose }: { onClose: () => void }) => {
+  const store = useChromeStore((state) => state.store);
+  const workspaceStore = useChromeStore((state) => state.workspaceStore);
+  const selectedWorkspace = useChromeStore((state) => state.selectedWorkspace);
   const setStoreProperties = useChromeStore((state) => state.setStoreProperties);
+
   const [colorScheme] = useLocalStorage<ColorScheme>({ key: 'color-scheme' });
   const { classes } = useStyles();
 
   const [file, setFile] = useState<File | null>(null);
   const resetRef = useRef<() => void>(null);
 
-  const updateUI = (res) => {
+  const updateUI = (res: StoreProperties) => {
     setStoreProperties(res);
     onClose();
   };
 
   useEffect(() => {
     if (file) {
-      extractJsonFromFile(file)
-        .then((jsonData) => {
-          storeActions.resetStore({ ...store, ...jsonData }).then(updateUI);
-          notifications.show({
-            title: `Import data`,
-            message: `Data imported successfully`
-          });
-        })
-        .catch((error) => {
-          console.error('Failed to import data:', error);
-          notifications.show({
-            id: 'import-data-error',
-            title: `Import data`,
-            message: `Failed to import data`,
-            color: 'red'
-          });
-        })
-        .finally(() => {
-          setFile(null);
-          resetRef.current?.();
-        });
+      handleImportData();
     }
   }, [file]);
 
-  const handleExport = () => {
-    downloadJsonFile(store, 'mokku-data.json');
+  const handleImportData = () => {
+    extractJsonFromFile(file)
+      .then((jsonData) => {
+        const updatedWorkspaceStore = { ...workspaceStore, ...jsonData };
+        storeActions
+          .updateWorkspaceStoreInDB(selectedWorkspace.id, updatedWorkspaceStore)
+          .then(updateUI);
+        notifications.show({
+          title: `Import data`,
+          message: `Data imported successfully`
+        });
+      })
+      .catch((error) => {
+        console.error('Failed to import data:', error);
+        notifications.show({
+          id: 'import-data-error',
+          title: `Import data`,
+          message: `Failed to import data`,
+          color: 'red'
+        });
+      })
+      .finally(() => {
+        setFile(null);
+        resetRef.current?.();
+      });
+  };
+
+  const handleExportData = () => {
+    downloadJsonFile(workspaceStore);
     notifications.show({
       title: `Export data`,
       message: `Data exported successfully, check your downloads`
     });
   };
 
-  const handleClear = () =>
+  const handleClearData = () =>
     modals.openConfirmModal({
       title: 'Clear data',
       centered: true,
       children: (
         <Text size="sm">
           Are you sure you want to remove your data? This action is destructive and you will lose
-          all your data.
+          all your data for the workspace <b>{selectedWorkspace.name}</b>.
         </Text>
       ),
       labels: { confirm: 'Clear', cancel: "No don't clear it" },
       confirmProps: { color: 'red' },
       onConfirm: () => {
-        storeActions.resetStore().then(updateUI);
+        storeActions.resetWorkspaceStore(selectedWorkspace.id).then(updateUI);
         notifications.show({
           title: `Clear data`,
           message: `All data cleared successfully`
         });
       }
     });
+
+  const handleActiveScenarios = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedStore = { ...store, enabledScenarios: event.target.checked };
+    storeActions.updateStoreInDB(updatedStore).then(updateUI);
+  };
 
   return (
     <Card className={classes.wrapper}>
@@ -143,17 +158,8 @@ export const Settings = ({ store, onClose }: { store: IWorkspaceStore; onClose: 
             <Title order={4}>Settings</Title>
           </Center>
           <Checkbox
-            defaultChecked={store.settings.enabledScenarios}
-            onChange={(event) => {
-              const updatedStore = {
-                ...store,
-                settings: {
-                  ...store.settings,
-                  enabledScenarios: event.target.checked
-                }
-              };
-              storeActions.resetStore(updatedStore).then(updateUI);
-            }}
+            defaultChecked={store.enabledScenarios}
+            onChange={handleActiveScenarios}
             label="Enable scenarios"
             description="The mocks with same URL and method will be grouped together"
             mb={12}
@@ -170,12 +176,12 @@ export const Settings = ({ store, onClose }: { store: IWorkspaceStore; onClose: 
                   </SettingsButton>
                 )}
               </FileButton>
-              <SettingsButton leftIcon={<CiExport />} onClick={handleExport}>
+              <SettingsButton leftIcon={<CiExport />} onClick={handleExportData}>
                 Export JSON
               </SettingsButton>
             </Flex>
             <Flex gap="8px">
-              <SettingsButton color="red" leftIcon={<CiTrash />} onClick={handleClear}>
+              <SettingsButton color="red" leftIcon={<CiTrash />} onClick={handleClearData}>
                 Clear data
               </SettingsButton>
             </Flex>

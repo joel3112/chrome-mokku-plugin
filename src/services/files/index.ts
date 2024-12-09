@@ -1,6 +1,8 @@
 import { StoreSchema } from './schema';
 
-export const downloadJsonFile = (object: any, fileName: string) => {
+const FILE_NAME_EXPORT = 'mokku-data.json';
+
+export const downloadJsonFile = <T extends object>(object: T, fileName = FILE_NAME_EXPORT) => {
   const jsonString = JSON.stringify(object, null, 2);
   const blob = new Blob([jsonString], { type: 'application/json' });
   const url = URL.createObjectURL(blob);

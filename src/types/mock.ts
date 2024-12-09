@@ -89,18 +89,18 @@ export interface IWorkspace {
   id: string;
   name: string;
   active: boolean;
-  groups: IMockGroup[];
-  mocks: IMockResponse[];
+}
+
+export interface IStore {
+  active: boolean;
+  theme: 'dark' | 'light';
+  enabledScenarios: boolean;
+  workspaces: Record<string, IWorkspace>;
 }
 
 export type IMockResponseRaw = Partial<IMockResponse>;
 
 export interface IWorkspaceStore {
-  active: boolean;
-  theme: 'dark' | 'light';
-  settings: {
-    enabledScenarios: boolean;
-  };
   groups: IMockGroup[];
   mocks: IMockResponse[];
 }

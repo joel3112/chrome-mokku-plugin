@@ -1,16 +1,30 @@
 import { get } from 'lodash';
 import { wildcardPattern } from 'wildcard-regex';
-import { IDynamicURLMap, IEventMessage, ILog } from '@mokku/types';
+import {
+  IDynamicURLMap,
+  IEventMessage,
+  ILog,
+  IStore,
+  IURLMap,
+  IWorkspaceStore
+} from '@mokku/types';
 import inject from './contentScript/injectToDom';
 import { storeActions } from './panel/App/service/storeActions';
 import messageService from './services/message';
 
 const init = () => {
-  let workspaceStore, urlMap, dynamicUrlMap: IDynamicURLMap;
-  storeActions.getStore().then((a) => {
+  let store: IStore,
+    workspaceStore: IWorkspaceStore,
+    urlMap: IURLMap,
+    dynamicUrlMap: IDynamicURLMap;
+
+  storeActions.getAllStore().then((a) => {
+    store = a.store;
     workspaceStore = a.workspaceStore;
     urlMap = a.urlMap;
     dynamicUrlMap = a.dynamicUrlMap;
+
+    console.log(`>> Content Script Init - ${storeActions.getActiveWorkspace(store).name}`);
   });
 
   const getMockPath = (url: string, method: string) => {
@@ -50,7 +64,8 @@ const init = () => {
   };
 
   const updateStore = () => {
-    storeActions.getStore().then((x) => {
+    storeActions.getAllStore().then((x) => {
+      store = x.store;
       workspaceStore = x.workspaceStore;
       urlMap = x.urlMap;
       dynamicUrlMap = x.dynamicUrlMap;
@@ -61,7 +76,7 @@ const init = () => {
 
   const isActiveSelectedMock = (mock) => {
     const hasEscenarios = storeActions.hasMultipleScenarios(workspaceStore, mock);
-    if (hasEscenarios && workspaceStore.settings.enabledScenarios) {
+    if (hasEscenarios && store.enabledScenarios) {
       return mock.selected && mock.active;
     }
     return mock.active;
@@ -122,6 +137,7 @@ const init = () => {
 
     const request = (data.message as ILog).request;
     const mockPaths = getMockPath(request.url, request.method);
+    console.log(`>> mockPaths - ${request.url} - `, mockPaths);
     const { mock } = getActiveMockWithPath(mockPaths);
 
     if (mock && hasGroupActive(mock)) {
@@ -132,24 +148,28 @@ const init = () => {
   });
 };
 
-const host = location.host;
-const isLocalhost = location.href.includes('http://localhost');
+const checIfActive = () => {
+  const host = location.host;
+  const isLocalhost = location.href.includes('http://localhost');
 
-chrome.storage.local.get([`mokku.extension.active.${host}`], function (result) {
-  let active = result[`mokku.extension.active.${host}`];
-  if (isLocalhost && active === undefined) {
-    active = true;
-  }
-  if (active) {
-    // injects script to page's DOM
-    inject();
-    init();
-  }
-  // tell the panel about the new injection (host might have changed)
-  messageService.send({
-    message: host,
-    type: 'INIT',
-    from: 'CONTENT',
-    to: 'PANEL'
+  chrome.storage.local.get([`mokku.extension.active.${host}`], function (result) {
+    let active = result[`mokku.extension.active.${host}`];
+    if (isLocalhost && active === undefined) {
+      active = true;
+    }
+    if (active) {
+      // injects script to page's DOM
+      inject();
+      init();
+    }
+    // tell the panel about the new injection (host might have changed)
+    messageService.send({
+      message: host,
+      type: 'INIT',
+      from: 'CONTENT',
+      to: 'PANEL'
+    });
   });
-});
+};
+
+checIfActive();

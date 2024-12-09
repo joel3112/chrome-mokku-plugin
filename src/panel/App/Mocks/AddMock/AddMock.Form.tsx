@@ -16,7 +16,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import { useChromeStoreState, useGlobalStore } from '@mokku/store';
+import { useChromeStore, useChromeStoreState, useGlobalStore } from '@mokku/store';
 import {
   ActionInFormEnum,
   IMockResponse,
@@ -29,7 +29,7 @@ import { SegmentedControl } from '../../Blocks/SegmentedControl';
 import { storeActions } from '../../service/storeActions';
 import { statusOptions } from './data';
 
-export const useStyles = createStyles((theme) => ({
+export const useStyles = createStyles(() => ({
   flexGrow: {
     flexGrow: 2
   },
@@ -60,25 +60,26 @@ export const useStyles = createStyles((theme) => ({
   }
 }));
 
-type AddMockFormProps = Pick<
-  useChromeStoreState,
-  'workspaceStore' | 'selectedMock' | 'setStoreProperties'
-> & {
+type AddMockFormProps = {
   onClose: () => void;
   onFormChange?: (values: IMockResponseRaw) => void;
 };
 
-export const AddMockForm = ({
-  workspaceStore,
-  selectedMock,
-  setStoreProperties,
-  onFormChange,
-  onClose
-}: AddMockFormProps) => {
+const useMockStoreSelector = (state: useChromeStoreState) => ({
+  workspaceStore: state.workspaceStore,
+  selectedWorkspace: state.selectedWorkspace,
+  selectedMock: state.selectedMock,
+  setStoreProperties: state.setStoreProperties
+});
+
+export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
+  const tab = useGlobalStore((state) => state.meta.tab);
+  const { workspaceStore, selectedWorkspace, selectedMock, setStoreProperties } =
+    useChromeStore(useMockStoreSelector);
+
   const {
     classes: { flexGrow, wrapper, tabs, card }
   } = useStyles();
-  const tab = useGlobalStore((state) => state.meta.tab);
 
   const form = useForm<IMockResponseRaw>({
     initialValues: {
@@ -126,13 +127,13 @@ export const AddMockForm = ({
           [ActionInFormEnum.UPDATE]: storeActions.updateMocks,
           [ActionInFormEnum.DUPLICATE]: storeActions.addMocks
         };
-        const updatedStore = storeAction[action](workspaceStore, {
+        const updatedWorkspaceStore = storeAction[action](workspaceStore, {
           ...values,
           groupId: values.groupId || ''
         } as IMockResponse);
 
         storeActions
-          .updateStoreInDB(updatedStore)
+          .updateWorkspaceStoreInDB(selectedWorkspace.id, updatedWorkspaceStore)
           .then(setStoreProperties)
           .then(() => {
             onClose();

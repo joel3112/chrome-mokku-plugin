@@ -3,30 +3,31 @@ import { v4 as uuidv4 } from 'uuid';
 import { Card, Flex, TextInput, Textarea } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import { useChromeStoreState, useGlobalStore } from '@mokku/store';
+import { useChromeStore, useChromeStoreState, useGlobalStore } from '@mokku/store';
 import { ActionInFormEnum, GroupStatusEnum, IMockGroup, IMockGroupRaw } from '@mokku/types';
 import { FORM_ID, getActionInForm } from '../../Blocks/Modal';
 import { SegmentedControl } from '../../Blocks/SegmentedControl';
 import { useStyles } from '../../Mocks/AddMock/AddMock.Form';
 import { storeActions } from '../../service/storeActions';
 
-type AddGroupFormProps = Pick<
-  useChromeStoreState,
-  'workspaceStore' | 'selectedGroup' | 'setStoreProperties'
-> & {
+type AddGroupFormProps = {
   onClose: () => void;
 };
 
-export const AddGroupForm = ({
-  workspaceStore,
-  selectedGroup,
-  setStoreProperties,
-  onClose
-}: AddGroupFormProps) => {
+const useGroupStoreSelector = (state: useChromeStoreState) => ({
+  workspaceStore: state.workspaceStore,
+  selectedWorkspace: state.selectedWorkspace,
+  selectedGroup: state.selectedGroup,
+  setStoreProperties: state.setStoreProperties
+});
+
+export const AddGroupForm = ({ onClose }: AddGroupFormProps) => {
   const {
     classes: { wrapper, card }
   } = useStyles();
   const tab = useGlobalStore((state) => state.meta.tab);
+  const { workspaceStore, selectedWorkspace, selectedGroup, setStoreProperties } =
+    useChromeStore(useGroupStoreSelector);
 
   const form = useForm<IMockGroupRaw>({
     initialValues: {
@@ -55,10 +56,14 @@ export const AddGroupForm = ({
           [ActionInFormEnum.UPDATE]: storeActions.updateGroups,
           [ActionInFormEnum.DUPLICATE]: storeActions.duplicateGroup
         };
-        const updatedStore = storeAction[action](workspaceStore, values as IMockGroup, originalId);
+        const updatedWorkspaceStore = storeAction[action](
+          workspaceStore,
+          values as IMockGroup,
+          originalId
+        );
 
         storeActions
-          .updateStoreInDB(updatedStore)
+          .updateWorkspaceStoreInDB(selectedWorkspace.id, updatedWorkspaceStore)
           .then(setStoreProperties)
           .then(() => {
             onClose();

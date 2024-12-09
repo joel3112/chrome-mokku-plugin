@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { get } from 'lodash';
 import { Button, Drawer, Flex, createStyles } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { isJsonValid } from '@mokku/services';
 import { useChromeStore, useLogStore } from '@mokku/store';
 import { ActionInFormEnum, IMockGroup, IMockResponse, MockType } from '@mokku/types';
 import { AddGroup } from '../Groups/AddGroup/AddGroup';
 import { LogDetails } from '../Logs/LogDetails/LogDetails';
 import { getMockFromLog } from '../Logs/log.util';
 import { AddMock } from '../Mocks/AddMock/AddMock';
-import { isJsonValid } from '../Mocks/AddMock/utils';
 
 enum ModalType {
   Group = 'GROUP',

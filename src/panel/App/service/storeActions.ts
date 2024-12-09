@@ -1,10 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
 import { defaultTheme, messageService } from '@mokku/services';
+import { StoreProperties } from '@mokku/store';
 import {
   IDynamicURLMap,
   IMockGroup,
   IMockResponse,
+  IStore,
   IURLMap,
+  IWorkspace,
   IWorkspaceStore,
   MockType
 } from '@mokku/types';
@@ -18,66 +21,113 @@ const getNetworkMethodMap = () => ({
 });
 
 const storeName = 'mokku.extension.main.db';
+const getWorkspaceStoreName = (workspaceId: string) =>
+  `mokku.extension.workspace-${workspaceId}.db`;
+const DEFAULT_WORKSPACE = 'default';
 
-const getDefaultStore = (): IWorkspaceStore => ({
-  theme: defaultTheme,
+const getDefaulStore = (): IStore => ({
   active: false,
-  settings: {
-    enabledScenarios: true
-  },
+  theme: defaultTheme,
+  enabledScenarios: true,
+  workspaces: {
+    [DEFAULT_WORKSPACE]: {
+      id: DEFAULT_WORKSPACE,
+      name: 'Default',
+      active: true
+    }
+  }
+});
+
+const getDefaultWorkspaceStore = (): IWorkspaceStore => ({
   groups: null,
   mocks: null
 });
 
-const getStore = (name = storeName) => {
-  return new Promise<{
-    workspaceStore: IWorkspaceStore;
-    urlMap: IURLMap;
-    dynamicUrlMap: IDynamicURLMap;
-  }>((resolve) => {
-    chrome.storage.local.get([name], function (result) {
-      const _workspaceStore = { ...getDefaultStore(), ...result[name] } as IWorkspaceStore;
+const getWorskpaceStore = (workspaceId: string) => {
+  return new Promise<StoreProperties['workspaceStore']>((resolve) => {
+    const workspaceStoreName = getWorkspaceStoreName(workspaceId);
+
+    chrome.storage.local.get([workspaceStoreName], function (result) {
+      const _workspaceStore = {
+        ...getDefaultWorkspaceStore(),
+        ...result[workspaceStoreName]
+      } as IWorkspaceStore;
+
+      resolve({
+        ..._workspaceStore,
+        mocks: _workspaceStore.mocks || [],
+        groups: _workspaceStore.groups || []
+      });
+    });
+  });
+};
+
+const getAllStore = () => {
+  return new Promise<StoreProperties>((resolve) => {
+    chrome.storage.local.get([storeName], async function (resultStore) {
+      const _store = { ...getDefaulStore(), ...resultStore[storeName] } as IStore;
+      const workspaceActiveId = getActiveWorkspace(_store)?.id;
+
+      if (!workspaceActiveId) {
+        resolve({
+          store: _store,
+          workspaceStore: getDefaultWorkspaceStore(),
+          urlMap: {},
+          dynamicUrlMap: {}
+        });
+        return;
+      }
+
+      const _workspaceStore = await getWorskpaceStore(workspaceActiveId);
       const { urlMap, dynamicUrlMap } = getURLMapWithStore(_workspaceStore);
 
       resolve({
-        workspaceStore: {
-          ..._workspaceStore,
-          mocks: _workspaceStore.mocks || [],
-          groups: _workspaceStore.groups || []
-        },
-        urlMap: urlMap,
+        store: _store,
+        workspaceStore: _workspaceStore,
+        urlMap,
         dynamicUrlMap
       });
     });
   });
 };
 
-const updateStoreInDB = (workspaceStore: IWorkspaceStore) => {
-  return new Promise<{ workspaceStore: IWorkspaceStore; urlMap: IURLMap; dynamicUrlMap }>(
-    (resolve, reject) => {
-      try {
-        chrome.storage.local.set({ [storeName]: workspaceStore }, () => {
-          const { dynamicUrlMap, urlMap } = getURLMapWithStore(workspaceStore);
-          resolve({
-            workspaceStore: workspaceStore as IWorkspaceStore,
-            urlMap: urlMap,
-            dynamicUrlMap: dynamicUrlMap
-          });
-        });
-      } catch (error) {
-        reject(error);
-      }
+const updateStoreInDB = (store: IStore) => {
+  return new Promise<Pick<StoreProperties, 'store'>>((resolve, reject) => {
+    try {
+      chrome.storage.local.set({ [storeName]: store }, () => {
+        resolve({ store });
+      });
+    } catch (error) {
+      reject(error);
     }
-  );
+  });
 };
 
-const resetStore = (resetStore?: IWorkspaceStore) => {
-  const store = resetStore || {
-    ...getDefaultStore(),
+const updateWorkspaceStoreInDB = (workspaceId: string, workspaceStore: IWorkspaceStore) => {
+  return new Promise<Omit<StoreProperties, 'store'>>((resolve, reject) => {
+    try {
+      const workspaceStoreName = getWorkspaceStoreName(workspaceId);
+      chrome.storage.local.set({ [workspaceStoreName]: workspaceStore }, () => {
+        const { dynamicUrlMap, urlMap } = getURLMapWithStore(workspaceStore);
+        resolve({
+          workspaceStore,
+          urlMap,
+          dynamicUrlMap
+        });
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+const resetWorkspaceStore = (workspaceId: string) => {
+  const workspaceStore = {
+    ...getDefaultWorkspaceStore(),
     mocks: [],
     groups: []
   };
-  return updateStoreInDB(store);
+  return updateWorkspaceStoreInDB(workspaceId, workspaceStore);
 };
 
 const getURLMapWithStore = (store: IWorkspaceStore) => {
@@ -111,6 +161,30 @@ const getURLMapWithStore = (store: IWorkspaceStore) => {
   });
 
   return { urlMap, dynamicUrlMap, store };
+};
+
+const getActiveWorkspace = (store: IStore) => {
+  return Object.values(store.workspaces).find((workspace) => workspace.active);
+};
+
+const addWorkspace = (oldStore: IStore, name: string) => {
+  const store = { ...oldStore };
+  const id = uuidv4();
+  const newWorkspace: IWorkspace = { id, name, active: false };
+  store.workspaces = { ...store.workspaces, [id]: newWorkspace };
+
+  return store;
+};
+
+const selectWorkspace = (oldStore: IStore, workspaceId: string) => {
+  const store = { ...oldStore };
+  store.workspaces = Object.keys(store.workspaces).reduce((acc, key) => {
+    const workspace = store.workspaces[key];
+    acc[key] = { ...workspace, active: workspace.id === workspaceId };
+    return acc;
+  }, {});
+
+  return store;
 };
 
 const getMocksByGroup = (store: IWorkspaceStore, groupId: string) => {
@@ -328,10 +402,13 @@ const refreshContentStore = (tabId?: number) => {
 };
 
 export const storeActions = {
+  getActiveWorkspace,
   getMockScenarios,
   hasMultipleScenarios,
   getMocksByGroup,
   isActiveGroupByMock,
+  addWorkspace,
+  selectWorkspace,
   deleteGroups,
   updateGroups,
   addGroups,
@@ -341,8 +418,11 @@ export const storeActions = {
   addMocks,
   getURLMapWithStore,
   updateStoreInDB,
-  resetStore,
-  getStore,
-  getDefaultStore,
+  updateWorkspaceStoreInDB,
+  resetWorkspaceStore,
+  getDefaulStore,
+  getDefaultWorkspaceStore,
+  getAllStore,
+  getWorskpaceStore,
   refreshContentStore
 };

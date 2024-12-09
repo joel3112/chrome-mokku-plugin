@@ -4,15 +4,16 @@ import { IMockResponse } from '@mokku/types';
 import { storeActions } from '../../service/storeActions';
 
 export const useAddBulkMock = () => {
+  const selectedWorkspace = useChromeStore((state) => state.selectedWorkspace);
   const setStoreProperties = useChromeStore((state) => state.setStoreProperties);
   const tab = useGlobalStore((state) => state.meta.tab);
 
   const addBulkMock = async (mocks: IMockResponse[]) => {
-    const { workspaceStore } = await storeActions.getStore();
-    const updatedStore = storeActions.addMocks(workspaceStore, mocks);
+    const { workspaceStore } = await storeActions.getAllStore();
+    const updatedWorkspaceStore = storeActions.addMocks(workspaceStore, mocks);
 
     storeActions
-      .updateStoreInDB(updatedStore)
+      .updateWorkspaceStoreInDB(selectedWorkspace.id, updatedWorkspaceStore)
       .then(setStoreProperties)
       .then(() => {
         storeActions.refreshContentStore(tab.id);

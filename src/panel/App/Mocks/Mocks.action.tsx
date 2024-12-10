@@ -1,4 +1,7 @@
+import * as React from 'react';
 import { shallow } from 'zustand/shallow';
+import { Space, Text } from '@mantine/core';
+import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { useChromeStore, useChromeStoreState, useGlobalStore } from '@mokku/store';
 import { IMockResponse } from '@mokku/types';
@@ -76,6 +79,49 @@ export const useMockActions = () => {
       });
   };
 
+  const deleteMockScenarios = (mockToBeDeleted: IMockResponse) => {
+    const scenarios = getMockScenarios(mockToBeDeleted);
+
+    modals.openConfirmModal({
+      title: 'Delete mocks',
+      centered: true,
+      children: (
+        <Text size="sm">
+          You are about to delete <strong>{scenarios.length} mocks scenarios</strong>.
+          <Space h="md" />
+          Are you sure you want to delete these mocks?
+        </Text>
+      ),
+      labels: { confirm: 'Delete', cancel: 'Cancel' },
+      confirmProps: { color: 'red' },
+      onConfirm: () => {
+        const updatedWorkspaceStore = storeActions.deleteMocks(
+          workspaceStore,
+          scenarios.map((m) => m.id)
+        );
+
+        storeActions
+          .updateWorkspaceStoreInDB(selectedWorkspace.id, updatedWorkspaceStore)
+          .then(setStoreProperties)
+          .then(() => {
+            storeActions.refreshContentStore(tab.id);
+            notifications.show({
+              title: `${scenarios.length} mocks deleted`,
+              message: `Mocks are deleted successfully.`
+            });
+          })
+          .catch((error) => {
+            console.log(error);
+            notifications.show({
+              title: 'Cannot delete mocks.',
+              message: 'Something went wrong, unable to delete mocks. Check console for error.',
+              color: 'red'
+            });
+          });
+      }
+    });
+  };
+
   const duplicateMock = (mock: IMockResponse) => {
     setSelectedMock({
       ...mock,
@@ -111,6 +157,7 @@ export const useMockActions = () => {
     isActiveGroupByMock,
     toggleMock,
     deleteMock,
+    deleteMockScenarios,
     duplicateMock,
     editMock
   };

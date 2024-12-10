@@ -9,20 +9,6 @@ import { TableWrapper } from '../Blocks/Table';
 import { storeActions } from '../service/storeActions';
 import { useMocksTableSchema } from './useMocksTableSchema';
 
-interface GetSchemeProps {
-  toggleMock: (mock: IMockResponse) => void;
-  deleteMock: (mock: IMockResponse) => void;
-  editMock: (mock: IMockResponse) => void;
-  duplicateMock: (mock: IMockResponse) => void;
-  isActiveGroupByMock: (mock: IMockResponse) => boolean;
-  getMocksByGroup: (groupId: string) => IMockResponse[];
-  getMockScenarios: (mock: IMockResponse) => IMockResponse[];
-  selectMockScenario: (mock: IMockResponse) => void;
-  toggleGroup: (group: IMockGroup) => void;
-  deleteGroup: (group: IMockGroup) => void;
-  editGroup: (group: IMockGroup) => void;
-}
-
 const useMockStoreSelector = (state: useChromeStoreState) => ({
   store: state.store,
   workspaceStore: state.workspaceStore,

@@ -1,4 +1,7 @@
+import * as React from 'react';
 import { shallow } from 'zustand/shallow';
+import { Space, Text } from '@mantine/core';
+import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { useChromeStore, useChromeStoreState, useGlobalStore } from '@mokku/store';
 import { IMockGroup } from '@mokku/types';
@@ -39,7 +42,7 @@ export const useGroupActions = () => {
       });
   };
 
-  const deleteGroup = (groupToBeDeleted: IMockGroup) => {
+  const doDeleteGroup = (groupToBeDeleted: IMockGroup) => {
     const updatedWorkspaceStore = storeActions.deleteGroups(workspaceStore, groupToBeDeleted.id);
 
     storeActions
@@ -60,6 +63,32 @@ export const useGroupActions = () => {
           color: 'red'
         });
       });
+  };
+
+  const deleteGroup = (groupToBeDeleted: IMockGroup) => {
+    const mocksInGroup = storeActions.getMocksByGroup(workspaceStore, groupToBeDeleted.id);
+
+    if (mocksInGroup.length === 0) {
+      doDeleteGroup(groupToBeDeleted);
+      return;
+    }
+
+    modals.openConfirmModal({
+      title: 'Delete group',
+      centered: true,
+      children: (
+        <Text size="sm">
+          The group <strong>{groupToBeDeleted.name}</strong> contains{' '}
+          <strong>{mocksInGroup.length} mocks</strong>. Deleting this group will delete all mocks in
+          this group.
+          <Space h="md" />
+          Are you sure you want to delete this group?
+        </Text>
+      ),
+      labels: { confirm: 'Delete', cancel: 'Cancel' },
+      confirmProps: { color: 'red' },
+      onConfirm: () => doDeleteGroup(groupToBeDeleted)
+    });
   };
 
   const duplicateGroup = (group: IMockGroup) => {

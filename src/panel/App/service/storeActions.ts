@@ -23,9 +23,9 @@ const getNetworkMethodMap = () => ({
 const storeName = 'mokku.extension.main.db';
 const getWorkspaceStoreName = (workspaceId: string) =>
   `mokku.extension.workspace-${workspaceId}.db`;
-const DEFAULT_WORKSPACE = 'default';
+export const DEFAULT_WORKSPACE = 'default';
 
-const getDefaulStore = (): IStore => ({
+const createDefaultStore = (): IStore => ({
   active: false,
   theme: defaultTheme,
   enabledScenarios: true,
@@ -38,7 +38,7 @@ const getDefaulStore = (): IStore => ({
   }
 });
 
-const getDefaultWorkspaceStore = (): IWorkspaceStore => ({
+const createDefaultWorkspaceStore = (): IWorkspaceStore => ({
   groups: null,
   mocks: null
 });
@@ -49,7 +49,7 @@ const getWorskpaceStore = (workspaceId: string) => {
 
     chrome.storage.local.get([workspaceStoreName], function (result) {
       const _workspaceStore = {
-        ...getDefaultWorkspaceStore(),
+        ...createDefaultWorkspaceStore(),
         ...result[workspaceStoreName]
       } as IWorkspaceStore;
 
@@ -65,13 +65,13 @@ const getWorskpaceStore = (workspaceId: string) => {
 const getAllStore = () => {
   return new Promise<StoreProperties>((resolve) => {
     chrome.storage.local.get([storeName], async function (resultStore) {
-      const _store = { ...getDefaulStore(), ...resultStore[storeName] } as IStore;
+      const _store = { ...createDefaultStore(), ...resultStore[storeName] } as IStore;
       const workspaceActiveId = getActiveWorkspace(_store)?.id;
 
       if (!workspaceActiveId) {
         resolve({
           store: _store,
-          workspaceStore: getDefaultWorkspaceStore(),
+          workspaceStore: createDefaultWorkspaceStore(),
           urlMap: {},
           dynamicUrlMap: {}
         });
@@ -121,9 +121,30 @@ const updateWorkspaceStoreInDB = (workspaceId: string, workspaceStore: IWorkspac
   });
 };
 
+const deleteWorkspaceStoreInDB = (workspaceId: string) => {
+  return new Promise<Omit<StoreProperties, 'store'>>((resolve, reject) => {
+    try {
+      const workspaceStoreName = getWorkspaceStoreName(workspaceId);
+
+      chrome.storage.local.remove(workspaceStoreName, () => {
+        getWorskpaceStore(DEFAULT_WORKSPACE).then((workspaceStore) => {
+          const { dynamicUrlMap, urlMap } = getURLMapWithStore(workspaceStore);
+          resolve({
+            workspaceStore,
+            urlMap,
+            dynamicUrlMap
+          });
+        });
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 const resetWorkspaceStore = (workspaceId: string) => {
   const workspaceStore = {
-    ...getDefaultWorkspaceStore(),
+    ...createDefaultWorkspaceStore(),
     mocks: [],
     groups: []
   };
@@ -176,6 +197,16 @@ const addWorkspace = (oldStore: IStore, name: string) => {
   return store;
 };
 
+const changeNameWorkspace = (oldStore: IStore, workspaceId: string, name: string) => {
+  const store = { ...oldStore };
+  store.workspaces = {
+    ...store.workspaces,
+    [workspaceId]: { ...store.workspaces[workspaceId], name }
+  };
+
+  return store;
+};
+
 const selectWorkspace = (oldStore: IStore, workspaceId: string) => {
   const store = { ...oldStore };
   store.workspaces = Object.keys(store.workspaces).reduce((acc, key) => {
@@ -185,6 +216,13 @@ const selectWorkspace = (oldStore: IStore, workspaceId: string) => {
   }, {});
 
   return store;
+};
+
+const deleteWorkspace = (oldStore: IStore, workspaceId: string) => {
+  const store = { ...oldStore };
+  delete store.workspaces[workspaceId];
+
+  return selectWorkspace({ ...store }, DEFAULT_WORKSPACE);
 };
 
 const getMocksByGroup = (store: IWorkspaceStore, groupId: string) => {
@@ -409,6 +447,8 @@ export const storeActions = {
   isActiveGroupByMock,
   addWorkspace,
   selectWorkspace,
+  deleteWorkspace,
+  changeNameWorkspace,
   deleteGroups,
   updateGroups,
   addGroups,
@@ -419,9 +459,10 @@ export const storeActions = {
   getURLMapWithStore,
   updateStoreInDB,
   updateWorkspaceStoreInDB,
+  deleteWorkspaceStoreInDB,
   resetWorkspaceStore,
-  getDefaulStore,
-  getDefaultWorkspaceStore,
+  createDefaultStore,
+  createDefaultWorkspaceStore,
   getAllStore,
   getWorskpaceStore,
   refreshContentStore

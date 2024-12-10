@@ -1,12 +1,6 @@
 import React, { forwardRef } from 'react';
-import {
-  MdDeleteOutline,
-  MdOutlineContentCopy,
-  MdOutlineExpandLess,
-  MdOutlineExpandMore,
-  MdOutlineModeEditOutline,
-  MdOutlineMoreHoriz
-} from 'react-icons/md';
+import { MdOutlineExpandLess, MdOutlineExpandMore, MdOutlineMoreHoriz } from 'react-icons/md';
+import { TbCopy, TbEdit, TbTrash } from 'react-icons/tb';
 import { ActionIcon, Code, Flex, Menu, Select, Switch, Text, createStyles } from '@mantine/core';
 import { useChromeStore } from '@mokku/store';
 import { IMockGroup, IMockResponse, MockType } from '@mokku/types';
@@ -64,7 +58,8 @@ const ScenariosSelector = ({ scenarios }: { scenarios: IMockResponse[] }) => {
     label: scenario.name,
     value: scenario.id,
     active: mustMockActive(scenario),
-    status: scenario.status
+    status: scenario.status,
+    group: 'Mock scenarios'
   }));
 
   return (
@@ -97,6 +92,7 @@ export const useMocksTableSchema = (): TableSchema<IMockResponse | IMockGroup> =
     getMocksByGroup,
     getMockScenarios,
     deleteMock,
+    deleteMockScenarios,
     duplicateMock,
     toggleMock,
     editMock
@@ -105,6 +101,7 @@ export const useMocksTableSchema = (): TableSchema<IMockResponse | IMockGroup> =
 
   const { classes } = useStyles();
   const store = useChromeStore((state) => state.store);
+  const scenariosSettingsEnabled = store.enabledScenarios;
 
   return [
     {
@@ -124,8 +121,7 @@ export const useMocksTableSchema = (): TableSchema<IMockResponse | IMockGroup> =
           const mustMockActive = (mock: IMockResponse) => mock.active && isActiveGroupByMock(mock);
           const scenarios = getMockScenarios(data);
 
-          const scenariosSettinsEnabled = store.enabledScenarios;
-          if (scenarios.length === 1 || !scenariosSettinsEnabled) {
+          if (scenarios.length === 1 || !scenariosSettingsEnabled) {
             return <Name active={mustMockActive(data)}>{data.name}</Name>;
           }
 
@@ -159,12 +155,7 @@ export const useMocksTableSchema = (): TableSchema<IMockResponse | IMockGroup> =
         }
 
         return (
-          <div
-            onClick={(event) => {
-              // this was not working with switch for some unknown reason
-              event.stopPropagation();
-            }}
-            style={{ cursor: 'pointer' }}>
+          <div onClick={(event) => event.stopPropagation()} style={{ cursor: 'pointer' }}>
             <Switch
               onLabel="ON"
               offLabel="OFF"
@@ -199,47 +190,70 @@ export const useMocksTableSchema = (): TableSchema<IMockResponse | IMockGroup> =
     },
     {
       header: '',
-      content: (data) => (
-        <div onClick={(event) => event.stopPropagation()}>
-          <Menu position="bottom-end" offset={-8}>
-            <Menu.Target>
-              <ActionIcon
-                variant="transparent"
-                size="lg"
-                style={{
-                  height: '100%',
-                  minHeight: 32
-                }}>
-                <MdOutlineMoreHoriz className={classes.more} />
-              </ActionIcon>
-            </Menu.Target>
-            <Menu.Dropdown>
-              <Menu.Item
-                className={classes.menuOptionBlue}
-                icon={<MdOutlineModeEditOutline />}
-                onClick={() => (data.type === MockType.GROUP ? editGroup(data) : editMock(data))}>
-                Edit
-              </Menu.Item>
-              {data.type === MockType.MOCK && (
+      content: (data) => {
+        let showEscenariosOptions = false;
+        if (data.type === MockType.MOCK) {
+          const scenarios = getMockScenarios(data);
+          showEscenariosOptions = scenarios.length > 1 && scenariosSettingsEnabled;
+        }
+
+        return (
+          <div onClick={(event) => event.stopPropagation()}>
+            <Menu
+              position="bottom-end"
+              offset={-4}
+              styles={{ dropdown: { minWidth: 130, marginLeft: -6 } }}>
+              <Menu.Target>
+                <ActionIcon
+                  variant="transparent"
+                  size="lg"
+                  style={{
+                    height: '100%',
+                    minHeight: 32
+                  }}>
+                  <MdOutlineMoreHoriz className={classes.more} />
+                </ActionIcon>
+              </Menu.Target>
+              <Menu.Dropdown>
                 <Menu.Item
                   className={classes.menuOptionBlue}
-                  icon={<MdOutlineContentCopy />}
-                  onClick={() => duplicateMock(data)}>
-                  Duplicate
+                  icon={<TbEdit />}
+                  onClick={() => (data.type === MockType.GROUP ? editGroup(data) : editMock(data))}>
+                  Edit
                 </Menu.Item>
-              )}
-              <Menu.Item
-                className={classes.menuOptionRed}
-                icon={<MdDeleteOutline />}
-                onClick={() =>
-                  data.type === MockType.GROUP ? deleteGroup(data) : deleteMock(data)
-                }>
-                Delete
-              </Menu.Item>
-            </Menu.Dropdown>
-          </Menu>
-        </div>
-      ),
+                {data.type === MockType.MOCK && (
+                  <Menu.Item
+                    className={classes.menuOptionBlue}
+                    icon={<TbCopy />}
+                    onClick={() => duplicateMock(data)}>
+                    Duplicate
+                  </Menu.Item>
+                )}
+                <Menu.Item
+                  className={classes.menuOptionRed}
+                  icon={<TbTrash />}
+                  onClick={() =>
+                    data.type === MockType.GROUP ? deleteGroup(data) : deleteMock(data)
+                  }>
+                  Delete
+                </Menu.Item>
+                {showEscenariosOptions && data.type === MockType.MOCK && (
+                  <>
+                    <Menu.Divider />
+                    <Menu.Label>Scenarios</Menu.Label>
+                    <Menu.Item
+                      className={classes.menuOptionRed}
+                      icon={<TbTrash />}
+                      onClick={() => deleteMockScenarios(data)}>
+                      Delete mocks
+                    </Menu.Item>
+                  </>
+                )}
+              </Menu.Dropdown>
+            </Menu>
+          </div>
+        );
+      },
       width: 50
     }
   ];

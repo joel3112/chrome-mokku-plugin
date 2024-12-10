@@ -30,8 +30,8 @@ export interface useChromeStoreState extends StoreProperties {
 
 // this is our useStore hook that we can use in our components to get parts of the store and call actions
 export const useChromeStore = create<useChromeStoreState>((set, get) => ({
-  store: storeActions.getDefaulStore(),
-  workspaceStore: storeActions.getDefaultWorkspaceStore(),
+  store: storeActions.createDefaultStore(),
+  workspaceStore: storeActions.createDefaultWorkspaceStore(),
   dynamicUrlMap: {},
   urlMap: {},
   init: async () => {

@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 import { MdOutlineExpandLess, MdOutlineExpandMore, MdOutlineMoreHoriz } from 'react-icons/md';
-import { TbCopy, TbEdit, TbTrash } from 'react-icons/tb';
+import { TbCopy, TbEdit, TbPlus, TbTrash } from 'react-icons/tb';
 import { ActionIcon, Code, Flex, Menu, Select, Switch, Text, createStyles } from '@mantine/core';
 import { useChromeStore } from '@mokku/store';
 import { IMockGroup, IMockResponse, MockType } from '@mokku/types';
@@ -95,7 +95,8 @@ export const useMocksTableSchema = (): TableSchema<IMockResponse | IMockGroup> =
     deleteMockScenarios,
     duplicateMock,
     toggleMock,
-    editMock
+    editMock,
+    addMockToGroup
   } = useMockActions();
   const { deleteGroup, toggleGroup, editGroup } = useGroupActions();
 
@@ -109,7 +110,11 @@ export const useMocksTableSchema = (): TableSchema<IMockResponse | IMockGroup> =
       content: (data) =>
         data.type === MockType.GROUP && (
           <Flex align="center">
-            {!data.expanded ? <MdOutlineExpandMore size={18} /> : <MdOutlineExpandLess size={18} />}
+            {!data.expanded ? (
+              <MdOutlineExpandMore title={`Expand group ${data.name}`} size={18} />
+            ) : (
+              <MdOutlineExpandLess title={`Collapse group ${data.name}`} size={18} />
+            )}
           </Flex>
         ),
       width: 5
@@ -157,6 +162,11 @@ export const useMocksTableSchema = (): TableSchema<IMockResponse | IMockGroup> =
         return (
           <div onClick={(event) => event.stopPropagation()} style={{ cursor: 'pointer' }}>
             <Switch
+              title={
+                data.active
+                  ? `Desactive ${data.type} ${data.name}`
+                  : `Active ${data.type} ${data.name}`
+              }
               onLabel="ON"
               offLabel="OFF"
               disabled={!enabled}
@@ -205,6 +215,7 @@ export const useMocksTableSchema = (): TableSchema<IMockResponse | IMockGroup> =
               styles={{ dropdown: { minWidth: 130, marginLeft: -6 } }}>
               <Menu.Target>
                 <ActionIcon
+                  title={`More options for ${data.name}`}
                   variant="transparent"
                   size="lg"
                   style={{
@@ -221,6 +232,14 @@ export const useMocksTableSchema = (): TableSchema<IMockResponse | IMockGroup> =
                   onClick={() => (data.type === MockType.GROUP ? editGroup(data) : editMock(data))}>
                   Edit
                 </Menu.Item>
+                {data.type === MockType.GROUP && (
+                  <Menu.Item
+                    className={classes.menuOptionBlue}
+                    icon={<TbPlus />}
+                    onClick={() => addMockToGroup(data.id)}>
+                    Add mock
+                  </Menu.Item>
+                )}
                 {data.type === MockType.MOCK && (
                   <Menu.Item
                     className={classes.menuOptionBlue}

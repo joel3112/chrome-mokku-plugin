@@ -94,6 +94,7 @@ export const WorkspaceSettings = ({ onClose }: { onClose: () => void }) => {
         }}>
         <TextInput
           required
+          data-autofocus
           name="name"
           label="Workspace name"
           placeholder="My workspace"

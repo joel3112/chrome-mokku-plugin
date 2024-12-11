@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
-import { MdDeleteOutline } from 'react-icons/md';
+import { TbTrash } from 'react-icons/tb';
 import { v4 as uuidv4 } from 'uuid';
 import {
-  Button,
+  ActionIcon,
   Card,
   Flex,
   JsonInput,
@@ -26,6 +26,7 @@ import {
 } from '@mokku/types';
 import { FORM_ID, getActionInForm } from '../../Blocks/Modal';
 import { SegmentedControl } from '../../Blocks/SegmentedControl';
+import { AddButton } from '../../Header/AddButton';
 import { storeActions } from '../../service/storeActions';
 import { statusOptions } from './data';
 
@@ -43,7 +44,8 @@ export const useStyles = createStyles(() => ({
   wrapper: {
     height: '100%',
     overflow: 'auto',
-    paddingBlock: 12,
+    paddingTop: 16,
+    paddingBottom: 28,
     paddingInline: 20,
     'label:not([class*=SegmentedControl])': {
       fontSize: rem(13),
@@ -247,41 +249,37 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
                 </Tabs.Panel>
 
                 <Tabs.Panel value="headers" pt="xs">
-                  <Button
-                    variant="subtle"
-                    style={{ marginBottom: 8 }}
+                  <AddButton
                     onClick={() => {
-                      form.insertListItem(
-                        'headers',
-                        {
-                          name: '',
-                          value: ''
-                        },
-                        0
-                      );
+                      form.insertListItem('headers', { name: '', value: '' }, 0);
                     }}>
-                    + Add Header
-                  </Button>
-                  <Flex gap={8} direction="column">
+                    Add Header
+                  </AddButton>
+                  <Flex gap={8} direction="column" mt={8}>
                     {form.values.headers?.map((_, index) => (
                       <Flex gap={12} align="center" key={index}>
                         <TextInput
                           required
+                          size="xs"
                           placeholder="Name"
                           className={flexGrow}
                           {...form.getInputProps(`headers.${index}.name`)}
                         />
                         <TextInput
                           required
+                          size="xs"
                           placeholder="Value"
                           className={flexGrow}
                           {...form.getInputProps(`headers.${index}.value`)}
                         />
-                        <MdDeleteOutline
-                          onClick={() => {
-                            form.removeListItem('headers', index);
-                          }}
-                        />
+                        <ActionIcon
+                          variant="light"
+                          color="red"
+                          onClick={() => form.removeListItem('headers', index)}
+                          title="Delete header"
+                          radius="md">
+                          <TbTrash />
+                        </ActionIcon>
                       </Flex>
                     ))}
                   </Flex>

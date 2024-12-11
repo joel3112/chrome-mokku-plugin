@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { TbChevronDown, TbPlus, TbSearch, TbTrash } from 'react-icons/tb';
 import { shallow } from 'zustand/shallow';
-import { Button, Flex, Input, Menu, Tabs, createStyles } from '@mantine/core';
+import { Button, Flex, Input, Menu, Modal, Tabs, Text, createStyles } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import { sortCollectionByName } from '@mokku/services';
 import {
   ViewEnum,
@@ -11,7 +12,9 @@ import {
   useGlobalStoreState
 } from '@mokku/store';
 import { DEFAULT_WORKSPACE, storeActions } from '../service/storeActions';
+import { AddButton } from './AddButton';
 import { ClearButton } from './ClearButton';
+import { CloseButton } from './CloseButton';
 import { RecordButton } from './RecordButton';
 import { RefreshButton } from './RefreshButton';
 import { Settings } from './Settings';
@@ -52,7 +55,8 @@ export const Header = () => {
     setSelectedWorkSpace(storeActions.getActiveWorkspace(store));
   }, [store.workspaces]);
 
-  const [showSettings, setShowSettings] = useState(false);
+  const [settingsIsOpened, { open: openSettingsModal, close: closeSettingsModal }] =
+    useDisclosure(false);
   const { classes, cx } = useStyles();
   const HEIGHT_TABS = 50;
 
@@ -63,7 +67,7 @@ export const Header = () => {
           <Flex align="center">
             <Menu width={200}>
               <Menu.Target>
-                <Button variant="subtle" rightIcon={<TbChevronDown />}>
+                <Button variant="subtle" rightIcon={<TbChevronDown />} size="xs">
                   {selectedWorkSpace?.name}
                 </Button>
               </Menu.Target>
@@ -93,21 +97,18 @@ export const Header = () => {
               </Menu.Dropdown>
             </Menu>
             <Tabs.Tab value={ViewEnum.MOCKS} style={{ height: HEIGHT_TABS }}>
-              Mocks
+              <Text size="xs">Mocks</Text>
             </Tabs.Tab>
             <Tabs.Tab value={ViewEnum.LOGS} style={{ height: HEIGHT_TABS }}>
-              Logs
+              <Text size="xs">Logs</Text>
             </Tabs.Tab>
-            <Flex align="center" gap={8}>
-              <Flex align="center" gap={0}>
-                <Button onClick={() => setSelectedGroup({})} size="xs" variant="subtle">
-                  + Add Group
-                </Button>
-                <Button onClick={() => setSelectedMock({})} size="xs" variant="subtle">
-                  + Add Mock
-                </Button>
-              </Flex>
-
+            <Flex align="center" gap={8} ml={12}>
+              {view === ViewEnum.MOCKS ? (
+                <>
+                  <AddButton onClick={() => setSelectedGroup({})}>Add Group</AddButton>
+                  <AddButton onClick={() => setSelectedMock({})}>Add Mock</AddButton>
+                </>
+              ) : null}
               <Input
                 icon={<TbSearch />}
                 placeholder="Search..."
@@ -116,18 +117,33 @@ export const Header = () => {
                 onChange={(event) => setSearch(event.target.value)}
               />
               <RecordButton />
-              {view === 'LOGS' ? <ClearButton /> : null}
+              {view === ViewEnum.LOGS ? <ClearButton /> : null}
             </Flex>
           </Flex>
           <Flex gap="4px" style={{ paddingRight: 4 }}>
-            <Button onClick={() => setShowSettings(true)} size="xs" variant="subtle">
+            <Button onClick={openSettingsModal} size="xs" variant="subtle">
               Settings
             </Button>
             <ThemeButton />
             <RefreshButton />
             <SwitchButton />
           </Flex>
-          {showSettings && <Settings onClose={() => setShowSettings(false)} />}
+          <Modal.Root
+            opened={settingsIsOpened}
+            onClose={closeSettingsModal}
+            autoFocus
+            fullScreen
+            transitionProps={{ transition: 'fade', duration: 200 }}>
+            <Modal.Content>
+              <Modal.Header>
+                <div></div>
+                <CloseButton onClick={closeSettingsModal} />
+              </Modal.Header>
+              <Modal.Body>
+                <Settings onClose={closeSettingsModal} />
+              </Modal.Body>
+            </Modal.Content>
+          </Modal.Root>
         </Flex>
       </Tabs.List>
     </Tabs>

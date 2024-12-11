@@ -133,6 +133,10 @@ export const useMockActions = () => {
     });
   };
 
+  const addMockToGroup = (groupId: string) => {
+    setSelectedMock({ groupId });
+  };
+
   const editMock = (mock: IMockResponse) => {
     setSelectedMock(mock);
   };
@@ -156,6 +160,7 @@ export const useMockActions = () => {
     selectMockScenario,
     isActiveGroupByMock,
     toggleMock,
+    addMockToGroup,
     deleteMock,
     deleteMockScenarios,
     duplicateMock,

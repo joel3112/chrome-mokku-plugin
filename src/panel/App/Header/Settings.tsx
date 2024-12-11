@@ -1,34 +1,11 @@
 import * as React from 'react';
-import { MdClose } from 'react-icons/md';
-import {
-  ActionIcon,
-  Card,
-  Center,
-  Checkbox,
-  ColorScheme,
-  Flex,
-  Tabs,
-  Title,
-  createStyles
-} from '@mantine/core';
+import { Center, Checkbox, ColorScheme, Flex, Tabs, Title, createStyles } from '@mantine/core';
 import { useLocalStorage } from '@mantine/hooks';
 import { storeActions } from '../service/storeActions';
 import { StoreProperties, useChromeStore } from '../store';
 import { WorkspaceSettings } from './WorkspaceSettings';
 
 const useStyles = createStyles(() => ({
-  wrapper: {
-    position: 'fixed',
-    left: 0,
-    top: 0,
-    height: '100%',
-    width: '100%',
-    zIndex: 2,
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'auto',
-    padding: 20
-  },
   tabContainer: {
     width: 750,
     marginInline: 'auto'
@@ -57,18 +34,7 @@ export const Settings = ({ onClose }: { onClose: () => void }) => {
   };
 
   return (
-    <Card className={classes.wrapper}>
-      <Flex direction="row-reverse">
-        <ActionIcon
-          variant="outline"
-          color={'blue'}
-          onClick={() => onClose()}
-          title="Toggle Theme"
-          radius="md">
-          <MdClose />
-        </ActionIcon>
-      </Flex>
-
+    <>
       <Center mb={30}>
         <Title order={4}>Settings</Title>
       </Center>
@@ -96,6 +62,6 @@ export const Settings = ({ onClose }: { onClose: () => void }) => {
           </Flex>
         </Tabs.Panel>
       </Tabs>
-    </Card>
+    </>
   );
 };

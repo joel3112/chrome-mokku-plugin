@@ -1,23 +1,30 @@
 import React, { useEffect } from 'react';
-import { TbChevronDown, TbPlus, TbSearch, TbTrash } from 'react-icons/tb';
+import { TbChevronDown, TbClearAll, TbPlus, TbSearch, TbTrash } from 'react-icons/tb';
 import { shallow } from 'zustand/shallow';
-import { Button, Flex, Input, Menu, Modal, Tabs, Text, createStyles } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import {
+  Button,
+  CloseButton,
+  Flex,
+  Menu,
+  Tabs,
+  Text,
+  TextInput,
+  createStyles,
+  rem
+} from '@mantine/core';
 import { sortCollectionByName } from '@mokku/services';
 import {
   ViewEnum,
   useChromeStore,
   useChromeStoreState,
   useGlobalStore,
-  useGlobalStoreState
+  useGlobalStoreState,
+  useLogStore
 } from '@mokku/store';
 import { DEFAULT_WORKSPACE, storeActions } from '../service/storeActions';
-import { AddButton } from './AddButton';
-import { ClearButton } from './ClearButton';
-import { CloseButton } from './CloseButton';
 import { RecordButton } from './RecordButton';
 import { RefreshButton } from './RefreshButton';
-import { Settings } from './Settings';
+import { SettingsButton } from './SettingsButton';
 import { SwitchButton } from './SwitchButton';
 import { ThemeButton } from './ThemeButton';
 import { useWorkspaceActions } from './Workspace.action';
@@ -37,14 +44,32 @@ const useMockStoreSelector = (state: useChromeStoreState) => ({
   setSelectedMock: state.setSelectedMock
 });
 
+const HEIGHT_TABS = 50;
+export const MAX_WIDTH_LAYOUT = 1100;
+
 const useStyles = createStyles((theme) => ({
   active: {
     backgroundColor: theme.colors[theme.primaryColor][6],
     color: theme.white
+  },
+  tabContainer: {
+    borderBottom: `${rem(2)} solid ${
+      theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3]
+    }`,
+    marginBottom: rem(12)
+  },
+  tabList: {
+    width: '100%',
+    maxWidth: MAX_WIDTH_LAYOUT,
+    height: HEIGHT_TABS,
+    margin: '0 auto',
+    alignItems: 'center',
+    borderBottom: 'none'
   }
 }));
 
 export const Header = () => {
+  const clearLogs = useLogStore((state) => state.clearLogs);
   const { view, setView, search, setSearch } = useGlobalStore(viewSelector, shallow);
   const { store, selectedWorkSpace, setSelectedWorkSpace, setSelectedMock, setSelectedGroup } =
     useChromeStore(useMockStoreSelector, shallow);
@@ -55,97 +80,91 @@ export const Header = () => {
     setSelectedWorkSpace(storeActions.getActiveWorkspace(store));
   }, [store.workspaces]);
 
-  const [settingsIsOpened, { open: openSettingsModal, close: closeSettingsModal }] =
-    useDisclosure(false);
   const { classes, cx } = useStyles();
-  const HEIGHT_TABS = 50;
 
   return (
-    <Tabs defaultValue={ViewEnum.MOCKS} value={view} onTabChange={setView}>
-      <Tabs.List style={{ width: '100%', height: HEIGHT_TABS }}>
-        <Flex justify="space-between" align="center" style={{ width: '100%' }}>
-          <Flex align="center">
-            <Menu width={200}>
-              <Menu.Target>
-                <Button variant="subtle" rightIcon={<TbChevronDown />} size="xs">
-                  {selectedWorkSpace?.name}
-                </Button>
-              </Menu.Target>
+    <>
+      <Tabs
+        defaultValue={ViewEnum.MOCKS}
+        value={view}
+        onTabChange={setView}
+        className={classes.tabContainer}>
+        <Tabs.List className={classes.tabList}>
+          <Menu width={200} position="bottom-start">
+            <Menu.Target>
+              <Button variant="subtle" rightIcon={<TbChevronDown />}>
+                {selectedWorkSpace?.name}
+              </Button>
+            </Menu.Target>
 
-              <Menu.Dropdown>
-                <Menu.Label>Your workspaces</Menu.Label>
-                {sortCollectionByName(Object.values(store.workspaces)).map((workspace) => (
-                  <Menu.Item
-                    key={workspace.id}
-                    onClick={() => selectWorkspace(workspace)}
-                    className={cx({ [classes.active]: workspace.id === selectedWorkSpace?.id })}>
-                    {workspace.name}
-                  </Menu.Item>
-                ))}
-                <Menu.Divider />
-
-                <Menu.Item icon={<TbPlus />} onClick={addWorkspace}>
-                  Add workspace
-                </Menu.Item>
+            <Menu.Dropdown>
+              <Menu.Label>Your workspaces</Menu.Label>
+              {sortCollectionByName(Object.values(store.workspaces)).map((workspace) => (
                 <Menu.Item
-                  color="red"
-                  icon={<TbTrash />}
-                  disabled={selectedWorkSpace?.id === DEFAULT_WORKSPACE}
-                  onClick={() => deleteWorkspace(selectedWorkSpace)}>
-                  Delete workspace
+                  key={workspace.id}
+                  onClick={() => selectWorkspace(workspace)}
+                  className={cx({ [classes.active]: workspace.id === selectedWorkSpace?.id })}>
+                  {workspace.name}
                 </Menu.Item>
-              </Menu.Dropdown>
-            </Menu>
-            <Tabs.Tab value={ViewEnum.MOCKS} style={{ height: HEIGHT_TABS }}>
-              <Text size="xs">Mocks</Text>
-            </Tabs.Tab>
-            <Tabs.Tab value={ViewEnum.LOGS} style={{ height: HEIGHT_TABS }}>
-              <Text size="xs">Logs</Text>
-            </Tabs.Tab>
-            <Flex align="center" gap={8} ml={12}>
+              ))}
+              <Menu.Divider />
+
+              <Menu.Item icon={<TbPlus />} onClick={addWorkspace}>
+                Add workspace
+              </Menu.Item>
+              <Menu.Item
+                color="red"
+                icon={<TbTrash />}
+                disabled={selectedWorkSpace?.id === DEFAULT_WORKSPACE}
+                onClick={() => deleteWorkspace(selectedWorkSpace)}>
+                Delete workspace
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+
+          <Tabs.Tab value={ViewEnum.MOCKS} h={HEIGHT_TABS}>
+            <Text>Mocks</Text>
+          </Tabs.Tab>
+          <Tabs.Tab value={ViewEnum.LOGS} h={HEIGHT_TABS}>
+            <Text>Logs</Text>
+          </Tabs.Tab>
+          {view !== ViewEnum.SETTINGS && (
+            <Flex align="center" gap={8} ml={6}>
               {view === ViewEnum.MOCKS ? (
                 <>
-                  <AddButton onClick={() => setSelectedGroup({})}>Add Group</AddButton>
-                  <AddButton onClick={() => setSelectedMock({})}>Add Mock</AddButton>
+                  <SettingsButton variant="default" onClick={() => setSelectedGroup({})}>
+                    Add Group
+                  </SettingsButton>
+                  <SettingsButton onClick={() => setSelectedMock({})}>Add Mock</SettingsButton>
                 </>
-              ) : null}
-              <Input
+              ) : (
+                <SettingsButton variant="default" Icon={TbClearAll} onClick={clearLogs}>
+                  Clear Logs
+                </SettingsButton>
+              )}
+              <TextInput
                 icon={<TbSearch />}
+                rightSection={search && <CloseButton onClick={() => setSearch('')} />}
                 placeholder="Search..."
                 size="xs"
-                defaultValue={search}
+                w={200}
+                value={search}
                 onChange={(event) => setSearch(event.target.value)}
               />
               <RecordButton />
-              {view === ViewEnum.LOGS ? <ClearButton /> : null}
             </Flex>
-          </Flex>
-          <Flex gap="4px" style={{ paddingRight: 4 }}>
-            <Button onClick={openSettingsModal} size="xs" variant="subtle">
-              Settings
-            </Button>
+          )}
+
+          <Tabs.Tab value={ViewEnum.SETTINGS} h={HEIGHT_TABS} ml="auto">
+            <Text>Settings</Text>
+          </Tabs.Tab>
+          <Flex gap={4} pr={14} pl={6}>
             <ThemeButton />
             <RefreshButton />
             <SwitchButton />
           </Flex>
-          <Modal.Root
-            opened={settingsIsOpened}
-            onClose={closeSettingsModal}
-            autoFocus
-            fullScreen
-            transitionProps={{ transition: 'fade', duration: 200 }}>
-            <Modal.Content>
-              <Modal.Header>
-                <div></div>
-                <CloseButton onClick={closeSettingsModal} />
-              </Modal.Header>
-              <Modal.Body>
-                <Settings onClose={closeSettingsModal} />
-              </Modal.Body>
-            </Modal.Content>
-          </Modal.Root>
-        </Flex>
-      </Tabs.List>
-    </Tabs>
+        </Tabs.List>
+      </Tabs>
+    </>
   );
 };

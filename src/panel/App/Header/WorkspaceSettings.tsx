@@ -1,41 +1,30 @@
 import * as React from 'react';
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { TbDownload, TbTrash, TbUpload } from 'react-icons/tb';
-import {
-  Box,
-  Button,
-  type ButtonProps,
-  Divider,
-  FileButton,
-  Flex,
-  Text,
-  TextInput,
-  Title
-} from '@mantine/core';
+import { Box, Button, Divider, FileButton, Flex, Text, TextInput, Title } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { downloadJsonFile, extractJsonFromFile } from '@mokku/services';
-import { StoreProperties, useChromeStore } from '@mokku/store';
+import { useChromeStore } from '@mokku/store';
 import { storeActions } from '../service/storeActions';
+import { SettingsButton } from './SettingsButton';
 import { useWorkspaceActions } from './Workspace.action';
 
-const SettingsButton = (
-  props: Omit<ButtonProps, 'size' | 'variant' | 'radius' | 'style'> & {
-    children: ReactNode;
-    onClick: () => void;
-  }
-) => <Button size="xs" variant="outline" {...props} />;
-
-export const WorkspaceSettings = ({ onClose }: { onClose: () => void }) => {
-  const store = useChromeStore((state) => state.store);
+export const WorkspaceSettings = () => {
   const workspaceStore = useChromeStore((state) => state.workspaceStore);
   const selectedWorkspace = useChromeStore((state) => state.selectedWorkspace);
   const setStoreProperties = useChromeStore((state) => state.setStoreProperties);
 
   const { changeNameWorkspace, resetWorkspace, deleteWorkspace } = useWorkspaceActions();
 
-  const [newName, setNewName] = React.useState(selectedWorkspace.name ?? '');
+  const [newName, setNewName] = useState(selectedWorkspace.name ?? '');
   const [file, setFile] = useState<File | null>(null);
   const resetRef = useRef<() => void>(null);
+
+  useEffect(() => {
+    if (newName !== selectedWorkspace.name) {
+      setNewName(selectedWorkspace.name);
+    }
+  }, [selectedWorkspace.name]);
 
   useEffect(() => {
     if (file) {
@@ -43,18 +32,13 @@ export const WorkspaceSettings = ({ onClose }: { onClose: () => void }) => {
     }
   }, [file]);
 
-  const updateUI = (res: StoreProperties) => {
-    setStoreProperties(res);
-    onClose();
-  };
-
   const handleImportData = () => {
     extractJsonFromFile(file)
       .then((jsonData) => {
         const updatedWorkspaceStore = { ...workspaceStore, ...jsonData };
         storeActions
           .updateWorkspaceStoreInDB(selectedWorkspace.id, updatedWorkspaceStore)
-          .then(updateUI);
+          .then(setStoreProperties);
         notifications.show({
           title: `Import data`,
           message: `Data imported successfully`
@@ -86,11 +70,12 @@ export const WorkspaceSettings = ({ onClose }: { onClose: () => void }) => {
   return (
     <>
       <form
+        key={selectedWorkspace.id}
         style={{ width: 280 }}
         onSubmit={(e) => {
           e.preventDefault();
           const name = e.target['name'].value;
-          changeNameWorkspace(selectedWorkspace, name).then(onClose);
+          changeNameWorkspace(selectedWorkspace, name);
         }}>
         <TextInput
           required
@@ -114,7 +99,7 @@ export const WorkspaceSettings = ({ onClose }: { onClose: () => void }) => {
           compact
           color="red"
           mt={8}
-          onClick={() => deleteWorkspace(selectedWorkspace, onClose)}>
+          onClick={() => deleteWorkspace(selectedWorkspace)}>
           Delete entire workspace
         </Button>
       </Box>
@@ -130,18 +115,19 @@ export const WorkspaceSettings = ({ onClose }: { onClose: () => void }) => {
         <Flex gap={8} mt={12}>
           <FileButton onChange={setFile} resetRef={resetRef} accept="application/json">
             {(props) => (
-              <SettingsButton leftIcon={<TbUpload />} {...props}>
+              <SettingsButton variant="outline" Icon={TbUpload} {...props}>
                 Import JSON
               </SettingsButton>
             )}
           </FileButton>
-          <SettingsButton leftIcon={<TbDownload />} onClick={handleExportData}>
+          <SettingsButton variant="outline" Icon={TbDownload} onClick={handleExportData}>
             Export JSON
           </SettingsButton>
           <SettingsButton
             color="red"
-            leftIcon={<TbTrash />}
-            onClick={() => resetWorkspace(selectedWorkspace, onClose)}>
+            variant="outline"
+            Icon={TbTrash}
+            onClick={() => resetWorkspace(selectedWorkspace)}>
             Clear data
           </SettingsButton>
         </Flex>

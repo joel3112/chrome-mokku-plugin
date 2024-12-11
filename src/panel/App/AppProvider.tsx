@@ -17,7 +17,24 @@ export const AppProvider = (props: useGlobalStoreState['meta']) => {
 
   return (
     <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
-      <MantineProvider withGlobalStyles withNormalizeCSS theme={{ colorScheme }}>
+      <MantineProvider
+        withGlobalStyles
+        withNormalizeCSS
+        theme={{
+          colorScheme,
+          components: {
+            Button: {
+              defaultProps: {
+                radius: 'md'
+              }
+            },
+            ActionIcon: {
+              defaultProps: {
+                radius: 'md'
+              }
+            }
+          }
+        }}>
         <ModalsProvider>
           <App {...props} />
         </ModalsProvider>

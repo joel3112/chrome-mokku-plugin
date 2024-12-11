@@ -26,7 +26,7 @@ import {
 } from '@mokku/types';
 import { FORM_ID, getActionInForm } from '../../Blocks/Modal';
 import { SegmentedControl } from '../../Blocks/SegmentedControl';
-import { AddButton } from '../../Header/AddButton';
+import { SettingsButton } from '../../Header/SettingsButton';
 import { storeActions } from '../../service/storeActions';
 import { statusOptions } from './data';
 
@@ -249,12 +249,12 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
                 </Tabs.Panel>
 
                 <Tabs.Panel value="headers" pt="xs">
-                  <AddButton
+                  <SettingsButton
                     onClick={() => {
                       form.insertListItem('headers', { name: '', value: '' }, 0);
                     }}>
                     Add Header
-                  </AddButton>
+                  </SettingsButton>
                   <Flex gap={8} direction="column" mt={8}>
                     {form.values.headers?.map((_, index) => (
                       <Flex gap={12} align="center" key={index}>
@@ -276,8 +276,7 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
                           variant="light"
                           color="red"
                           onClick={() => form.removeListItem('headers', index)}
-                          title="Delete header"
-                          radius="md">
+                          title="Delete header">
                           <TbTrash />
                         </ActionIcon>
                       </Flex>

@@ -75,7 +75,6 @@ export const Logs = () => {
           }}>
           <Button
             variant="light"
-            radius="md"
             size="xs"
             compact
             onClick={() => {

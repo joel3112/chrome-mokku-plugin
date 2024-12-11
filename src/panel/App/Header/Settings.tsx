@@ -1,13 +1,14 @@
 import * as React from 'react';
-import { Center, Checkbox, ColorScheme, Flex, Tabs, Title, createStyles } from '@mantine/core';
+import { Checkbox, ColorScheme, Flex, Tabs, createStyles } from '@mantine/core';
 import { useLocalStorage } from '@mantine/hooks';
 import { storeActions } from '../service/storeActions';
-import { StoreProperties, useChromeStore } from '../store';
+import { useChromeStore } from '../store';
 import { WorkspaceSettings } from './WorkspaceSettings';
 
 const useStyles = createStyles(() => ({
   tabContainer: {
     width: 750,
+    marginTop: 20,
     marginInline: 'auto'
   },
   section: {
@@ -16,29 +17,20 @@ const useStyles = createStyles(() => ({
   }
 }));
 
-export const Settings = ({ onClose }: { onClose: () => void }) => {
+export const Settings = () => {
   const store = useChromeStore((state) => state.store);
   const setStoreProperties = useChromeStore((state) => state.setStoreProperties);
 
   const [colorScheme] = useLocalStorage<ColorScheme>({ key: 'color-scheme' });
   const { classes } = useStyles();
 
-  const updateUI = (res: StoreProperties) => {
-    setStoreProperties(res);
-    onClose();
-  };
-
   const handleActiveScenarios = (event: React.ChangeEvent<HTMLInputElement>) => {
     const updatedStore = { ...store, enabledScenarios: event.target.checked };
-    storeActions.updateStoreInDB(updatedStore).then(updateUI);
+    storeActions.updateStoreInDB(updatedStore).then(setStoreProperties);
   };
 
   return (
     <>
-      <Center mb={30}>
-        <Title order={4}>Settings</Title>
-      </Center>
-
       <Tabs defaultValue="workspace" orientation="vertical" className={classes.tabContainer}>
         <Tabs.List>
           <Tabs.Tab value="workspace">Workspace Settings</Tabs.Tab>
@@ -47,7 +39,7 @@ export const Settings = ({ onClose }: { onClose: () => void }) => {
 
         <Tabs.Panel value="workspace" pb={16}>
           <Flex direction="column" gap={16} className={classes.section}>
-            <WorkspaceSettings onClose={onClose} />
+            <WorkspaceSettings />
           </Flex>
         </Tabs.Panel>
         <Tabs.Panel value="global" pb={16}>

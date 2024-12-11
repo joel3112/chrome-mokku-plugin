@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { get } from 'lodash';
-import { Button, Drawer, Flex, Text, createStyles } from '@mantine/core';
+import { Button, Drawer, Flex, createStyles } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { isJsonValid } from '@mokku/services';
 import { useChromeStore, useLogStore } from '@mokku/store';
@@ -197,9 +197,7 @@ export const Modal = () => {
       <Drawer.Overlay opacity={0.4} />
       <Drawer.Content className={classes.content}>
         <Drawer.Header className={classes.header}>
-          <Drawer.Title>
-            <Text size="sm">{title}</Text>
-          </Drawer.Title>
+          <Drawer.Title fz={14}>{title}</Drawer.Title>
           <CloseButton onClick={handleClose} />
         </Drawer.Header>
 
@@ -211,7 +209,7 @@ export const Modal = () => {
 
         <Flex className={classes.footer} justify={selectedLog ? 'end' : 'space-between'}>
           {(selectedLog ? logButtons : mockButtons).map((option) => (
-            <Button key={option.children} {...option} radius="md" compact />
+            <Button key={option.children} {...option} compact />
           ))}
         </Flex>
       </Drawer.Content>

@@ -6,12 +6,7 @@ import { useLogStore } from '@mokku/store';
 export const ClearButton = () => {
   const clearLogs = useLogStore((state) => state.clearLogs);
   return (
-    <ActionIcon
-      variant="outline"
-      color={'blue'}
-      onClick={() => clearLogs()}
-      title="Clear Logs"
-      radius="md">
+    <ActionIcon variant="outline" color={'blue'} onClick={() => clearLogs()} title="Clear Logs">
       <TbClearAll />
     </ActionIcon>
   );

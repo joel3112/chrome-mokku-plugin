@@ -40,12 +40,13 @@ export const useChromeStore = createWithEqualityFn<useChromeStoreState>((set, ge
     set(state);
     return state;
   },
-  setStoreProperties: ({ store, workspaceStore, urlMap, dynamicUrlMap }) => {
-    if (!workspaceStore) {
-      set({ store });
-      return;
-    }
-    set({ workspaceStore, urlMap, dynamicUrlMap });
+  setStoreProperties: ({
+    store = get().store,
+    workspaceStore = get().workspaceStore,
+    urlMap = get().urlMap,
+    dynamicUrlMap = get().dynamicUrlMap
+  }) => {
+    set({ store, workspaceStore, urlMap, dynamicUrlMap });
   },
   selectedWorkspace: undefined,
   setSelectedWorkspace: (workspace?: IWorkspace) => {

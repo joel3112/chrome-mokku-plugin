@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
-import { MdDeleteOutline } from 'react-icons/md';
+import { TbTrash } from 'react-icons/tb';
 import { v4 as uuidv4 } from 'uuid';
 import {
-  Button,
+  ActionIcon,
   Card,
   Flex,
   JsonInput,
@@ -16,7 +16,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
-import { useChromeStoreState, useGlobalStore } from '@mokku/store';
+import { useChromeStore, useChromeStoreState, useGlobalStore } from '@mokku/store';
 import {
   ActionInFormEnum,
   IMockResponse,
@@ -26,10 +26,11 @@ import {
 } from '@mokku/types';
 import { FORM_ID, getActionInForm } from '../../Blocks/Modal';
 import { SegmentedControl } from '../../Blocks/SegmentedControl';
+import { SettingsButton } from '../../Header/SettingsButton';
 import { storeActions } from '../../service/storeActions';
 import { statusOptions } from './data';
 
-export const useStyles = createStyles((theme) => ({
+export const useStyles = createStyles(() => ({
   flexGrow: {
     flexGrow: 2
   },
@@ -43,7 +44,8 @@ export const useStyles = createStyles((theme) => ({
   wrapper: {
     height: '100%',
     overflow: 'auto',
-    paddingBlock: 12,
+    paddingTop: 16,
+    paddingBottom: 28,
     paddingInline: 20,
     'label:not([class*=SegmentedControl])': {
       fontSize: rem(13),
@@ -60,26 +62,26 @@ export const useStyles = createStyles((theme) => ({
   }
 }));
 
-type AddMockFormProps = Pick<
-  useChromeStoreState,
-  'store' | 'selectedMock' | 'setSelectedMock' | 'setStoreProperties'
-> & {
+type AddMockFormProps = {
   onClose: () => void;
   onFormChange?: (values: IMockResponseRaw) => void;
 };
 
-export const AddMockForm = ({
-  store,
-  selectedMock,
-  setSelectedMock,
-  setStoreProperties,
-  onFormChange,
-  onClose
-}: AddMockFormProps) => {
+const useMockStoreSelector = (state: useChromeStoreState) => ({
+  workspaceStore: state.workspaceStore,
+  selectedWorkspace: state.selectedWorkspace,
+  selectedMock: state.selectedMock,
+  setStoreProperties: state.setStoreProperties
+});
+
+export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
+  const tab = useGlobalStore((state) => state.meta.tab);
+  const { workspaceStore, selectedWorkspace, selectedMock, setStoreProperties } =
+    useChromeStore(useMockStoreSelector);
+
   const {
     classes: { flexGrow, wrapper, tabs, card }
   } = useStyles();
-  const tab = useGlobalStore((state) => state.meta.tab);
 
   const form = useForm<IMockResponseRaw>({
     initialValues: {
@@ -100,7 +102,7 @@ export const AddMockForm = ({
   const isNewMock = action !== ActionInFormEnum.UPDATE;
   const isDuplicateMock = action === ActionInFormEnum.DUPLICATE;
 
-  const isGroupSelectedActive = store.groups.find(
+  const isGroupSelectedActive = workspaceStore.groups.find(
     (group) => group.id === form.values.groupId
   )?.active;
 
@@ -127,13 +129,13 @@ export const AddMockForm = ({
           [ActionInFormEnum.UPDATE]: storeActions.updateMocks,
           [ActionInFormEnum.DUPLICATE]: storeActions.addMocks
         };
-        const updatedStore = storeAction[action](store, {
+        const updatedWorkspaceStore = storeAction[action](workspaceStore, {
           ...values,
           groupId: values.groupId || ''
         } as IMockResponse);
 
         storeActions
-          .updateStoreInDB(updatedStore)
+          .updateWorkspaceStoreInDB(selectedWorkspace.id, updatedWorkspaceStore)
           .then(setStoreProperties)
           .then(() => {
             onClose();
@@ -178,7 +180,7 @@ export const AddMockForm = ({
             <Select
               label="Group"
               placeholder="Select group"
-              data={store.groups.map((g) => ({ label: g.name, value: g.id }))}
+              data={workspaceStore.groups.map((g) => ({ label: g.name, value: g.id }))}
               description={!isGroupSelectedActive && form.values.groupId && '⚠️ Group is disabled'}
               inputWrapperOrder={['label', 'input', 'description']}
               allowDeselect
@@ -247,41 +249,36 @@ export const AddMockForm = ({
                 </Tabs.Panel>
 
                 <Tabs.Panel value="headers" pt="xs">
-                  <Button
-                    variant="subtle"
-                    style={{ marginBottom: 8 }}
+                  <SettingsButton
                     onClick={() => {
-                      form.insertListItem(
-                        'headers',
-                        {
-                          name: '',
-                          value: ''
-                        },
-                        0
-                      );
+                      form.insertListItem('headers', { name: '', value: '' }, 0);
                     }}>
-                    + Add Header
-                  </Button>
-                  <Flex gap={8} direction="column">
+                    Add Header
+                  </SettingsButton>
+                  <Flex gap={8} direction="column" mt={8}>
                     {form.values.headers?.map((_, index) => (
                       <Flex gap={12} align="center" key={index}>
                         <TextInput
                           required
+                          size="xs"
                           placeholder="Name"
                           className={flexGrow}
                           {...form.getInputProps(`headers.${index}.name`)}
                         />
                         <TextInput
                           required
+                          size="xs"
                           placeholder="Value"
                           className={flexGrow}
                           {...form.getInputProps(`headers.${index}.value`)}
                         />
-                        <MdDeleteOutline
-                          onClick={() => {
-                            form.removeListItem('headers', index);
-                          }}
-                        />
+                        <ActionIcon
+                          variant="light"
+                          color="red"
+                          onClick={() => form.removeListItem('headers', index)}
+                          title="Delete header">
+                          <TbTrash />
+                        </ActionIcon>
                       </Flex>
                     ))}
                   </Flex>

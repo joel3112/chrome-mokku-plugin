@@ -21,7 +21,7 @@ export const Logs = () => {
     colors: { blue }
   } = useMantineTheme();
   const { logs, selectedLog, setSelectedLog } = useLogStore(useLogStoreSelector, shallow);
-  const store = useChromeStore((state) => state.store);
+  const store = useChromeStore((state) => state.workspaceStore);
   const search = useGlobalStore((state) => state.search).toLowerCase();
 
   const filteredLogs = logs.filter(
@@ -75,7 +75,6 @@ export const Logs = () => {
           }}>
           <Button
             variant="light"
-            radius="md"
             size="xs"
             compact
             onClick={() => {

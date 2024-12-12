@@ -19,7 +19,8 @@ const useStyles = createStyles((theme) => ({
   panel: {
     flexGrow: 2,
     padding: '0 !important',
-    overflow: 'auto'
+    overflow: 'auto',
+    marginTop: 10
   },
   tabs: {
     height: '100%'
@@ -34,7 +35,8 @@ const useStyles = createStyles((theme) => ({
   wrapper: {
     height: '100%',
     overflow: 'auto',
-    paddingBlock: 12,
+    paddingTop: 16,
+    paddingBottom: 28,
     paddingInline: 20,
     'label:not([class*=SegmentedControl])': {
       fontSize: rem(13),

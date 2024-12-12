@@ -53,7 +53,7 @@ export interface ILog {
 export interface IMockGroup {
   type: MockType.GROUP;
   name: string;
-  description: string;
+  description?: string;
   id: string;
   active: boolean;
   createdOn: number;
@@ -71,13 +71,13 @@ export interface IMockResponse {
   response?: string;
   headers?: Headers;
   delay?: number;
-  name?: string;
+  name: string;
   id: string;
   groupId?: string;
   dynamic?: boolean;
   active: boolean;
   selected: boolean;
-  description: string;
+  description?: string;
   action?: (req: {
     body: Record<string, any>;
     params: Record<string, any>;
@@ -89,35 +89,25 @@ export interface IWorkspace {
   id: string;
   name: string;
   active: boolean;
-  groups: IMockGroup[];
-  mocks: IMockResponse[];
 }
-
-export type IMockResponseRaw = Partial<IMockResponse>;
 
 export interface IStore {
   active: boolean;
   theme: 'dark' | 'light';
-  settings: {
-    enabledScenarios: boolean;
-  };
-  workspaces?: IWorkspace[];
+  enabledScenarios: boolean;
+  workspaces: Record<string, IWorkspace>;
+}
+
+export type IMockResponseRaw = Partial<IMockResponse>;
+
+export interface IWorkspaceStore {
   groups: IMockGroup[];
   mocks: IMockResponse[];
-  collections: Record<
-    string,
-    {
-      groups: IMockGroup[];
-      mocks: IMockResponse[];
-      id: number;
-      active: boolean;
-    }
-  >;
 }
 
 export type DBNameType = 'mokku.extension.main.db';
 
-export type IDB = Record<DBNameType, IStore>;
+export type IDB = Record<DBNameType, IWorkspaceStore>;
 
 export interface IURLMap {
   [url: string]: {

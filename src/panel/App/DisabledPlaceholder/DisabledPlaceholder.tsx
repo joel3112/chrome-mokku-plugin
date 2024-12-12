@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Highlight, Paper, Title, createStyles } from '@mantine/core';
-import { useGlobalStore } from '../store/useGlobalStore';
+import { useGlobalStore } from '@mokku/store';
 
 export const usePaperStyles = createStyles((theme) => ({
   full: {

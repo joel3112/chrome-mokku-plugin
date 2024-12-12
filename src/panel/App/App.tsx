@@ -1,14 +1,15 @@
 import React, { useEffect } from 'react';
 import { Flex } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
+import { ViewEnum, useChromeStore, useGlobalStore, useGlobalStoreState } from '@mokku/store';
 import { Modal } from './Blocks/Modal';
 import { Show } from './Blocks/Show';
 import { DisabledPlaceholder } from './DisabledPlaceholder/DisabledPlaceholder';
 import { Header } from './Header';
+import { Settings } from './Header/Settings';
 import { Logs } from './Logs/Logs';
 import { Mocks } from './Mocks/Mocks';
 import { usePanelListener } from './hooks/usePanelListner';
-import { ViewEnum, useChromeStore, useGlobalStore, useGlobalStoreState } from './store';
 
 export const App = (props: useGlobalStoreState['meta']) => {
   const state = usePanelListener(props);
@@ -32,12 +33,15 @@ export const App = (props: useGlobalStoreState['meta']) => {
       <Notifications id="notification-mocks" zIndex={999} />
       <Flex direction="column" style={{ minWidth: 900, height: '100%', overflow: 'hidden' }}>
         <Header />
-        <div style={{ overflow: 'auto', flexGrow: 2 }}>
+        <div style={{ overflow: 'auto', flexGrow: 2, paddingBottom: 20 }}>
           <Show if={view === ViewEnum.MOCKS}>
             <Mocks />
           </Show>
           <Show if={view === ViewEnum.LOGS}>
             <Logs />
+          </Show>
+          <Show if={view === ViewEnum.SETTINGS}>
+            <Settings />
           </Show>
         </div>
       </Flex>

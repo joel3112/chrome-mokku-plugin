@@ -1,6 +1,6 @@
 import { ILog } from './mock';
 
-export type Process = 'HOOK' | 'CONTENT' | 'PANEL' | 'ALL' | 'BACKROUND' | 'PANEL';
+export type Process = 'HOOK' | 'CONTENT' | 'PANEL' | 'ALL' | 'BACKGROUND';
 
 export interface IEventMessage {
   to: Process;

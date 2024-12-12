@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { get } from 'lodash';
 import { Button, Drawer, Flex, createStyles } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { isJsonValid } from '@mokku/services';
+import { useChromeStore, useLogStore } from '@mokku/store';
 import { ActionInFormEnum, IMockGroup, IMockResponse, MockType } from '@mokku/types';
 import { AddGroup } from '../Groups/AddGroup/AddGroup';
+import { CloseButton } from '../Header/CloseButton';
 import { LogDetails } from '../Logs/LogDetails/LogDetails';
 import { getMockFromLog } from '../Logs/log.util';
 import { AddMock } from '../Mocks/AddMock/AddMock';
-import { isJsonValid } from '../Mocks/AddMock/utils';
-import { useChromeStore, useLogStore } from '../store';
 
 enum ModalType {
   Group = 'GROUP',
@@ -24,7 +25,7 @@ const useStyles = createStyles((theme) => ({
     scrollBehavior: 'smooth'
   },
   header: {
-    paddingBlock: 13,
+    paddingBlock: 10,
     paddingInline: 16,
     borderBottom: `1px solid ${
       theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[4]
@@ -60,7 +61,7 @@ export const getActionInForm = (selected: IMockGroup | IMockResponse) => {
 export const FORM_ID = 'FORM_ID';
 
 export const Modal = () => {
-  const store = useChromeStore((state) => state.store);
+  const workspaceStore = useChromeStore((state) => state.workspaceStore);
   const selectedMock = useChromeStore((state) => state.selectedMock);
   const setSelectedMock = useChromeStore((state) => state.setSelectedMock);
   const selectedGroup = useChromeStore((state) => state.selectedGroup);
@@ -174,7 +175,7 @@ export const Modal = () => {
         setTimeout(() => {
           setSelectedLog();
           if (selectedLog.isMocked) {
-            setSelectedMock(get(store, selectedLog.mockPath, {}));
+            setSelectedMock(get(workspaceStore, selectedLog.mockPath, {}));
           } else {
             setSelectedMock(getMockFromLog(selectedLog));
           }
@@ -196,8 +197,8 @@ export const Modal = () => {
       <Drawer.Overlay opacity={0.4} />
       <Drawer.Content className={classes.content}>
         <Drawer.Header className={classes.header}>
-          <Drawer.Title>{title}</Drawer.Title>
-          <Drawer.CloseButton />
+          <Drawer.Title fz={14}>{title}</Drawer.Title>
+          <CloseButton onClick={handleClose} />
         </Drawer.Header>
 
         <Drawer.Body className={classes.body}>
@@ -208,7 +209,7 @@ export const Modal = () => {
 
         <Flex className={classes.footer} justify={selectedLog ? 'end' : 'space-between'}>
           {(selectedLog ? logButtons : mockButtons).map((option) => (
-            <Button key={option.children} {...option} radius="md" compact />
+            <Button key={option.children} {...option} compact />
           ))}
         </Flex>
       </Drawer.Content>

@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { createWithEqualityFn } from 'zustand/traditional';
 import { ILog } from '@mokku/types';
 
 export type useLogStoreState = {
@@ -12,7 +12,7 @@ export type useLogStoreState = {
 };
 
 // this is our useStore hook that we can use in our components to get parts of the store and call actions
-export const useLogStore = create<useLogStoreState>((set, get) => ({
+export const useLogStore = createWithEqualityFn<useLogStoreState>((set, get) => ({
   logs: [],
   addLog: (log: ILog) => {
     set({

@@ -1,7 +1,7 @@
 import React from 'react';
 import { ImSwitch } from 'react-icons/im';
 import { ActionIcon } from '@mantine/core';
-import { useGlobalStore } from '../store/useGlobalStore';
+import { useGlobalStore } from '@mokku/store';
 
 export const SwitchButton = () => {
   const active = useGlobalStore((state) => state.meta.active);
@@ -20,8 +20,7 @@ export const SwitchButton = () => {
       variant="outline"
       color="red"
       onClick={() => toggleActive()}
-      title="Disable Mocking"
-      radius="md">
+      title="Disable Mocking">
       <ImSwitch />
     </ActionIcon>
   );

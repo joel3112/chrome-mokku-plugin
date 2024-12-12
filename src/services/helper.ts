@@ -1,39 +1,14 @@
 import { find, groupBy, map } from 'lodash';
 
-export const isValidJSON = (
-  json: string
-): { error?: string; position?: number; lineNumber?: number } => {
+export const isJsonValid = (jsonString: string) => {
+  let result = true;
   try {
-    JSON.parse(json);
-    return { error: undefined };
+    JSON.parse(jsonString);
   } catch (e) {
-    let position = undefined;
-    let lineNumber = undefined;
-    const jsonErrorRegex = new RegExp(/(?<=\bposition\s)(\w+)/g);
-    const stringifiedError = e.toString();
-    if (stringifiedError !== 'Unexpected end of JSON input') {
-      const x = jsonErrorRegex.exec(stringifiedError);
-      position = x && x.length > 0 ? parseInt(x[0], 10) : undefined;
-      if (position) {
-        lineNumber = 1;
-        for (let i = 0; i < json.length; i++) {
-          if (i === position) {
-            break;
-          }
-          if (json[i] === '\n') {
-            lineNumber++;
-          }
-        }
-      }
-
-      jsonErrorRegex.lastIndex = 0;
-    }
-    return {
-      error: `${stringifiedError}${lineNumber ? ' and at line number ' + lineNumber : ''}`,
-      position,
-      lineNumber
-    };
+    result = false;
   }
+
+  return result;
 };
 
 export const getError = (errors: Record<string, string | string[]>) => {
@@ -61,4 +36,14 @@ export const uniqueItemsByKeys = <T>(array: T[], keys: (keyof T)[], priorityKey 
 
   // Iterar sobre los grupos y priorizar según el priorityKey
   return map(grouped, (group) => find(group, (item) => item[priorityKey]) || group[0]);
+};
+
+export const sortCollectionByName = <T extends { name: string }>(items: T[]) => {
+  return items.sort((a, b) => a.name.localeCompare(b.name));
+};
+
+export const filterBySearch = <T extends { name: string }>(items: T[], search: string) => {
+  return items.filter((item) =>
+    (item.name || '').toLowerCase().includes(search.toLowerCase().trim())
+  );
 };

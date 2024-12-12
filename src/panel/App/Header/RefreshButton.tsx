@@ -8,8 +8,7 @@ export const RefreshButton = () => {
       variant="outline"
       color={'blue'}
       onClick={() => window.location.reload()}
-      title="Refresh Extension"
-      radius="md">
+      title="Refresh Extension">
       <TbRefresh />
     </ActionIcon>
   );

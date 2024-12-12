@@ -1,6 +1,7 @@
 import React from 'react';
 import { Table, createStyles, rem } from '@mantine/core';
 import { MockType } from '@mokku/types';
+import { MAX_WIDTH_LAYOUT } from '../Header';
 
 export type TableSchema<T> = Array<{
   header: React.ReactNode;
@@ -48,9 +49,8 @@ const useStyles = createStyles((theme) => ({
     position: 'relative',
     borderCollapse: 'collapse',
     width: '100%',
-    borderBottom: `${rem(1)} solid ${
-      theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3]
-    }`
+    maxWidth: MAX_WIDTH_LAYOUT,
+    margin: '0 auto'
   }
 }));
 
@@ -67,7 +67,7 @@ export const TableWrapper = <
   onRowClick,
   selectedRowId
 }: TableWrapperProps<T>) => {
-  const { classes } = useStyles();
+  const { classes, cx } = useStyles();
 
   const ths = (
     <tr>
@@ -95,9 +95,10 @@ export const TableWrapper = <
         onClick={() => {
           onRowClick(row);
         }}
-        className={`${selectedRowId === row.id ? classes.selectedRow : ''} ${
-          rowMockHasGroup ? classes.groupRow : ''
-        } ${classes.rows}`}>
+        className={cx(classes.rows, {
+          [classes.selectedRow]: selectedRowId === row.id,
+          [classes.groupRow]: rowMockHasGroup
+        })}>
         {schema.map(({ content, maxWidth, style }, index) => (
           <td key={index} style={{ maxWidth, ...style }}>
             {content(row)}
@@ -108,7 +109,7 @@ export const TableWrapper = <
   });
 
   return (
-    <Table captionSide="bottom" highlightOnHover className={classes.table}>
+    <Table captionSide="bottom" highlightOnHover withBorder className={classes.table}>
       <thead>{ths}</thead>
       <tbody>{rows}</tbody>
     </Table>

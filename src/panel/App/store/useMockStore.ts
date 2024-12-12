@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { createWithEqualityFn } from 'zustand/traditional';
 import {
   IDynamicURLMap,
   IMockGroup,
@@ -29,7 +29,7 @@ export interface useChromeStoreState extends StoreProperties {
 }
 
 // this is our useStore hook that we can use in our components to get parts of the store and call actions
-export const useChromeStore = create<useChromeStoreState>((set, get) => ({
+export const useChromeStore = createWithEqualityFn<useChromeStoreState>((set, get) => ({
   store: storeActions.createDefaultStore(),
   workspaceStore: storeActions.createDefaultWorkspaceStore(),
   dynamicUrlMap: {},

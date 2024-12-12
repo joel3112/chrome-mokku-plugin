@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { createWithEqualityFn } from 'zustand/traditional';
 
 export enum ViewEnum {
   MOCKS = 'MOCKS',
@@ -23,7 +23,7 @@ export type useGlobalStoreState = {
 };
 
 // this is our useStore hook that we can use in our components to get parts of the store and call actions
-export const useGlobalStore = create<useGlobalStoreState>((set, get) => ({
+export const useGlobalStore = createWithEqualityFn<useGlobalStoreState>((set, get) => ({
   view: ViewEnum.MOCKS,
   setView: (view: ViewEnum) => set({ view: view }),
   search: '',

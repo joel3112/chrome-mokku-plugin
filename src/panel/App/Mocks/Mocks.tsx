@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'zustand/shallow';
 import { LoadingOverlay } from '@mantine/core';
-import { sortCollectionByName, uniqueItemsByKeys } from '@mokku/services';
+import { filterBySearch, sortCollectionByName, uniqueItemsByKeys } from '@mokku/services';
 import { useChromeStore, useChromeStoreState, useGlobalStore } from '@mokku/store';
 import { IMockGroup, IMockResponse, MockType } from '@mokku/types';
 import { Placeholder } from '../Blocks/Placeholder';

@@ -32,20 +32,16 @@ export const Mocks = () => {
   const search = useGlobalStore((state) => state.search).toLowerCase();
   const schema = useMocksTableSchema();
 
-  const filteredMocks = [
-    ...(workspaceStore.groups || []).filter(
-      (group) =>
-        (group?.name || '').toLowerCase().includes(search) ||
-        (group?.description || '').toLowerCase().includes(search)
-    ),
-    ...(workspaceStore.mocks || []).filter(
-      (mock) =>
-        (mock?.name || '').toLowerCase().includes(search) ||
-        (mock?.url || '').toLowerCase().includes(search) ||
-        (mock?.method || '').toLowerCase().includes(search) ||
-        (mock?.status || '').toString().includes(search)
-    )
+  let filteredMocks: (IMockResponse | IMockGroup)[] = [
+    ...filterBySearch(workspaceStore.mocks || [], search)
   ];
+  (workspaceStore.groups || []).forEach((group) => {
+    const groupHasFilteredMock = filteredMocks.some((mock) => mock['groupId'] === group.id);
+    const groupMatchesSearch = filterBySearch([group], search).length > 0;
+    if (groupHasFilteredMock || groupMatchesSearch) {
+      filteredMocks.push(group);
+    }
+  });
 
   function organizeItems(items: (IMockResponse | IMockGroup)[]): (IMockResponse | IMockGroup)[] {
     // Separate items into groups and mocks

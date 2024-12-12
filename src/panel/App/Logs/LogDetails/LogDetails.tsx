@@ -19,7 +19,8 @@ const useStyles = createStyles((theme) => ({
   panel: {
     flexGrow: 2,
     padding: '0 !important',
-    overflow: 'auto'
+    overflow: 'auto',
+    marginTop: 10
   },
   tabs: {
     height: '100%'

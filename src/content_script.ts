@@ -23,8 +23,6 @@ const init = () => {
     workspaceStore = a.workspaceStore;
     urlMap = a.urlMap;
     dynamicUrlMap = a.dynamicUrlMap;
-
-    console.log(`>> Content Script Init - ${storeActions.getActiveWorkspace(store).name}`);
   });
 
   const getMockPath = (url: string, method: string) => {
@@ -137,7 +135,6 @@ const init = () => {
 
     const request = (data.message as ILog).request;
     const mockPaths = getMockPath(request.url, request.method);
-    console.log(`>> mockPaths - ${request.url} - `, mockPaths);
     const { mock } = getActiveMockWithPath(mockPaths);
 
     if (mock && hasGroupActive(mock)) {

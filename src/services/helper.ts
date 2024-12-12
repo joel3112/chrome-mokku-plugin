@@ -41,3 +41,9 @@ export const uniqueItemsByKeys = <T>(array: T[], keys: (keyof T)[], priorityKey 
 export const sortCollectionByName = <T extends { name: string }>(items: T[]) => {
   return items.sort((a, b) => a.name.localeCompare(b.name));
 };
+
+export const filterBySearch = <T extends { name: string }>(items: T[], search: string) => {
+  return items.filter((item) =>
+    (item.name || '').toLowerCase().includes(search.toLowerCase().trim())
+  );
+};

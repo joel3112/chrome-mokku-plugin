@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { Checkbox, ColorScheme, Flex, Tabs, createStyles } from '@mantine/core';
 import { useLocalStorage } from '@mantine/hooks';
+import { WorkspaceSettings } from '../Workspaces/WorkspaceSettings';
 import { storeActions } from '../service/storeActions';
 import { useChromeStore } from '../store';
-import { WorkspaceSettings } from './WorkspaceSettings';
 
 const useStyles = createStyles(() => ({
   tabContainer: {

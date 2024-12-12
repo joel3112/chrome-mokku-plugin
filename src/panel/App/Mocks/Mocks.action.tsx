@@ -151,7 +151,8 @@ export const useMockActions = () => {
     const updatedWorkspaceStore = storeActions.updateMocks(workspaceStore, mocksUpdated);
     storeActions
       .updateWorkspaceStoreInDB(selectedWorkspace.id, updatedWorkspaceStore)
-      .then(setStoreProperties);
+      .then(setStoreProperties)
+      .then(() => storeActions.refreshContentStore(tab.id));
   };
 
   return {

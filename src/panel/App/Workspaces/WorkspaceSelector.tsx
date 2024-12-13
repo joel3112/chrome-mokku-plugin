@@ -1,15 +1,16 @@
 import React, { useEffect } from 'react';
-import { TbChevronDown, TbPlus, TbTrash } from 'react-icons/tb';
+import { TbChevronDown, TbLock, TbPlus, TbTrash } from 'react-icons/tb';
 import { shallow } from 'zustand/shallow';
-import { Button, Menu, createStyles } from '@mantine/core';
+import { Button, Flex, Menu, createStyles } from '@mantine/core';
 import { sortCollectionByName } from '@mokku/services';
 import { useChromeStore, useChromeStoreState } from '@mokku/store';
+import { IWorkspace } from '@mokku/types';
 import { DEFAULT_WORKSPACE, storeActions } from '../service/storeActions';
 import { useWorkspaceActions } from './Workspace.action';
 
 const useMockStoreSelector = (state: useChromeStoreState) => ({
   store: state.store,
-  selectedWorkSpace: state.selectedWorkspace,
+  selectedWorkspace: state.selectedWorkspace,
   setSelectedWorkSpace: state.setSelectedWorkspace
 });
 
@@ -21,10 +22,11 @@ const useStyles = createStyles((theme) => ({
 }));
 
 export const WorkspaceSelector = () => {
-  const { store, selectedWorkSpace, setSelectedWorkSpace } = useChromeStore(
+  const { store, selectedWorkspace, setSelectedWorkSpace } = useChromeStore(
     useMockStoreSelector,
     shallow
   );
+  const isDefaultWorkspace = (w: IWorkspace) => w?.id === DEFAULT_WORKSPACE;
 
   const { addWorkspace, selectWorkspace, deleteWorkspace } = useWorkspaceActions();
   const { classes, cx } = useStyles();
@@ -37,7 +39,7 @@ export const WorkspaceSelector = () => {
     <Menu width={200} position="bottom-start">
       <Menu.Target>
         <Button variant="subtle" rightIcon={<TbChevronDown />}>
-          {selectedWorkSpace?.name}
+          {selectedWorkspace?.name}
         </Button>
       </Menu.Target>
 
@@ -47,8 +49,11 @@ export const WorkspaceSelector = () => {
           <Menu.Item
             key={workspace.id}
             onClick={() => selectWorkspace(workspace)}
-            className={cx({ [classes.active]: workspace.id === selectedWorkSpace?.id })}>
-            {workspace.name}
+            className={cx({ [classes.active]: workspace.id === selectedWorkspace?.id })}>
+            <Flex justify="space-between" align="center">
+              {workspace.name}
+              {isDefaultWorkspace(workspace) && <TbLock />}
+            </Flex>
           </Menu.Item>
         ))}
         <Menu.Divider />
@@ -59,8 +64,8 @@ export const WorkspaceSelector = () => {
         <Menu.Item
           color="red"
           icon={<TbTrash />}
-          disabled={selectedWorkSpace?.id === DEFAULT_WORKSPACE}
-          onClick={() => deleteWorkspace(selectedWorkSpace)}>
+          disabled={isDefaultWorkspace(selectedWorkspace)}
+          onClick={() => deleteWorkspace(selectedWorkspace)}>
           Delete workspace
         </Menu.Item>
       </Menu.Dropdown>

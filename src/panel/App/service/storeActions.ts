@@ -188,11 +188,10 @@ const getActiveWorkspace = (store: IStore) => {
   return Object.values(store.workspaces).find((workspace) => workspace.active);
 };
 
-const addWorkspace = (oldStore: IStore, name: string) => {
+const addWorkspace = (oldStore: IStore, workspace: Omit<IWorkspace, 'active'>) => {
   const store = { ...oldStore };
-  const id = uuidv4();
-  const newWorkspace: IWorkspace = { id, name, active: false };
-  store.workspaces = { ...store.workspaces, [id]: newWorkspace };
+  const newWorkspace: IWorkspace = { ...workspace, active: false };
+  store.workspaces = { ...store.workspaces, [workspace.id]: newWorkspace };
 
   return store;
 };

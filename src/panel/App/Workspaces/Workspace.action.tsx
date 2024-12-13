@@ -1,9 +1,12 @@
 import React from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { shallow } from 'zustand/shallow';
 import { Button, Space, Text, TextInput } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
+import { extractJsonFromFile } from '@mokku/services';
 import {
+  ViewEnum,
   useChromeStore,
   useChromeStoreState,
   useGlobalStore,
@@ -13,7 +16,8 @@ import { IWorkspace } from '@mokku/types';
 import { DEFAULT_WORKSPACE, storeActions } from '../service/storeActions';
 
 const viewSelector = (state: useGlobalStoreState) => ({
-  meta: state.meta
+  meta: state.meta,
+  setView: state.setView
 });
 
 const useMockStoreSelector = (state: useChromeStoreState) => ({
@@ -25,7 +29,7 @@ const useMockStoreSelector = (state: useChromeStoreState) => ({
 });
 
 export const useWorkspaceActions = () => {
-  const { meta } = useGlobalStore(viewSelector, shallow);
+  const { meta, setView } = useGlobalStore(viewSelector, shallow);
   const { initWorkspace, store, workspaceStore, setStoreProperties, setSelectedWorkSpace } =
     useChromeStore(useMockStoreSelector, shallow);
 
@@ -37,15 +41,14 @@ export const useWorkspaceActions = () => {
           onSubmit={(e) => {
             e.preventDefault();
             const name = e.target['name'].value;
-            const updatedStore = storeActions.addWorkspace(store, name);
+            const workspaceId = uuidv4();
+            const updatedStore = storeActions.addWorkspace(store, { name, id: workspaceId });
 
-            storeActions
-              .updateStoreInDB(updatedStore)
-              .then((res) => {
-                setStoreProperties(res);
-                modals.closeAll();
-              })
-              .then(() => storeActions.refreshContentStore(meta.tab.id));
+            storeActions.updateStoreInDB(updatedStore).then((res) => {
+              setStoreProperties(res);
+              selectWorkspace(res.store.workspaces[workspaceId], res.store);
+              modals.closeAll();
+            });
           }}>
           <TextInput required name="name" label="Name" placeholder="My workspace" data-autofocus />
           <Button fullWidth type="submit" mt="md">
@@ -56,14 +59,15 @@ export const useWorkspaceActions = () => {
     });
   };
 
-  const selectWorkspace = (workspace: IWorkspace) => {
-    const updatedStore = storeActions.selectWorkspace(store, workspace.id);
+  const selectWorkspace = (workspace: IWorkspace, _store = store) => {
+    const updatedStore = storeActions.selectWorkspace(_store, workspace.id);
 
     storeActions
       .updateStoreInDB(updatedStore)
       .then(initWorkspace)
       .then(() => {
         storeActions.refreshContentStore(meta.tab.id);
+        setView(ViewEnum.MOCKS);
       });
   };
 
@@ -114,6 +118,7 @@ export const useWorkspaceActions = () => {
           })
           .then(() => {
             storeActions.refreshContentStore(meta.tab.id);
+            setView(ViewEnum.MOCKS);
             notifications.show({
               title: `"${workspace.name}" workspace deleted`,
               message: `Workspace "${workspace.name}" is deleted successfully.`
@@ -129,6 +134,32 @@ export const useWorkspaceActions = () => {
           });
       }
     });
+  };
+
+  const importWorkspace = async (workspace: IWorkspace, file: File) => {
+    try {
+      const jsonData = await extractJsonFromFile(file);
+      const updatedWorkspaceStore = { ...workspaceStore, ...jsonData };
+      storeActions
+        .updateWorkspaceStoreInDB(workspace.id, updatedWorkspaceStore)
+        .then(setStoreProperties)
+        .then(() => {
+          storeActions.refreshContentStore(meta.tab.id);
+          setView(ViewEnum.MOCKS);
+          notifications.show({
+            title: `Import data`,
+            message: `Data imported successfully`
+          });
+        });
+    } catch (error) {
+      console.error('Failed to import data:', error);
+      notifications.show({
+        id: 'import-data-error',
+        title: `Import data`,
+        message: `Failed to import data`,
+        color: 'red'
+      });
+    }
   };
 
   const resetWorkspace = (workspace: IWorkspace, onConfirm?: () => void) => {
@@ -152,11 +183,22 @@ export const useWorkspaceActions = () => {
             setStoreProperties(res);
             onConfirm?.();
           })
-          .then(() => storeActions.refreshContentStore(meta.tab.id));
-        notifications.show({
-          title: `Clear data`,
-          message: `All data cleared successfully`
-        });
+          .then(() => {
+            storeActions.refreshContentStore(meta.tab.id);
+            setView(ViewEnum.MOCKS);
+            notifications.show({
+              title: `Clear data`,
+              message: `All data cleared successfully`
+            });
+          })
+          .catch((error) => {
+            console.log(error);
+            notifications.show({
+              title: 'Cannot clear data.',
+              message: 'Something went wrong, unable to clear data. Check console for error.',
+              color: 'red'
+            });
+          });
       }
     });
   };
@@ -166,6 +208,7 @@ export const useWorkspaceActions = () => {
     selectWorkspace,
     changeNameWorkspace,
     deleteWorkspace,
-    resetWorkspace
+    resetWorkspace,
+    importWorkspace
   };
 };

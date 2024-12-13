@@ -3,18 +3,19 @@ import { useEffect, useRef, useState } from 'react';
 import { TbDownload, TbTrash, TbUpload } from 'react-icons/tb';
 import { Box, Button, Divider, FileButton, Flex, Text, TextInput, Title } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { downloadJsonFile, extractJsonFromFile } from '@mokku/services';
+import { downloadJsonFile } from '@mokku/services';
 import { useChromeStore } from '@mokku/store';
 import { SettingsButton } from '../Header/SettingsButton';
-import { storeActions } from '../service/storeActions';
+import { DEFAULT_WORKSPACE } from '../service/storeActions';
 import { useWorkspaceActions } from './Workspace.action';
 
 export const WorkspaceSettings = () => {
   const workspaceStore = useChromeStore((state) => state.workspaceStore);
   const selectedWorkspace = useChromeStore((state) => state.selectedWorkspace);
-  const setStoreProperties = useChromeStore((state) => state.setStoreProperties);
+  const isDefaultWorkspace = selectedWorkspace?.id === DEFAULT_WORKSPACE;
 
-  const { changeNameWorkspace, resetWorkspace, deleteWorkspace } = useWorkspaceActions();
+  const { changeNameWorkspace, resetWorkspace, importWorkspace, deleteWorkspace } =
+    useWorkspaceActions();
 
   const [newName, setNewName] = useState(selectedWorkspace.name ?? '');
   const [file, setFile] = useState<File | null>(null);
@@ -33,30 +34,10 @@ export const WorkspaceSettings = () => {
   }, [file]);
 
   const handleImportData = () => {
-    extractJsonFromFile(file)
-      .then((jsonData) => {
-        const updatedWorkspaceStore = { ...workspaceStore, ...jsonData };
-        storeActions
-          .updateWorkspaceStoreInDB(selectedWorkspace.id, updatedWorkspaceStore)
-          .then(setStoreProperties);
-        notifications.show({
-          title: `Import data`,
-          message: `Data imported successfully`
-        });
-      })
-      .catch((error) => {
-        console.error('Failed to import data:', error);
-        notifications.show({
-          id: 'import-data-error',
-          title: `Import data`,
-          message: `Failed to import data`,
-          color: 'red'
-        });
-      })
-      .finally(() => {
-        setFile(null);
-        resetRef.current?.();
-      });
+    importWorkspace(selectedWorkspace, file).finally(() => {
+      setFile(null);
+      resetRef.current?.();
+    });
   };
 
   const handleExportData = () => {
@@ -69,42 +50,45 @@ export const WorkspaceSettings = () => {
 
   return (
     <>
-      <form
-        key={selectedWorkspace.id}
-        style={{ width: 280 }}
-        onSubmit={(e) => {
-          e.preventDefault();
-          const name = e.target['name'].value;
-          changeNameWorkspace(selectedWorkspace, name);
-        }}>
-        <TextInput
-          required
-          data-autofocus
-          name="name"
-          label="Workspace name"
-          placeholder="My workspace"
-          defaultValue={selectedWorkspace.name}
-          onChange={(e) => setNewName(e.currentTarget.value)}
-        />
-        <Button type="submit" compact mt={8} disabled={newName === selectedWorkspace.name}>
-          Save changes
-        </Button>
-      </form>
+      {!isDefaultWorkspace && (
+        <>
+          <form
+            key={selectedWorkspace.id}
+            style={{ width: 280 }}
+            onSubmit={(e) => {
+              e.preventDefault();
+              const name = e.target['name'].value;
+              changeNameWorkspace(selectedWorkspace, name);
+            }}>
+            <TextInput
+              required
+              data-autofocus
+              name="name"
+              label="Workspace name"
+              placeholder="My workspace"
+              defaultValue={selectedWorkspace.name}
+              onChange={(e) => setNewName(e.currentTarget.value)}
+            />
+            <Button type="submit" compact mt={8} disabled={newName === selectedWorkspace.name}>
+              Save changes
+            </Button>
+          </form>
 
-      <Box mt={4} mb={8}>
-        <Title order={6}>Delete workspace</Title>
-        <Button
-          type="submit"
-          variant="outline"
-          compact
-          color="red"
-          mt={8}
-          onClick={() => deleteWorkspace(selectedWorkspace)}>
-          Delete entire workspace
-        </Button>
-      </Box>
-
-      <Divider />
+          <Box mt={4} mb={8}>
+            <Title order={6}>Delete workspace</Title>
+            <Button
+              type="submit"
+              variant="outline"
+              compact
+              color="red"
+              mt={8}
+              onClick={() => deleteWorkspace(selectedWorkspace)}>
+              Delete entire workspace
+            </Button>
+          </Box>
+          <Divider />
+        </>
+      )}
 
       <Box mt={8}>
         <Title order={6}>Manage workspace data</Title>

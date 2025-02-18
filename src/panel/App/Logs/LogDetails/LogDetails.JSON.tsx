@@ -40,9 +40,7 @@ export const LogDetailsJSON = ({ response, isRequestPending, id }: IProps) => {
 
   if (responseJson.parsed) {
     const formatted = JSON.stringify(responseJson.json, null, 4);
-    return (
-      <JsonInput autosize value={formatted} className={classes.wrapper} size="xs" formatOnBlur />
-    );
+    return <JsonInput autosize value={formatted} className={classes.wrapper} formatOnBlur />;
   }
 
   return (

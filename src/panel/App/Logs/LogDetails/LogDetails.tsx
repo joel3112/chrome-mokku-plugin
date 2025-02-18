@@ -55,7 +55,7 @@ export const LogDetails = ({ log }: IProps) => {
   const { classes } = useStyles();
 
   return (
-    <SideDrawer minWidth={520}>
+    <SideDrawer>
       <Card className={classes.card} p={0}>
         <Flex direction="column" gap={16} className={classes.wrapper}>
           <TextInput label="URL" readOnly value={log.request?.url} />

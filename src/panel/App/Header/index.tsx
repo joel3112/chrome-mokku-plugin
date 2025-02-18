@@ -42,7 +42,7 @@ const useStyles = createStyles((theme) => ({
   tabList: {
     width: '100%',
     maxWidth: MAX_WIDTH_LAYOUT,
-    height: HEIGHT_TABS,
+    height: HEIGHT_TABS - 2,
     margin: '0 auto',
     alignItems: 'center',
     borderBottom: 'none'

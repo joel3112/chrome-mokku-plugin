@@ -7,7 +7,7 @@ export const AddGroup = ({ onClose }: { onClose: () => void }) => {
   const selectedGroup = useChromeStore((state) => state.selectedGroup);
 
   return (
-    <SideDrawer minWidth={520}>
+    <SideDrawer>
       <AddGroupForm key={`${selectedGroup.id}`} onClose={onClose} />
     </SideDrawer>
   );

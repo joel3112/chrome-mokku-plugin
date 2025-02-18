@@ -37,16 +37,13 @@ const useStyles = createStyles((theme) => ({
   }
 }));
 
-export const SideDrawerHeader = ({ children }: { children: ReactNode }) => {
-  const { classes } = useStyles();
-  return (
-    <Flex justify="space-between" align="center" className={classes.header}>
-      {children}
-    </Flex>
-  );
-};
-
-export const SideDrawer = ({ children, minWidth }: { children: ReactNode; minWidth?: number }) => {
+export const SideDrawer = ({
+  children,
+  minWidth = 500
+}: {
+  children: ReactNode;
+  minWidth?: number;
+}) => {
   const { classes } = useStyles();
   const draggerRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -58,11 +55,11 @@ export const SideDrawer = ({ children, minWidth }: { children: ReactNode; minWid
     containerRef.current.style.width = `${width}px`;
   };
 
-  const onDraggerMouseUp = (event) => {
+  const onDraggerMouseUp = () => {
     document.removeEventListener('mousemove', onDraggerMouseMove);
   };
 
-  const onDraggerMouseDown = (event) => {
+  const onDraggerMouseDown = () => {
     document.addEventListener('mousemove', onDraggerMouseMove);
     document.addEventListener('mouseup', onDraggerMouseUp);
   };

@@ -4,6 +4,7 @@ import {
   IDynamicURLMap,
   IEventMessage,
   ILog,
+  IMockResponse,
   IStore,
   IURLMap,
   IWorkspaceStore
@@ -83,8 +84,22 @@ const init = () => {
   const getActiveMockWithPath = (paths: string[]) => {
     let mock = null;
     let path = null;
-    paths.some((tempPath) => {
-      const tempMock = get(workspaceStore, tempPath, null);
+
+    const mocksPaths: Record<string, IMockResponse> = paths.reduce((acc, path) => {
+      acc[path] = get(workspaceStore, path, null);
+      return acc;
+    }, {});
+
+    // Sort by length of url, to select the longest url first
+    const sortedMocksPaths: Record<string, IMockResponse> = Object.keys(mocksPaths)
+      .sort((a, b) => mocksPaths[b].url.length - mocksPaths[a].url.length)
+      .reduce((acc, path) => {
+        acc[path] = mocksPaths[path];
+        return acc;
+      }, {});
+
+    Object.keys(sortedMocksPaths).some((tempPath) => {
+      const tempMock = sortedMocksPaths[tempPath];
       if (isActiveSelectedMock(tempMock)) {
         mock = tempMock;
         path = tempPath;

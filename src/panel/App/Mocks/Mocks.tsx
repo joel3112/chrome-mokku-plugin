@@ -110,6 +110,17 @@ export const Mocks = () => {
     );
   }
 
+  // console.log(
+  //   'Mocks',
+  //   filteredMocks.map((m) => ({
+  //     id: m.id,
+  //     name: m.name,
+  //     type: m.type,
+  //     url: m['url'],
+  //     method: m['method']
+  //   }))
+  // );
+
   const selectRow = (data: IMockResponse | IMockGroup) => {
     if (data.type === MockType.GROUP) {
       const updatedWorkspaceStore = storeActions.updateGroups(workspaceStore, {

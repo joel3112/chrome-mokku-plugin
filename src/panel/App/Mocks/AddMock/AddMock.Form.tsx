@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   ActionIcon,
   Card,
+  Chip,
   Flex,
   JsonInput,
   NumberInput,
@@ -17,15 +18,8 @@ import {
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useChromeStore, useChromeStoreState, useGlobalStore } from '@mokku/store';
-import {
-  ActionInFormEnum,
-  IMockResponse,
-  IMockResponseRaw,
-  MethodEnum,
-  MockStatusEnum
-} from '@mokku/types';
+import { ActionInFormEnum, IMockResponse, IMockResponseRaw, MethodEnum } from '@mokku/types';
 import { FORM_ID, getActionInForm } from '../../Blocks/Modal';
-import { SegmentedControl } from '../../Blocks/SegmentedControl';
 import { SettingsButton } from '../../Header/SettingsButton';
 import { storeActions } from '../../service/storeActions';
 import { statusOptions } from './data';
@@ -47,12 +41,13 @@ export const useStyles = createStyles(() => ({
     paddingTop: 16,
     paddingBottom: 28,
     paddingInline: 20,
-    'label:not([class*=SegmentedControl])': {
-      fontSize: rem(13),
-      marginBottom: 4
-    },
     textarea: {
       overflowY: 'clip'
+    }
+  },
+  chip: {
+    label: {
+      fontSize: rem(14)
     }
   },
   tabs: {
@@ -79,9 +74,7 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
   const { workspaceStore, selectedWorkspace, selectedMock, setStoreProperties } =
     useChromeStore(useMockStoreSelector);
 
-  const {
-    classes: { flexGrow, wrapper, tabs, card }
-  } = useStyles();
+  const { classes } = useStyles();
 
   const form = useForm<IMockResponseRaw>({
     initialValues: {
@@ -155,28 +148,26 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
           });
       })}>
       <>
-        <Card className={card} p={0}>
-          <Flex direction="column" gap={16} className={wrapper}>
-            <Flex gap={30} align="flex-end" justify="space-between">
+        <Card className={classes.card} p={0}>
+          <Flex direction="column" gap={16} className={classes.wrapper}>
+            <Flex gap={20} justify="space-between" align="flex-end">
               <TextInput
                 required
                 label="Name"
                 placeholder="Goals Success"
                 data-autofocus
-                maw={340}
-                style={{ flex: 1 }}
+                className={classes.flexGrow}
                 {...form.getInputProps('name')}
               />
-              <SegmentedControl
-                label="Status"
-                value={form.values.active ? MockStatusEnum.ACTIVE : MockStatusEnum.INACTIVE}
-                onChange={(value) => form.setFieldValue('active', value === MockStatusEnum.ACTIVE)}
-                data={[
-                  { label: 'Active', value: MockStatusEnum.ACTIVE },
-                  { label: 'Inactive', value: MockStatusEnum.INACTIVE }
-                ]}
-              />
+              <Chip
+                radius="sm"
+                size="lg"
+                className={classes.chip}
+                {...form.getInputProps('active', { type: 'checkbox' })}>
+                Active
+              </Chip>
             </Flex>
+
             <Select
               label="Group"
               placeholder="Select group"
@@ -185,33 +176,28 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
               inputWrapperOrder={['label', 'input', 'description']}
               allowDeselect
               disabled={isDuplicateMock}
+              style={{ display: 'inline-block' }}
               {...form.getInputProps('groupId')}
             />
+
             <Textarea
               label="Description"
               placeholder="Success case for goals API"
               {...form.getInputProps('description')}
             />
-            <TextInput
-              label="URL"
-              required
-              placeholder="https://api.awesomeapp.com/goals"
-              disabled={isDuplicateMock}
-              {...form.getInputProps('url')}
-            />
-            <Select
-              required
-              label="Status"
-              placeholder="Select status"
-              data={statusOptions}
-              searchable
-              {...form.getInputProps('status')}
-            />
-            <Flex gap={30} align="flex-end" justify="space-between">
-              <SegmentedControl
+
+            <Flex gap={20} justify="space-between">
+              <TextInput
+                label="URL"
+                required
+                placeholder="https://api.awesomeapp.com/goals"
+                disabled={isDuplicateMock}
+                className={classes.flexGrow}
+                {...form.getInputProps('url')}
+              />
+              <Select
                 label="Method"
-                value={form.values.method}
-                onChange={(value) => form.setFieldValue('method', value as MethodEnum)}
+                w={110}
                 data={[
                   { label: 'GET', value: MethodEnum.GET },
                   { label: 'POST', value: MethodEnum.POST },
@@ -219,7 +205,19 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
                   { label: 'PATCH', value: MethodEnum.PATCH },
                   { label: 'DELETE', value: MethodEnum.DELETE }
                 ]}
-                disabled={isDuplicateMock}
+                {...form.getInputProps('method')}
+              />
+            </Flex>
+
+            <Flex gap={20} justify="space-between">
+              <Select
+                required
+                label="Status"
+                placeholder="Select status"
+                data={statusOptions}
+                className={classes.flexGrow}
+                searchable
+                {...form.getInputProps('status')}
               />
               <NumberInput
                 required
@@ -228,17 +226,19 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
                 min={500}
                 label="Delay (ms)"
                 placeholder="500"
+                w={110}
                 {...form.getInputProps('delay')}
               />
             </Flex>
-            <Flex className={flexGrow}>
-              <Tabs defaultValue="body" className={tabs}>
+
+            <Flex className={classes.flexGrow} mt={16}>
+              <Tabs defaultValue="body" className={classes.tabs}>
                 <Tabs.List>
                   <Tabs.Tab value="body">Response Body</Tabs.Tab>
                   <Tabs.Tab value="headers">Response Headers</Tabs.Tab>
                 </Tabs.List>
 
-                <Tabs.Panel value="body" pt="xs" className={flexGrow}>
+                <Tabs.Panel value="body" pt="xs" className={classes.flexGrow}>
                   <JsonInput
                     placeholder="Response, this will auto resize. You can leave this empty or enter a valid JSON"
                     formatOnBlur
@@ -262,14 +262,14 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
                           required
                           size="xs"
                           placeholder="Name"
-                          className={flexGrow}
+                          className={classes.flexGrow}
                           {...form.getInputProps(`headers.${index}.name`)}
                         />
                         <TextInput
                           required
                           size="xs"
                           placeholder="Value"
-                          className={flexGrow}
+                          className={classes.flexGrow}
                           {...form.getInputProps(`headers.${index}.value`)}
                         />
                         <ActionIcon

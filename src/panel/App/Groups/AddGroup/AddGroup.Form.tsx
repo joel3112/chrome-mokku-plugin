@@ -1,12 +1,11 @@
 import React from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Card, Flex, TextInput, Textarea } from '@mantine/core';
+import { Card, Chip, Flex, TextInput, Textarea } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useChromeStore, useChromeStoreState, useGlobalStore } from '@mokku/store';
-import { ActionInFormEnum, GroupStatusEnum, IMockGroup, IMockGroupRaw } from '@mokku/types';
+import { ActionInFormEnum, IMockGroup, IMockGroupRaw } from '@mokku/types';
 import { FORM_ID, getActionInForm } from '../../Blocks/Modal';
-import { SegmentedControl } from '../../Blocks/SegmentedControl';
 import { useStyles } from '../../Mocks/AddMock/AddMock.Form';
 import { storeActions } from '../../service/storeActions';
 
@@ -22,9 +21,7 @@ const useGroupStoreSelector = (state: useChromeStoreState) => ({
 });
 
 export const AddGroupForm = ({ onClose }: AddGroupFormProps) => {
-  const {
-    classes: { wrapper, card }
-  } = useStyles();
+  const { classes } = useStyles();
   const tab = useGlobalStore((state) => state.meta.tab);
   const { workspaceStore, selectedWorkspace, selectedGroup, setStoreProperties } =
     useChromeStore(useGroupStoreSelector);
@@ -85,27 +82,24 @@ export const AddGroupForm = ({ onClose }: AddGroupFormProps) => {
           });
       })}>
       <>
-        <Card className={card} p={0}>
-          <Flex direction="column" gap={16} className={wrapper}>
-            <Flex gap={30} align="flex-end" justify="space-between">
+        <Card className={classes.card} p={0}>
+          <Flex direction="column" gap={16} className={classes.wrapper}>
+            <Flex gap={20} align="flex-end" justify="space-between">
               <TextInput
                 required
                 label="Name"
                 placeholder="Goals group"
                 data-autofocus
-                maw={340}
                 style={{ flex: 1 }}
                 {...form.getInputProps('name')}
               />
-              <SegmentedControl
-                label="Status"
-                value={form.values.active ? GroupStatusEnum.ACTIVE : GroupStatusEnum.INACTIVE}
-                onChange={(value) => form.setFieldValue('active', value === GroupStatusEnum.ACTIVE)}
-                data={[
-                  { label: 'Active', value: GroupStatusEnum.ACTIVE },
-                  { label: 'Inactive', value: GroupStatusEnum.INACTIVE }
-                ]}
-              />
+              <Chip
+                radius="sm"
+                size="lg"
+                className={classes.chip}
+                {...form.getInputProps('active', { type: 'checkbox' })}>
+                Active
+              </Chip>
             </Flex>
             <Textarea
               label="Description"

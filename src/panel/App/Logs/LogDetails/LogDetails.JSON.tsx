@@ -6,7 +6,6 @@ import { parseJSONIfPossible } from './LogDetails.utils';
 interface IProps {
   response: ILog['response']['response'];
   isRequestPending: boolean;
-  id: string;
 }
 
 export const useStyles = createStyles((theme) => ({
@@ -17,7 +16,7 @@ export const useStyles = createStyles((theme) => ({
   }
 }));
 
-export const LogDetailsJSON = ({ response, isRequestPending, id }: IProps) => {
+export const LogDetailsJSON = ({ response, isRequestPending }: IProps) => {
   const { classes } = useStyles();
 
   if (isRequestPending) {
@@ -37,7 +36,6 @@ export const LogDetailsJSON = ({ response, isRequestPending, id }: IProps) => {
   }
 
   const responseJson = parseJSONIfPossible(response);
-
   if (responseJson.parsed) {
     const formatted = JSON.stringify(responseJson.json, null, 4);
     return <JsonInput autosize value={formatted} className={classes.wrapper} formatOnBlur />;

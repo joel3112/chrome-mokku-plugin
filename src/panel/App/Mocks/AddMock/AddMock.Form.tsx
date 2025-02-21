@@ -4,7 +4,6 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   ActionIcon,
   Card,
-  Chip,
   Flex,
   JsonInput,
   NumberInput,
@@ -12,14 +11,14 @@ import {
   Tabs,
   TextInput,
   Textarea,
-  createStyles,
-  rem
+  createStyles
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useChromeStore, useChromeStoreState, useGlobalStore } from '@mokku/store';
 import { ActionInFormEnum, IMockResponse, IMockResponseRaw, MethodEnum } from '@mokku/types';
 import { FORM_ID, getActionInForm } from '../../Blocks/Modal';
+import { Switch } from '../../Blocks/Switch';
 import { SettingsButton } from '../../Header/SettingsButton';
 import { storeActions } from '../../service/storeActions';
 import { statusOptions } from './data';
@@ -43,11 +42,6 @@ export const useStyles = createStyles(() => ({
     paddingInline: 20,
     textarea: {
       overflowY: 'clip'
-    }
-  },
-  chip: {
-    label: {
-      fontSize: rem(14)
     }
   },
   tabs: {
@@ -150,7 +144,7 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
       <>
         <Card className={classes.card} p={0}>
           <Flex direction="column" gap={16} className={classes.wrapper}>
-            <Flex gap={20} justify="space-between" align="flex-end">
+            <Flex gap={15} justify="space-between" align="flex-end">
               <TextInput
                 required
                 label="Name"
@@ -159,15 +153,14 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
                 className={classes.flexGrow}
                 {...form.getInputProps('name')}
               />
-              <Chip
+              <Switch
+                size="xl"
                 radius="sm"
-                size="lg"
-                className={classes.chip}
-                {...form.getInputProps('active', { type: 'checkbox' })}>
-                Active
-              </Chip>
+                onLabel="Active"
+                offLabel="Inactive"
+                {...form.getInputProps('active', { type: 'checkbox' })}
+              />
             </Flex>
-
             <Select
               label="Group"
               placeholder="Select group"
@@ -179,14 +172,12 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
               style={{ display: 'inline-block' }}
               {...form.getInputProps('groupId')}
             />
-
             <Textarea
               label="Description"
               placeholder="Success case for goals API"
               {...form.getInputProps('description')}
             />
-
-            <Flex gap={20} justify="space-between">
+            <Flex gap={15} justify="space-between">
               <TextInput
                 label="URL"
                 required
@@ -197,7 +188,7 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
               />
               <Select
                 label="Method"
-                w={110}
+                w={100}
                 data={[
                   { label: 'GET', value: MethodEnum.GET },
                   { label: 'POST', value: MethodEnum.POST },
@@ -208,8 +199,7 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
                 {...form.getInputProps('method')}
               />
             </Flex>
-
-            <Flex gap={20} justify="space-between">
+            <Flex gap={15} justify="space-between">
               <Select
                 required
                 label="Status"
@@ -226,7 +216,7 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
                 min={500}
                 label="Delay (ms)"
                 placeholder="500"
-                w={110}
+                w={100}
                 {...form.getInputProps('delay')}
               />
             </Flex>

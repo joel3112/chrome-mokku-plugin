@@ -193,7 +193,8 @@ export const Modal = () => {
       position="right"
       padding={0}
       size="auto"
-      autoFocus>
+      autoFocus
+      closeOnEscape={false}>
       <Drawer.Overlay opacity={0.4} />
       <Drawer.Content className={classes.content}>
         <Drawer.Header className={classes.header}>

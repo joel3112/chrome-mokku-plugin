@@ -1,11 +1,12 @@
 import React from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Card, Chip, Flex, TextInput, Textarea } from '@mantine/core';
+import { Card, Flex, TextInput, Textarea } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useChromeStore, useChromeStoreState, useGlobalStore } from '@mokku/store';
 import { ActionInFormEnum, IMockGroup, IMockGroupRaw } from '@mokku/types';
 import { FORM_ID, getActionInForm } from '../../Blocks/Modal';
+import { Switch } from '../../Blocks/Switch';
 import { useStyles } from '../../Mocks/AddMock/AddMock.Form';
 import { storeActions } from '../../service/storeActions';
 
@@ -93,13 +94,13 @@ export const AddGroupForm = ({ onClose }: AddGroupFormProps) => {
                 style={{ flex: 1 }}
                 {...form.getInputProps('name')}
               />
-              <Chip
+              <Switch
+                size="xl"
                 radius="sm"
-                size="lg"
-                className={classes.chip}
-                {...form.getInputProps('active', { type: 'checkbox' })}>
-                Active
-              </Chip>
+                onLabel="Active"
+                offLabel="Inactive"
+                {...form.getInputProps('active', { type: 'checkbox' })}
+              />
             </Flex>
             <Textarea
               label="Description"

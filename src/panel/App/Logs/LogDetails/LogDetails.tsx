@@ -74,7 +74,6 @@ export const LogDetails = ({ log }: IProps) => {
               <Tabs.Panel className={classes.panel} value="response" pt="xs">
                 <div className={classes.jsonWrapper}>
                   <LogDetailsJSON
-                    id="response"
                     isRequestPending={!log?.response?.response}
                     response={log?.response?.response}
                   />
@@ -83,7 +82,6 @@ export const LogDetails = ({ log }: IProps) => {
               <Tabs.Panel className={classes.panel} value="requestBody" pt="xs">
                 <div className={classes.jsonWrapper}>
                   <LogDetailsJSON
-                    id="request-body"
                     isRequestPending={!log?.response?.response}
                     response={log?.request?.body}
                   />
@@ -92,7 +90,6 @@ export const LogDetails = ({ log }: IProps) => {
               <Tabs.Panel className={classes.panel} value="queryParams" pt="xs">
                 <div className={classes.jsonWrapper}>
                   <LogDetailsJSON
-                    id="request-params"
                     isRequestPending={!log?.response?.response}
                     response={log?.request?.queryParams}
                   />

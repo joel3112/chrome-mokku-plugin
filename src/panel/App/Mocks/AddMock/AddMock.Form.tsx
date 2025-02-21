@@ -17,6 +17,7 @@ import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useChromeStore, useChromeStoreState, useGlobalStore } from '@mokku/store';
 import { ActionInFormEnum, IMockResponse, IMockResponseRaw, MethodEnum } from '@mokku/types';
+import { JsonEditor } from '../../Blocks/JsonEditor';
 import { FORM_ID, getActionInForm } from '../../Blocks/Modal';
 import { Switch } from '../../Blocks/Switch';
 import { SettingsButton } from '../../Header/SettingsButton';
@@ -229,12 +230,10 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
                 </Tabs.List>
 
                 <Tabs.Panel value="body" pt="xs" className={classes.flexGrow}>
-                  <JsonInput
-                    placeholder="Response, this will auto resize. You can leave this empty or enter a valid JSON"
+                  <JsonEditor
+                    value={form.values.response}
+                    onChange={(value) => form.setFieldValue('response', value)}
                     formatOnBlur
-                    autosize
-                    minRows={4}
-                    {...form.getInputProps('response')}
                   />
                 </Tabs.Panel>
 

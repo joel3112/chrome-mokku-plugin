@@ -81,7 +81,7 @@ const init = () => {
     return mock.active;
   };
 
-  const getActiveMockWithPath = (paths: string[]) => {
+  const getActiveMockWithPath = (paths: string[]): { mock: IMockResponse; path: string } => {
     let mock = null;
     let path = null;
 
@@ -154,6 +154,24 @@ const init = () => {
 
     if (mock && hasGroupActive(mock)) {
       (response.message as ILog).mockResponse = mock;
+
+      const mockGroup = storeActions.getGroupByMock(workspaceStore, mock);
+      const currentTime = new Date().toLocaleTimeString('en-GB', { hour12: false });
+      const isResponseOK = mock.status >= 200 && mock.status < 300;
+      const okStatus = isResponseOK ? 'OK' : 'KO';
+      const okIcon = isResponseOK ? '✅' : '❌';
+
+      if (store.enabledMockConsoleLog) {
+        console.log(
+          `%c[mokku] %c${currentTime} ${mock.method}
+${okIcon} ${mockGroup ? `[${mockGroup.name} > ${mock.name}]` : `[${mock.name}]`} %c${mock.url} %c(${mock.status} ${okStatus})
+        `,
+          'color: #f08e61; font-weight: bold;',
+          'color: #fff; font-family: monospace',
+          'color: #a7c6f9; font-family: monospace',
+          'color: #fff; font-family: monospace'
+        );
+      }
     }
 
     messageService.send(response);

@@ -29,6 +29,11 @@ export const Settings = () => {
     storeActions.updateStoreInDB(updatedStore).then(setStoreProperties);
   };
 
+  const handleActiveMockConsoleLog = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedStore = { ...store, enabledMockConsoleLog: event.target.checked };
+    storeActions.updateStoreInDB(updatedStore).then(setStoreProperties);
+  };
+
   return (
     <>
       <Tabs defaultValue="workspace" orientation="vertical" className={classes.tabContainer}>
@@ -49,6 +54,14 @@ export const Settings = () => {
               onChange={handleActiveScenarios}
               label="Enable scenarios"
               description="The mocks with same URL and method will be grouped together"
+              mb={12}
+            />
+
+            <Checkbox
+              defaultChecked={store.enabledMockConsoleLog}
+              onChange={handleActiveMockConsoleLog}
+              label="Enable console log"
+              description="The mocks executed will be logged in the console"
               mb={12}
             />
           </Flex>

@@ -95,6 +95,7 @@ export interface IStore {
   active: boolean;
   theme: 'dark' | 'light';
   enabledScenarios: boolean;
+  enabledMockConsoleLog: boolean;
   workspaces: Record<string, IWorkspace>;
 }
 

@@ -29,6 +29,7 @@ const createDefaultStore = (): IStore => ({
   active: false,
   theme: defaultTheme,
   enabledScenarios: true,
+  enabledMockConsoleLog: true,
   workspaces: {
     [DEFAULT_WORKSPACE]: {
       id: DEFAULT_WORKSPACE,
@@ -240,6 +241,10 @@ const hasMultipleScenarios = (store: IWorkspaceStore, mock: IMockResponse) => {
   return getMockScenarios(store, mock).length > 1;
 };
 
+const getGroupByMock = (store: IWorkspaceStore, mock: IMockResponse) => {
+  return store.groups.find((group) => group.id === mock.groupId);
+};
+
 const isActiveGroupByMock = (store: IWorkspaceStore, mock: IMockResponse) => {
   if (!mock.groupId) {
     return true;
@@ -444,6 +449,7 @@ export const storeActions = {
   hasMultipleScenarios,
   getMocksByGroup,
   isActiveGroupByMock,
+  getGroupByMock,
   addWorkspace,
   selectWorkspace,
   deleteWorkspace,

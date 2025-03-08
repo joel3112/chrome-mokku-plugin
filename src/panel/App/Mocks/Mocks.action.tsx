@@ -125,7 +125,7 @@ export const useMockActions = () => {
   const duplicateMock = (mock: IMockResponse) => {
     setSelectedMock({
       ...mock,
-      name: '',
+      name: `${mock.name} copy`,
       description: '',
       id: undefined,
       createdOn: undefined,

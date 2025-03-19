@@ -5,7 +5,6 @@ import {
   ActionIcon,
   Card,
   Flex,
-  JsonInput,
   NumberInput,
   Select,
   Tabs,
@@ -27,6 +26,9 @@ import { statusOptions } from './data';
 export const useStyles = createStyles(() => ({
   flexGrow: {
     flexGrow: 2
+  },
+  right: {
+    width: 300
   },
   card: {
     display: 'flex',
@@ -189,7 +191,7 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
               />
               <Select
                 label="Method"
-                w={100}
+                w={130}
                 data={[
                   { label: 'GET', value: MethodEnum.GET },
                   { label: 'POST', value: MethodEnum.POST },
@@ -217,7 +219,7 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
                 min={500}
                 label="Delay (ms)"
                 placeholder="500"
-                w={100}
+                w={130}
                 {...form.getInputProps('delay')}
               />
             </Flex>

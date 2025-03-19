@@ -165,6 +165,8 @@ const init = () => {
         console.log(
           `%c[mokku] %c${currentTime} ${mock.method}
 ${okIcon} ${mockGroup ? `[${mockGroup.name} > ${mock.name}]` : `[${mock.name}]`} %c${mock.url} %c(${mock.status} ${okStatus})
+
+- Payload: ${request.body}
         `,
           'color: #f08e61; font-weight: bold;',
           'color: #fff; font-family: monospace',

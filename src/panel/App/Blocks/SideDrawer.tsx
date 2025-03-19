@@ -39,7 +39,7 @@ const useStyles = createStyles((theme) => ({
 
 export const SideDrawer = ({
   children,
-  minWidth = 500
+  minWidth = 520
 }: {
   children: ReactNode;
   minWidth?: number;

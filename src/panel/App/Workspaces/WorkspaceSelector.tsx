@@ -52,7 +52,7 @@ export const WorkspaceSelector = () => {
             className={cx({ [classes.active]: workspace.id === selectedWorkspace?.id })}>
             <Flex justify="space-between" align="center">
               {workspace.name}
-              {isDefaultWorkspace(workspace) && <TbLock />}
+              {isDefaultWorkspace(workspace) && <TbLock title="Default isn't removable" />}
             </Flex>
           </Menu.Item>
         ))}

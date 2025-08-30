@@ -1,7 +1,17 @@
 import React, { forwardRef } from 'react';
 import { MdOutlineExpandLess, MdOutlineExpandMore, MdOutlineMoreHoriz } from 'react-icons/md';
 import { TbCopy, TbEdit, TbPlus, TbTrash } from 'react-icons/tb';
-import { ActionIcon, Code, Flex, Menu, Select, Switch, Text, createStyles } from '@mantine/core';
+import {
+  ActionIcon,
+  Badge,
+  Code,
+  Flex,
+  Menu,
+  Select,
+  Switch,
+  Text,
+  createStyles
+} from '@mantine/core';
 import { useChromeStore } from '@mokku/store';
 import { IMockGroup, IMockResponse, MockType } from '@mokku/types';
 import { TableSchema } from '../Blocks/Table';
@@ -24,6 +34,34 @@ const useStyles = createStyles((theme) => ({
     color: theme.colors.red[7],
     height: 28,
     fontSize: 13
+  },
+  arrowItem: {
+    position: 'relative',
+    paddingLeft: 20,
+
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      left: 8,
+      top: '50%',
+      transform: 'translateY(-100%)',
+      width: 2,
+      height: 50,
+      backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[4],
+      marginTop: 2
+    },
+
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      left: 8,
+      top: '50%',
+      width: 16,
+      height: 2,
+      backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[4],
+      transform: 'translateY(-50%)',
+      marginTop: 2
+    }
   }
 }));
 
@@ -62,8 +100,25 @@ const ScenariosSelector = ({ scenarios }: { scenarios: IMockResponse[] }) => {
     group: 'Mock scenarios'
   }));
 
+  const activeMocksScenarios = scenarios.filter((m) => m.active).length;
+  const totalMockScenarios = scenarios.length;
+
   return (
-    <div onClick={(event) => event.stopPropagation()}>
+    <div
+      onClick={(event) => event.stopPropagation()}
+      className="p-relative"
+      title={`${activeMocksScenarios} active scenario(s) for this mock of total ${totalMockScenarios}`}>
+      <Badge
+        pos="absolute"
+        top={9}
+        right={26}
+        fz={10}
+        color="gray"
+        variant="filled"
+        radius="sm"
+        size="xs"
+        opacity={0.7}
+        c="dimmed">{`(${activeMocksScenarios}/${totalMockScenarios})`}</Badge>
       <Select
         variant="unstyled"
         value={scenarioSelected?.id}
@@ -107,16 +162,20 @@ export const useMocksTableSchema = (): TableSchema<IMockResponse | IMockGroup> =
   return [
     {
       header: '',
-      content: (data) =>
-        data.type === MockType.GROUP && (
-          <Flex align="center">
-            {!data.expanded ? (
-              <MdOutlineExpandMore title={`Expand group ${data.name}`} size={18} />
-            ) : (
-              <MdOutlineExpandLess title={`Collapse group ${data.name}`} size={18} />
-            )}
-          </Flex>
-        ),
+      content: (data) => {
+        if (data.type === MockType.GROUP) {
+          return (
+            <Flex align="center">
+              {!data.expanded ? (
+                <MdOutlineExpandMore title={`Expand group ${data.name}`} size={18} />
+              ) : (
+                <MdOutlineExpandLess title={`Collapse group ${data.name}`} size={18} />
+              )}
+            </Flex>
+          );
+        }
+        return !!data.groupId && <div className={classes.arrowItem} />;
+      },
       width: 5
     },
     {
@@ -136,18 +195,22 @@ export const useMocksTableSchema = (): TableSchema<IMockResponse | IMockGroup> =
         const totalMocksInGroup = getMocksByGroup(data.id).length;
         const activeMocksInGroup = getMocksByGroup(data.id).filter((mock) => mock.active).length;
         return (
-          <Flex align="baseline" justify="space-between" gap={8}>
+          <Flex
+            align="baseline"
+            justify="space-between"
+            gap={8}
+            title={`${activeMocksInGroup} active mock(s) of total ${totalMocksInGroup} in the group`}>
             <Name active={data.active}>{data.name}</Name>
-            <Text
+            <Badge
+              variant="dot"
               mr={12}
-              opacity={0.7}
-              c="dimmed"
-              size="xs">{`${activeMocksInGroup}/${totalMocksInGroup}`}</Text>
+              radius="sm"
+              size="md">{`${activeMocksInGroup}/${totalMocksInGroup}`}</Badge>
           </Flex>
         );
       },
-      width: 300,
-      maxWidth: 300
+      width: 320,
+      maxWidth: 320
     },
     {
       header: '',
@@ -184,8 +247,16 @@ export const useMocksTableSchema = (): TableSchema<IMockResponse | IMockGroup> =
     },
     {
       header: 'URL',
-      content: (data) => (data.type !== MockType.GROUP ? <Code fz={11}>{data.url}</Code> : ''),
-      minWidth: 130
+      content: (data) =>
+        data.type !== MockType.GROUP ? (
+          <Text truncate title={data.url}>
+            <Code fz={11}>{data.url}</Code>
+          </Text>
+        ) : (
+          ''
+        ),
+      minWidth: 130,
+      maxWidth: 200
     },
     {
       header: <Flex justify="end">Status</Flex>,

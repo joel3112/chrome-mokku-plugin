@@ -121,6 +121,7 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
         };
         const updatedWorkspaceStore = storeAction[action](workspaceStore, {
           ...values,
+          url: form.values.url.trim(),
           groupId: values.groupId || ''
         } as IMockResponse);
 

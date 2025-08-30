@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { defaultTheme, messageService } from '@mokku/services';
 import { StoreProperties } from '@mokku/store';
 import {
+  DBNameType,
   IDynamicURLMap,
   IMockGroup,
   IMockResponse,
@@ -20,7 +21,7 @@ const getNetworkMethodMap = () => ({
   DELETE: []
 });
 
-const storeName = 'mokku.extension.main.db';
+const storeName: DBNameType = 'mokku.extension.main.db';
 const getWorkspaceStoreName = (workspaceId: string) =>
   `mokku.extension.workspace-${workspaceId}.db`;
 export const DEFAULT_WORKSPACE = 'default';

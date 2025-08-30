@@ -33,7 +33,7 @@ export const App = (props: useGlobalStoreState['meta']) => {
       <Notifications id="notification-mocks" zIndex={999} />
       <Flex direction="column" style={{ minWidth: 900, height: '100%', overflow: 'hidden' }}>
         <Header />
-        <div style={{ overflow: 'auto', flexGrow: 2, paddingBottom: 20 }}>
+        <div style={{ overflow: 'auto', flexGrow: 2, paddingBottom: 20, paddingInline: 16 }}>
           <Show if={view === ViewEnum.MOCKS}>
             <Mocks />
           </Show>

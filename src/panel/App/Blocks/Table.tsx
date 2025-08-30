@@ -100,7 +100,17 @@ export const TableWrapper = <
           [classes.groupRow]: rowMockHasGroup
         })}>
         {schema.map(({ content, maxWidth, style }, index) => (
-          <td key={index} style={{ maxWidth, ...style }}>
+          <td
+            key={index}
+            style={{ maxWidth, ...style }}
+            onClick={(event) => {
+              const COLUMN_MORE_OPTIONS = 5;
+              const nonActivableColumns = [COLUMN_MORE_OPTIONS];
+
+              if (nonActivableColumns.includes(index)) {
+                event.stopPropagation();
+              }
+            }}>
             {content(row)}
           </td>
         ))}

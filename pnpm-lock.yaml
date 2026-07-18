@@ -9,19 +9,19 @@ importers:
   .:
     dependencies:
       '@mantine/core':
-        specifier: ^6.0.21
+        specifier: ^6.0.22
         version: 6.0.22(@emotion/react@11.13.5(@types/react@18.3.14)(react@18.3.1))(@mantine/hooks@6.0.22(react@18.3.1))(@types/react@18.3.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@mantine/form':
-        specifier: ^6.0.11
+        specifier: ^6.0.22
         version: 6.0.22(react@18.3.1)
       '@mantine/hooks':
-        specifier: ^6.0.8
+        specifier: ^6.0.22
         version: 6.0.22(react@18.3.1)
       '@mantine/modals':
         specifier: ^6.0.22
         version: 6.0.22(@mantine/core@6.0.22(@emotion/react@11.13.5(@types/react@18.3.14)(react@18.3.1))(@mantine/hooks@6.0.22(react@18.3.1))(@types/react@18.3.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@6.0.22(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@mantine/notifications':
-        specifier: ^6.0.15
+        specifier: ^6.0.22
         version: 6.0.22(@mantine/core@6.0.22(@emotion/react@11.13.5(@types/react@18.3.14)(react@18.3.1))(@mantine/hooks@6.0.22(react@18.3.1))(@types/react@18.3.14)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mantine/hooks@6.0.22(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@monaco-editor/react':
         specifier: ^4.7.0
@@ -70,8 +70,8 @@ importers:
         specifier: ^4.3.0
         version: 4.3.0(prettier@3.4.2)
       '@types/chrome':
-        specifier: 0.0.100
-        version: 0.0.100
+        specifier: 0.1.43
+        version: 0.1.43
       '@types/jest':
         specifier: ^25.1.4
         version: 25.2.3
@@ -680,8 +680,8 @@ packages:
   '@types/babel__traverse@7.20.6':
     resolution: {integrity: sha512-r1bzfrm0tomOI8g1SzvCaQHo6Lcv6zu0EA+W2kHrt8dyrHQxGzBBL4kdkzIS+jBMV+EYcMAEAqXqYaLJq5rOZg==}
 
-  '@types/chrome@0.0.100':
-    resolution: {integrity: sha512-6wqc/WJyPvS9TrSRcvETIJ02r658weQy2q5CM4wiJRDax5UFcsWXAtZcr0ENSCvcLHrHvYLelYymO8CKxE+iLg==}
+  '@types/chrome@0.1.43':
+    resolution: {integrity: sha512-ukH/HhmR6ht+UTX3PLUWJxgJ/RQcK2Foj4lBzsF24SIWsXgqhGuXqjd8FFuwioPP7d/JUKLM4g8GZxw3F4HTcA==}
 
   '@types/eslint-scope@3.7.7':
     resolution: {integrity: sha512-MzMFlSLBqNF2gcHWO0G1vP/YQyfvrxZ0bF+u7mzUdZ1/xK4A4sru+nraZz5i3iEIk1l1uyicaDVTB4QbbEkAYg==}
@@ -700,6 +700,9 @@ packages:
 
   '@types/graceful-fs@4.1.9':
     resolution: {integrity: sha512-olP3sd1qOEe5dXTSaFvQG+02VdRXcdytWLAZsAq1PecU8uqQAhkrnbli7DagjtXKW/Bl7YJbUsa8MPcuc8LHEQ==}
+
+  '@types/har-format@1.2.16':
+    resolution: {integrity: sha512-fluxdy7ryD3MV6h8pTfTYpy/xQzCFC7m89nOH9y94cNqJ1mDIDPut7MnRHI3F6qRmh/cT2fUjG1MLdCNb4hE9A==}
 
   '@types/istanbul-lib-coverage@2.0.6':
     resolution: {integrity: sha512-2QF/t/auWm0lsy8XtKVPG19v3sSOQlJe/YHZgfjb/KBBHOGSV+J2q/S671rcq9uTBrLAXmZpqJiaQbMT+zNU1w==}
@@ -4836,9 +4839,10 @@ snapshots:
     dependencies:
       '@babel/types': 7.26.3
 
-  '@types/chrome@0.0.100':
+  '@types/chrome@0.1.43':
     dependencies:
       '@types/filesystem': 0.0.36
+      '@types/har-format': 1.2.16
 
   '@types/eslint-scope@3.7.7':
     dependencies:
@@ -4861,6 +4865,8 @@ snapshots:
   '@types/graceful-fs@4.1.9':
     dependencies:
       '@types/node': 22.10.1
+
+  '@types/har-format@1.2.16': {}
 
   '@types/istanbul-lib-coverage@2.0.6': {}
 

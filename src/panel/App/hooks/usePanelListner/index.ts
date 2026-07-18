@@ -54,7 +54,7 @@ export const usePanelListener = (props: useGlobalStoreState['meta']) => {
             const storeKey = `mokku.extension.active.${host}`;
             const isLocalhost = host.includes('http://localhost');
             chrome.storage.local.get([storeKey], (result) => {
-              let active = result[storeKey];
+              let active = !!result[storeKey];
               if (isLocalhost && active === undefined) {
                 active = true;
               }

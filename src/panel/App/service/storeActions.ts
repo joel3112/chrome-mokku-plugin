@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { defaultTheme, messageService } from '@mokku/services';
+import { messageService } from '@mokku/services';
 import { StoreProperties } from '@mokku/store';
 import {
   DBNameType,
@@ -28,7 +28,6 @@ export const DEFAULT_WORKSPACE = 'default';
 
 const createDefaultStore = (): IStore => ({
   active: false,
-  theme: defaultTheme,
   enabledScenarios: true,
   enabledMockConsoleLog: true,
   workspaces: {
@@ -52,7 +51,7 @@ const getWorskpaceStore = (workspaceId: string) => {
     chrome.storage.local.get([workspaceStoreName], function (result) {
       const _workspaceStore = {
         ...createDefaultWorkspaceStore(),
-        ...result[workspaceStoreName]
+        ...(result[workspaceStoreName] as IStore)
       } as IWorkspaceStore;
 
       resolve({
@@ -67,7 +66,7 @@ const getWorskpaceStore = (workspaceId: string) => {
 const getAllStore = () => {
   return new Promise<StoreProperties>((resolve) => {
     chrome.storage.local.get([storeName], async function (resultStore) {
-      const _store = { ...createDefaultStore(), ...resultStore[storeName] } as IStore;
+      const _store = { ...createDefaultStore(), ...(resultStore[storeName] as IStore) } as IStore;
       const workspaceActiveId = getActiveWorkspace(_store)?.id;
 
       if (!workspaceActiveId) {

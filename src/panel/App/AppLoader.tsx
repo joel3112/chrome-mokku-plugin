@@ -36,7 +36,7 @@ export const AppLoader = ({ tab }: { tab: chrome.tabs.Tab }) => {
       if (isLocalhost && active === undefined) {
         tempActive = true;
       }
-      setActive(tempActive);
+      setActive(!!tempActive);
       setLoading(false);
     });
   }, []);

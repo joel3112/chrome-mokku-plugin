@@ -1,7 +1,6 @@
 import React, { ComponentProps, useEffect, useRef, useState } from 'react';
 import * as monaco from 'monaco-editor';
-import { ColorScheme, Text, createStyles, rem } from '@mantine/core';
-import { useLocalStorage } from '@mantine/hooks';
+import { Text, createStyles, rem, useMantineColorScheme } from '@mantine/core';
 import Editor, { loader } from '@monaco-editor/react';
 
 export const useStyles = createStyles((theme) => ({
@@ -44,8 +43,8 @@ export const JsonEditor = ({
 }: CodeEditorProps) => {
   const [isFocused, setIsFocused] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [colorScheme] = useLocalStorage<ColorScheme>({ key: 'color-scheme' });
   const { classes, cx } = useStyles();
+  const { colorScheme } = useMantineColorScheme();
 
   const editorRef = useRef<Parameters<ComponentProps<typeof Editor>['onMount']>[0]>(null);
 

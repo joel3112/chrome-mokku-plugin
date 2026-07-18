@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Checkbox, ColorScheme, Flex, Tabs, createStyles } from '@mantine/core';
-import { useLocalStorage } from '@mantine/hooks';
+import { Checkbox, Flex, Tabs, createStyles } from '@mantine/core';
+import { IStore } from '@mokku/types';
 import { WorkspaceSettings } from '../Workspaces/WorkspaceSettings';
 import { storeActions } from '../service/storeActions';
 import { useChromeStore } from '../store';
@@ -21,16 +21,15 @@ export const Settings = () => {
   const store = useChromeStore((state) => state.store);
   const setStoreProperties = useChromeStore((state) => state.setStoreProperties);
 
-  const [colorScheme] = useLocalStorage<ColorScheme>({ key: 'color-scheme' });
   const { classes } = useStyles();
 
   const handleActiveScenarios = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedStore = { ...store, enabledScenarios: event.target.checked };
+    const updatedStore = { ...store, enabledScenarios: event.target.checked } satisfies IStore;
     storeActions.updateStoreInDB(updatedStore).then(setStoreProperties);
   };
 
   const handleActiveMockConsoleLog = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const updatedStore = { ...store, enabledMockConsoleLog: event.target.checked };
+    const updatedStore = { ...store, enabledMockConsoleLog: event.target.checked } satisfies IStore;
     storeActions.updateStoreInDB(updatedStore).then(setStoreProperties);
   };
 

@@ -15,7 +15,6 @@ import { RecordButton } from './RecordButton';
 import { RefreshButton } from './RefreshButton';
 import { SettingsButton } from './SettingsButton';
 import { SwitchButton } from './SwitchButton';
-import { ThemeButton } from './ThemeButton';
 
 const viewSelector = (state: useGlobalStoreState) => ({
   view: state.view,
@@ -102,7 +101,6 @@ export const Header = () => {
             <Text>Settings</Text>
           </Tabs.Tab>
           <Flex gap={4} pr={14} pl={6}>
-            <ThemeButton />
             <RefreshButton />
             <SwitchButton />
           </Flex>

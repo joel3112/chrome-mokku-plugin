@@ -10,9 +10,15 @@ import {
   IURLMap,
   IWorkspaceStore
 } from '@mokku/types';
-import inject from './contentScript/injectToDom';
 import { storeActions } from './panel/App/service/storeActions';
 import messageService from './services/message';
+
+// HOOK (inject.js) now runs unconditionally as a "world": "MAIN" content
+// script (see manifest.json), so it can never lose the race against the
+// page's own earliest requests. The per-host on/off toggle is enforced here
+// instead: when the host is inactive we still ack HOOK's messages (otherwise
+// xhook's pending requests would hang forever) but never attach a mock.
+let isHostActive = false;
 
 const init = () => {
   let store: IStore,
@@ -117,6 +123,8 @@ const init = () => {
 
   messageService.listen('CONTENT', (data: IEventMessage) => {
     if (data.type === 'LOG') {
+      if (!isHostActive) return;
+
       const message = data.message as ILog;
 
       const mockPaths = getMockPath(message.request.url, message.request.method);
@@ -148,6 +156,13 @@ const init = () => {
       extensionName: 'MOKKU',
       message: {}
     };
+
+    // Host mocking disabled: still ack the request (HOOK/xhook is waiting on
+    // this to let the real network call proceed) but never attach a mock.
+    if (!isHostActive) {
+      messageService.send(response);
+      return;
+    }
 
     const request = (data.message as ILog).request;
     const mockPaths = getMockPath(request.url, request.method);
@@ -185,17 +200,19 @@ const checIfActive = () => {
   const host = location.host;
   const isLocalhost = location.href.includes('http://localhost');
 
+  // registers the CONTENT listener synchronously, before the async storage
+  // read below, so HOOK (now a "world": "MAIN" content script, always on)
+  // can never fire a message before someone is listening
+  init();
+
   chrome.storage.local.get([`mokku.extension.active.${host}`], function (result) {
     const hostStore = result[`mokku.extension.active.${host}`] as IHostStore | undefined;
     let active = hostStore?.active;
     if (isLocalhost && active === undefined) {
       active = true;
     }
-    if (active) {
-      // injects script to page's DOM
-      inject();
-      init();
-    }
+    isHostActive = !!active;
+
     // tell the panel about the new injection (host might have changed)
     messageService.send({
       message: host,

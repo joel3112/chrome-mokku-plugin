@@ -93,10 +93,21 @@ const getAllStore = () => {
   });
 };
 
+let updateSequence = 0;
+
+const emitChanges = () => {
+  // El sufijo garantiza que el valor cambie en cada llamada, incluso desde la
+  // misma instancia, porque chrome.storage.onChanged no dispara si el nuevo
+  // valor es idéntico al anterior.
+  updateSequence += 1;
+  chrome.storage.local.set({ lastUpdatedBy: `${UNIQUE_INSTANCE_ID}:${updateSequence}` });
+};
+
 const updateStoreInDB = (store: IStore) => {
   return new Promise<Pick<StoreProperties, 'store'>>((resolve, reject) => {
     try {
       chrome.storage.local.set({ [storeName]: store }, () => {
+        emitChanges();
         resolve({ store });
       });
     } catch (error) {
@@ -111,6 +122,8 @@ const updateWorkspaceStoreInDB = (workspaceId: string, workspaceStore: IWorkspac
       const workspaceStoreName = getWorkspaceStoreName(workspaceId);
       chrome.storage.local.set({ [workspaceStoreName]: workspaceStore }, () => {
         const { dynamicUrlMap, urlMap } = getURLMapWithStore(workspaceStore);
+
+        emitChanges();
         resolve({
           workspaceStore,
           urlMap,
@@ -131,6 +144,8 @@ const deleteWorkspaceStoreInDB = (workspaceId: string) => {
       chrome.storage.local.remove(workspaceStoreName, () => {
         getWorskpaceStore(DEFAULT_WORKSPACE).then((workspaceStore) => {
           const { dynamicUrlMap, urlMap } = getURLMapWithStore(workspaceStore);
+
+          emitChanges();
           resolve({
             workspaceStore,
             urlMap,

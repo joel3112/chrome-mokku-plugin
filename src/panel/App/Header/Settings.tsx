@@ -49,7 +49,7 @@ export const Settings = () => {
         <Tabs.Panel value="global" pb={16}>
           <Flex direction="column" gap={16} className={classes.section}>
             <Checkbox
-              defaultChecked={store.enabledScenarios}
+              checked={store.enabledScenarios}
               onChange={handleActiveScenarios}
               label="Enable scenarios"
               description="The mocks with same URL and method will be grouped together"
@@ -57,7 +57,7 @@ export const Settings = () => {
             />
 
             <Checkbox
-              defaultChecked={store.enabledMockConsoleLog}
+              checked={store.enabledMockConsoleLog}
               onChange={handleActiveMockConsoleLog}
               label="Enable console log"
               description="The mocks executed will be logged in the console"

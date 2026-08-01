@@ -11,6 +11,7 @@ import {
   useLogStore
 } from '@mokku/store';
 import { WorkspaceSelector } from '../Workspaces/WorkspaceSelector';
+import { useListenStoreChanges } from '../hooks/useListenStoreChanges';
 import { RecordButton } from './RecordButton';
 import { RefreshButton } from './RefreshButton';
 import { SettingsButton } from './SettingsButton';
@@ -54,6 +55,7 @@ export const Header = () => {
   const { setSelectedMock, setSelectedGroup } = useChromeStore(useMockStoreSelector, shallow);
 
   const { classes } = useStyles();
+  useListenStoreChanges();
 
   return (
     <>

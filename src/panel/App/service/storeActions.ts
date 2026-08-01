@@ -25,6 +25,7 @@ const storeName: DBNameType = 'mokku.extension.main.db';
 const getWorkspaceStoreName = (workspaceId: string) =>
   `mokku.extension.workspace-${workspaceId}.db`;
 export const DEFAULT_WORKSPACE = 'default';
+export const UNIQUE_INSTANCE_ID = crypto.randomUUID();
 
 const createDefaultStore = (): IStore => ({
   active: false,

@@ -3,6 +3,7 @@ import { wildcardPattern } from 'wildcard-regex';
 import {
   IDynamicURLMap,
   IEventMessage,
+  IHostStore,
   ILog,
   IMockResponse,
   IStore,
@@ -185,7 +186,8 @@ const checIfActive = () => {
   const isLocalhost = location.href.includes('http://localhost');
 
   chrome.storage.local.get([`mokku.extension.active.${host}`], function (result) {
-    let active = result[`mokku.extension.active.${host}`];
+    const hostStore = result[`mokku.extension.active.${host}`] as IHostStore | undefined;
+    let active = hostStore?.active;
     if (isLocalhost && active === undefined) {
       active = true;
     }

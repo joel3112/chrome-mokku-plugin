@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { messageService, uniqueItemsByKeys } from '@mokku/services';
 import { useGlobalStore, useGlobalStoreState, useLogStore } from '@mokku/store';
-import { IEventMessage, ILog } from '@mokku/types';
+import { IEventMessage, IHostStore, ILog } from '@mokku/types';
 import { getMockFromLog } from '../../Logs/log.util';
 import { useAddBulkMock } from './addBulkMock';
 
@@ -54,7 +54,8 @@ export const usePanelListener = (props: useGlobalStoreState['meta']) => {
             const storeKey = `mokku.extension.active.${host}`;
             const isLocalhost = host.includes('http://localhost');
             chrome.storage.local.get([storeKey], (result) => {
-              let active = !!result[storeKey];
+              const hostStore = result[storeKey] as IHostStore | undefined;
+              let active = !!hostStore?.active;
               if (isLocalhost && active === undefined) {
                 active = true;
               }

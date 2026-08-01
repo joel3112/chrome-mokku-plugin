@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { IHostStore } from '@mokku/types';
 import { AppProvider } from './AppProvider';
 
 /**
@@ -32,7 +33,8 @@ export const AppLoader = ({ tab }: { tab: chrome.tabs.Tab }) => {
 
   useEffect(() => {
     chrome.storage.local.get([storeKey], (result) => {
-      let tempActive = result[storeKey];
+      const hostStore = result[storeKey] as IHostStore | undefined;
+      let tempActive = hostStore?.active;
       if (isLocalhost && active === undefined) {
         tempActive = true;
       }

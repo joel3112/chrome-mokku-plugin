@@ -1,5 +1,4 @@
 ---
-disable-model-invocation: true
 name: release
 description: Releases a new Mokku Chrome Extension version. Use when the user asks to create, prepare, or publish a release.
 ---
@@ -24,21 +23,18 @@ Only continue when `<VERSION>` was explicitly supplied by the user and matches `
    - Replace current version with `<VERSION>` in the "version" field
    - Example: `"version": "4.5.1"`
 
-2. **Update version in manifest files**
-   - Update `../../../dist/manifest.json` version field to `<VERSION>`
-
-3. **Build the project**
+2. **Build the project**
    - Run: `pnpm run build`
 
-4. **Generate ZIP file**
+3. **Generate ZIP file**
    - Delete old: `rm mokku.zip`
    - Create new: `cd dist && zip -r ../mokku.zip . && cd ..`
 
-5. **Stage and commit**
+4. **Stage and commit**
    - Stage files: `git add package.json dist/manifest.json public/manifest.json mokku.zip`
    - Commit with version as message: `git commit -m "<VERSION>" --trailer="Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"`
 
-6. **Create tag version**
+5. **Create tag version**
    - Create git tag: `git tag -a "<VERSION>" -m "Release <VERSION>"`
 
 ### Example: Release version 4.5.1

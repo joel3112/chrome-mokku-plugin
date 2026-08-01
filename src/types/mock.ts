@@ -91,6 +91,11 @@ export interface IWorkspace {
   active: boolean;
 }
 
+export interface IHostStore {
+  active: boolean;
+  latestWorkspaceActive?: string;
+}
+
 export interface IStore {
   active: boolean;
   enabledScenarios: boolean;

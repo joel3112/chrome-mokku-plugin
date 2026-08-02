@@ -10,7 +10,8 @@ import {
   Select,
   Switch,
   Text,
-  createStyles
+  createStyles,
+  useMantineTheme
 } from '@mantine/core';
 import { useChromeStore } from '@mokku/store';
 import { IMockGroup, IMockResponse, MockType } from '@mokku/types';
@@ -103,6 +104,8 @@ const ScenariosSelector = ({ scenarios }: { scenarios: IMockResponse[] }) => {
   const activeMocksScenarios = scenarios.filter((m) => m.active).length;
   const totalMockScenarios = scenarios.length;
 
+  const theme = useMantineTheme();
+
   return (
     <div
       onClick={(event) => event.stopPropagation()}
@@ -113,12 +116,17 @@ const ScenariosSelector = ({ scenarios }: { scenarios: IMockResponse[] }) => {
         top={9}
         right={26}
         fz={10}
-        color="gray"
         variant="filled"
         radius="sm"
         size="xs"
-        opacity={0.7}
-        c="dimmed">{`(${activeMocksScenarios}/${totalMockScenarios})`}</Badge>
+        c="dimmed"
+        styles={{
+          root: {
+            backgroundColor:
+              theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[1]
+          }
+        }}
+        opacity={0.7}>{`(${activeMocksScenarios}/${totalMockScenarios})`}</Badge>
       <Select
         variant="unstyled"
         value={scenarioSelected?.id}

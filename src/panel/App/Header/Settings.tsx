@@ -60,7 +60,36 @@ export const Settings = () => {
               checked={store.enabledScenarios}
               onChange={handleActiveScenarios}
               label="Enable scenarios"
-              description="The mocks with same URL and method will be grouped together"
+              description={
+                <>
+                  Scenarios in Mokku are multiple response variants for the same URL and HTTP
+                  method.
+                  <br />
+                  <br />
+                  For example:
+                  <br />
+                  • Same URL: /api/users/1
+                  <br />
+                  • Same method: GET
+                  <br />
+                  • Different mocks (scenarios):
+                  <br />
+                  1. Success response (200)
+                  <br />
+                  2. Error response (404)
+                  <br />
+                  3. Response with simulated delay
+                  <br />
+                  4. Response with different data
+                  <br />
+                  <br />
+                  <b>When scenarios are disabled</b>: Only the mock marked as active works.
+                  <br />
+                  <b>When scenarios are enabled</b>: You can select which variant to use (i.e.,
+                  which mock should respond) from the panel dropdown. Useful for testing different
+                  cases without reconfiguring mocks each time.
+                </>
+              }
               mb={12}
             />
 
@@ -68,7 +97,17 @@ export const Settings = () => {
               checked={store.enabledMockConsoleLog}
               onChange={handleActiveMockConsoleLog}
               label="Enable console log"
-              description="The mocks executed will be logged in the console"
+              description={
+                <>
+                  The mocks executed will be logged in the console.
+                  <br />
+                  <br />
+                  The requests are <b>not visible in Network tab.</b>
+                  <br />
+                  If you want to see the mocked requests with their details, enable this option to
+                  view them in the browser console.
+                </>
+              }
               mb={12}
             />
 

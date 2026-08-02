@@ -33,6 +33,14 @@ export const Settings = () => {
     storeActions.updateStoreInDB(updatedStore).then(setStoreProperties);
   };
 
+  const handleActiveReloadWorkspaceChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const updatedStore = {
+      ...store,
+      enabledReloadWorkspaceChanged: event.target.checked
+    } satisfies IStore;
+    storeActions.updateStoreInDB(updatedStore).then(setStoreProperties);
+  };
+
   return (
     <>
       <Tabs defaultValue="workspace" orientation="vertical" className={classes.tabContainer}>
@@ -61,6 +69,14 @@ export const Settings = () => {
               onChange={handleActiveMockConsoleLog}
               label="Enable console log"
               description="The mocks executed will be logged in the console"
+              mb={12}
+            />
+
+            <Checkbox
+              checked={store.enabledReloadWorkspaceChanged}
+              onChange={handleActiveReloadWorkspaceChanged}
+              label="Enable reload on workspace change"
+              description="The app will reload when the active workspace changes (creation, deletion, selection)"
               mb={12}
             />
           </Flex>

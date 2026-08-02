@@ -99,6 +99,7 @@ export interface IHostStore {
 export interface IStore {
   active: boolean;
   enabledScenarios: boolean;
+  enabledReloadWorkspaceChanged: boolean;
   enabledMockConsoleLog: boolean;
   workspaces: Record<string, IWorkspace>;
 }

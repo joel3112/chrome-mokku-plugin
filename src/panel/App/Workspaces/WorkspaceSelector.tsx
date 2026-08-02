@@ -36,6 +36,14 @@ export const WorkspaceSelector = () => {
     storeActions.getActiveWorkspaceForHost(store, host).then(setSelectedWorkSpace);
   }, [store.workspaces, host]);
 
+  const handleReload = () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      if (store.enabledReloadWorkspaceChanged) {
+        chrome.tabs.update(tabs[0].id, { url: tabs[0].url });
+      }
+    });
+  };
+
   return (
     <Menu width={200} position="bottom-start">
       <Menu.Target>
@@ -49,7 +57,7 @@ export const WorkspaceSelector = () => {
         {sortCollectionByName(Object.values(store.workspaces)).map((workspace) => (
           <Menu.Item
             key={workspace.id}
-            onClick={() => selectWorkspace(workspace)}
+            onClick={() => selectWorkspace(workspace, undefined, handleReload)}
             className={cx({ [classes.active]: workspace.id === selectedWorkspace?.id })}>
             <Flex justify="space-between" align="center">
               {workspace.name}
@@ -59,14 +67,14 @@ export const WorkspaceSelector = () => {
         ))}
         <Menu.Divider />
 
-        <Menu.Item icon={<TbPlus />} onClick={addWorkspace}>
+        <Menu.Item icon={<TbPlus />} onClick={() => addWorkspace(handleReload)}>
           Add workspace
         </Menu.Item>
         <Menu.Item
           color="red"
           icon={<TbTrash />}
           disabled={isDefaultWorkspace(selectedWorkspace)}
-          onClick={() => deleteWorkspace(selectedWorkspace)}>
+          onClick={() => deleteWorkspace(selectedWorkspace, handleReload)}>
           Delete workspace
         </Menu.Item>
       </Menu.Dropdown>

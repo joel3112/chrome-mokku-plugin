@@ -33,7 +33,7 @@ export const useWorkspaceActions = () => {
   const { initWorkspace, store, workspaceStore, setStoreProperties, setSelectedWorkSpace } =
     useChromeStore(useMockStoreSelector, shallow);
 
-  const addWorkspace = () => {
+  const addWorkspace = (onAdd?: () => void) => {
     modals.open({
       title: 'Add Workspace',
       children: (
@@ -46,7 +46,7 @@ export const useWorkspaceActions = () => {
 
             storeActions.updateStoreInDB(updatedStore).then((res) => {
               setStoreProperties(res);
-              selectWorkspace(res.store.workspaces[workspaceId], res.store);
+              selectWorkspace(res.store.workspaces[workspaceId], res.store, onAdd);
               modals.closeAll();
             });
           }}>
@@ -59,7 +59,7 @@ export const useWorkspaceActions = () => {
     });
   };
 
-  const selectWorkspace = (workspace: IWorkspace, _store = store) => {
+  const selectWorkspace = (workspace: IWorkspace, _store = store, onChange?: () => void) => {
     const updatedStore = storeActions.selectWorkspace(_store, workspace.id);
 
     storeActions
@@ -69,6 +69,7 @@ export const useWorkspaceActions = () => {
       .then(() => {
         storeActions.refreshContentStore(meta.tab.id);
         setView(ViewEnum.MOCKS);
+        onChange?.();
       });
   };
 

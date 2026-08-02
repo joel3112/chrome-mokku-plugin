@@ -74,6 +74,7 @@ const createDefaultStore = (): IStore => ({
   active: false,
   enabledScenarios: true,
   enabledMockConsoleLog: true,
+  enabledReloadWorkspaceChanged: false,
   workspaces: {
     [DEFAULT_WORKSPACE]: {
       id: DEFAULT_WORKSPACE,

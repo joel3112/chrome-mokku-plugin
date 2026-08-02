@@ -3,6 +3,7 @@ import { ColorScheme, ColorSchemeProvider, MantineProvider } from '@mantine/core
 import { ModalsProvider } from '@mantine/modals';
 import { defaultTheme } from '@mokku/services';
 import { useGlobalStoreState } from '@mokku/store';
+import '../../styles/fonts.css';
 import { App } from './App';
 
 export const AppProvider = (props: useGlobalStoreState['meta']) => {
@@ -21,6 +22,9 @@ export const AppProvider = (props: useGlobalStoreState['meta']) => {
         withGlobalStyles
         withNormalizeCSS
         theme={{
+          fontFamily: '"UberMoveText", system-ui, "Helvetica Neue", Helvetica, Arial, sans-serif',
+          fontFamilyMonospace:
+            'Lilex, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace, Menlo, Monaco, "Courier New", monospace',
           colorScheme,
           components: {
             Button: {

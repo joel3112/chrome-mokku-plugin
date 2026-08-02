@@ -64,25 +64,24 @@ export type IMockGroupRaw = Partial<IMockGroup>;
 
 export interface IMockResponse {
   type: MockType.MOCK;
-  method: MethodEnum;
-  createdOn: number;
-  url: string;
-  status: number;
-  response?: string;
-  headers?: Headers;
-  delay?: number;
-  name: string;
   id: string;
-  groupId?: string;
-  dynamic?: boolean;
+  createdOn: number;
+  name: string;
   active: boolean;
+  // Mock scenario is selected
   selected: boolean;
-  description?: string;
-  action?: (req: {
-    body: Record<string, any>;
-    params: Record<string, any>;
-    queryParams: Record<string, any>;
-  }) => IMockResponse['response'];
+  // Mock group id
+  groupId?: string;
+  // Request
+  url: string;
+  dynamic?: boolean; // is dynamic url (contains *)
+  method: MethodEnum;
+  queryParams?: string;
+  // Response
+  delay?: number;
+  response?: string;
+  status: number;
+  headers?: Headers;
 }
 
 export interface IWorkspace {

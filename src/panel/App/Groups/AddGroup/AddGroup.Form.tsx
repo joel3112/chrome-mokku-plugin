@@ -95,15 +95,19 @@ export const AddGroupForm = ({ onClose }: AddGroupFormProps) => {
                 {...form.getInputProps('name')}
               />
               <Switch
-                size="xl"
+                styles={{
+                  track: { height: 36 },
+                  thumb: { height: 30 }
+                }}
+                size="lg"
                 radius="sm"
-                onLabel="Active"
-                offLabel="Inactive"
                 {...form.getInputProps('active', { type: 'checkbox' })}
               />
             </Flex>
             <Textarea
               label="Description"
+              autosize
+              minRows={4}
               placeholder="Group case for goals mocks"
               {...form.getInputProps('description')}
             />

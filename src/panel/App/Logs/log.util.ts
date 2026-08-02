@@ -9,6 +9,6 @@ export const getMockFromLog = (log: ILog): IMockResponseRaw => ({
   status: log.response?.status || 200,
   response: log.response?.response || '',
   delay: 500,
-  description: '',
-  headers: log.request.headers
+  queryParams: log.request?.queryParams,
+  headers: []
 });

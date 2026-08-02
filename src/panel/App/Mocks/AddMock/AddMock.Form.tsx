@@ -1,25 +1,15 @@
 import React, { useEffect } from 'react';
-import { TbTrash } from 'react-icons/tb';
 import { v4 as uuidv4 } from 'uuid';
-import {
-  ActionIcon,
-  Card,
-  Flex,
-  NumberInput,
-  Select,
-  Tabs,
-  TextInput,
-  Textarea,
-  createStyles
-} from '@mantine/core';
+import { Card, Flex, NumberInput, Select, Tabs, TextInput, createStyles } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import { useChromeStore, useChromeStoreState, useGlobalStore } from '@mokku/store';
 import { ActionInFormEnum, IMockResponse, IMockResponseRaw, MethodEnum } from '@mokku/types';
 import { JsonEditor } from '../../Blocks/JsonEditor';
+import { MockHeaders } from '../../Blocks/MockHeaders';
 import { FORM_ID, getActionInForm } from '../../Blocks/Modal';
+import { SectionTabs } from '../../Blocks/SectionTabs';
 import { Switch } from '../../Blocks/Switch';
-import { SettingsButton } from '../../Header/SettingsButton';
 import { storeActions } from '../../service/storeActions';
 import { statusOptions } from './data';
 
@@ -76,13 +66,13 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
   const form = useForm<IMockResponseRaw>({
     initialValues: {
       headers: [],
+      queryParams: '',
       status: 200,
       delay: 500,
       method: MethodEnum.GET,
       active: true,
       groupId: '',
       name: '',
-      description: '',
       url: '',
       ...selectedMock
     }
@@ -104,7 +94,6 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
     <form
       id={FORM_ID}
       onSubmit={form.onSubmit((values) => {
-        console.log('Submit mock', values);
         if (!values.createdOn) {
           values.id = uuidv4();
         }
@@ -158,10 +147,12 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
                 {...form.getInputProps('name')}
               />
               <Switch
-                size="xl"
+                styles={{
+                  track: { height: 36 },
+                  thumb: { height: 30 }
+                }}
+                size="lg"
                 radius="sm"
-                onLabel="Active"
-                offLabel="Inactive"
                 {...form.getInputProps('active', { type: 'checkbox' })}
               />
             </Flex>
@@ -175,11 +166,6 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
               disabled={isDuplicateMock}
               style={{ display: 'inline-block' }}
               {...form.getInputProps('groupId')}
-            />
-            <Textarea
-              label="Description"
-              placeholder="Success case for goals API"
-              {...form.getInputProps('description')}
             />
             <Flex gap={15} justify="space-between">
               <TextInput
@@ -225,58 +211,58 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
               />
             </Flex>
 
-            <Flex className={classes.flexGrow} mt={16}>
-              <Tabs defaultValue="body" className={classes.tabs}>
-                <Tabs.List>
-                  <Tabs.Tab value="body">Response Body</Tabs.Tab>
-                  <Tabs.Tab value="headers">Response Headers</Tabs.Tab>
-                </Tabs.List>
+            <SectionTabs defaultValue="response" className={classes.tabs} mt={10}>
+              {/*<Tabs.List>*/}
+              {/*  <Tabs.Tab value="response">Response</Tabs.Tab>*/}
+              {/*  <Tabs.Tab value="request">Request</Tabs.Tab>*/}
+              {/*</Tabs.List>*/}
 
-                <Tabs.Panel value="body" pt="xs" className={classes.flexGrow}>
-                  <JsonEditor
-                    value={form.values.response}
-                    onChange={(value) => form.setFieldValue('response', value)}
-                    formatOnBlur
-                  />
-                </Tabs.Panel>
-
-                <Tabs.Panel value="headers" pt="xs">
-                  <SettingsButton
-                    onClick={() => {
-                      form.insertListItem('headers', { name: '', value: '' }, 0);
-                    }}>
-                    Add Header
-                  </SettingsButton>
-                  <Flex gap={8} direction="column" mt={8}>
-                    {form.values.headers?.map((_, index) => (
-                      <Flex gap={12} align="center" key={index}>
-                        <TextInput
-                          required
-                          size="xs"
-                          placeholder="Name"
-                          className={classes.flexGrow}
-                          {...form.getInputProps(`headers.${index}.name`)}
-                        />
-                        <TextInput
-                          required
-                          size="xs"
-                          placeholder="Value"
-                          className={classes.flexGrow}
-                          {...form.getInputProps(`headers.${index}.value`)}
-                        />
-                        <ActionIcon
-                          variant="light"
-                          color="red"
-                          onClick={() => form.removeListItem('headers', index)}
-                          title="Delete header">
-                          <TbTrash />
-                        </ActionIcon>
+              <Tabs.Panel pt="xs" value="response">
+                <Tabs defaultValue="responseBody" className={classes.tabs}>
+                  <Flex style={{ height: '100%' }} direction="column">
+                    <Tabs.List>
+                      <Flex>
+                        <Tabs.Tab value="responseBody">Response Body</Tabs.Tab>
+                        <Tabs.Tab value="responseHeaders">Response Headers</Tabs.Tab>
                       </Flex>
-                    ))}
+                    </Tabs.List>
+
+                    <Tabs.Panel value="responseBody" pt="xs" className={classes.flexGrow}>
+                      <JsonEditor
+                        value={form.values.response}
+                        onChange={(value) => form.setFieldValue('response', value)}
+                        formatOnBlur
+                      />
+                    </Tabs.Panel>
+                    <Tabs.Panel value="responseHeaders" pt="xs">
+                      <MockHeaders
+                        headers={form.values.headers}
+                        onChange={(headers) => form.setFieldValue('headers', headers)}
+                      />
+                    </Tabs.Panel>
                   </Flex>
-                </Tabs.Panel>
-              </Tabs>
-            </Flex>
+                </Tabs>
+              </Tabs.Panel>
+
+              {/*<Tabs.Panel pt="xs" value="request">*/}
+              {/*  <Tabs defaultValue="requestQueryParams" className={classes.tabs}>*/}
+              {/*    <Flex style={{ height: '100%' }} direction="column">*/}
+              {/*      <Tabs.List>*/}
+              {/*        <Flex>*/}
+              {/*          <Tabs.Tab value="requestQueryParams">Query Params</Tabs.Tab>*/}
+              {/*        </Flex>*/}
+              {/*      </Tabs.List>*/}
+
+              {/*      <Tabs.Panel value="requestQueryParams" pt="xs">*/}
+              {/*        <MockQueryParams*/}
+              {/*          queryParams={form.values.queryParams}*/}
+              {/*          onChange={(queryParams) => form.setFieldValue('queryParams', queryParams)}*/}
+              {/*        />*/}
+              {/*      </Tabs.Panel>*/}
+              {/*    </Flex>*/}
+              {/*  </Tabs>*/}
+              {/*</Tabs.Panel>*/}
+            </SectionTabs>
           </Flex>
         </Card>
       </>

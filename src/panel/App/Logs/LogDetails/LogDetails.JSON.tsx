@@ -1,5 +1,5 @@
 import React from 'react';
-import { Center, Text } from '@mantine/core';
+import { Center, Code } from '@mantine/core';
 import { ILog } from '@mokku/types';
 import { JsonEditor } from '../../Blocks/JsonEditor';
 import { parseJSONIfPossible } from './LogDetails.utils';
@@ -13,7 +13,9 @@ export const LogDetailsJSON = ({ response, isRequestPending }: IProps) => {
   if (isRequestPending) {
     return (
       <Center pt={64}>
-        <Text fz="md">Request pending</Text>
+        <Code fz={12} bg="transparent">
+          Request pending
+        </Code>
       </Center>
     );
   }
@@ -21,20 +23,18 @@ export const LogDetailsJSON = ({ response, isRequestPending }: IProps) => {
   if (!response) {
     return (
       <Center pt={64}>
-        <Text fz="md">Nothing to Preview</Text>
+        <Code fz={12} bg="transparent">
+          Nothing to Preview
+        </Code>
       </Center>
     );
   }
 
   const responseJson = parseJSONIfPossible(response);
   if (responseJson.parsed) {
-    const formatted = JSON.stringify(responseJson.json, null, 2);
-    return <JsonEditor value={formatted} formatOnBlur readOnly />;
+    const formatted = JSON.stringify(responseJson.json, undefined, 2);
+    return <JsonEditor value={formatted} readOnly />;
   }
 
-  return (
-    <div style={{ paddingLeft: 8, paddingRight: 8 }}>
-      <Text fz="md">{responseJson.original}</Text>
-    </div>
-  );
+  return <JsonEditor value={''} readOnly />;
 };

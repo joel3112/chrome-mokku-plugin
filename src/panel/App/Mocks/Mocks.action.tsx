@@ -126,7 +126,6 @@ export const useMockActions = () => {
     setSelectedMock({
       ...mock,
       name: `${mock.name} copy`,
-      description: '',
       id: undefined,
       createdOn: undefined,
       selected: false

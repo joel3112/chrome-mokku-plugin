@@ -17,7 +17,6 @@ export type useGlobalStoreState = {
     host: string;
     tab?: chrome.tabs.Tab;
     active: boolean;
-    storeKey: string;
   };
   setMeta: (meta: useGlobalStoreState['meta']) => void;
 };
@@ -32,8 +31,7 @@ export const useGlobalStore = createWithEqualityFn<useGlobalStoreState>((set, ge
   recording: false,
   meta: {
     active: false,
-    host: '',
-    storeKey: ''
+    host: ''
   },
   setMeta: (meta) => set({ meta: meta })
 }));

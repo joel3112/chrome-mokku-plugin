@@ -4,6 +4,7 @@ import { StoreProperties } from '@mokku/store';
 import {
   DBNameType,
   IDynamicURLMap,
+  IHostStore,
   IMockGroup,
   IMockResponse,
   IStore,
@@ -24,8 +25,50 @@ const getNetworkMethodMap = () => ({
 const storeName: DBNameType = 'mokku.extension.main.db';
 const getWorkspaceStoreName = (workspaceId: string) =>
   `mokku.extension.workspace-${workspaceId}.db`;
+const getHostStoreName = (host: string) => `mokku.extension.active.${host}`;
 export const DEFAULT_WORKSPACE = 'default';
 export const UNIQUE_INSTANCE_ID = crypto.randomUUID();
+
+const getHostStore = (host: string) => {
+  return new Promise<IHostStore | undefined>((resolve) => {
+    const hostStoreName = getHostStoreName(host);
+    chrome.storage.local.get([hostStoreName], (result) => {
+      resolve(result[hostStoreName] as IHostStore | undefined);
+    });
+  });
+};
+
+const updateHostStore = (host: string, partial: Partial<IHostStore>) => {
+  return getHostStore(host).then((hostStore) => {
+    const updatedHostStore = { ...hostStore, ...partial } as IHostStore;
+
+    return new Promise<void>((resolve) => {
+      chrome.storage.local.set({ [getHostStoreName(host)]: updatedHostStore }, () => resolve());
+    });
+  });
+};
+
+const setLatestWorkspaceActive = (host: string, workspaceId: string) =>
+  updateHostStore(host, { latestWorkspaceActive: workspaceId });
+
+const setHostActive = (host: string, active: boolean) => updateHostStore(host, { active });
+
+const getActiveWorkspaceForHost = async (store: IStore, host?: string) => {
+  if (!host) {
+    return getActiveWorkspace(store);
+  }
+
+  const hostStore = await getHostStore(host);
+  const latestWorkspaceActive = hostStore?.latestWorkspaceActive;
+
+  if (latestWorkspaceActive && store.workspaces[latestWorkspaceActive]) {
+    return store.workspaces[latestWorkspaceActive];
+  }
+
+  // new hosts (no latestWorkspaceActive stored yet) default to the default workspace,
+  // instead of whichever workspace happens to be globally active for another host
+  return store.workspaces[DEFAULT_WORKSPACE];
+};
 
 const createDefaultStore = (): IStore => ({
   active: false,
@@ -64,11 +107,11 @@ const getWorskpaceStore = (workspaceId: string) => {
   });
 };
 
-const getAllStore = () => {
+const getAllStore = (host?: string) => {
   return new Promise<StoreProperties>((resolve) => {
     chrome.storage.local.get([storeName], async function (resultStore) {
       const _store = { ...createDefaultStore(), ...(resultStore[storeName] as IStore) } as IStore;
-      const workspaceActiveId = getActiveWorkspace(_store)?.id;
+      const workspaceActiveId = (await getActiveWorkspaceForHost(_store, host))?.id;
 
       if (!workspaceActiveId) {
         resolve({
@@ -461,6 +504,10 @@ const refreshContentStore = (tabId?: number) => {
 
 export const storeActions = {
   getActiveWorkspace,
+  getActiveWorkspaceForHost,
+  getHostStore,
+  setLatestWorkspaceActive,
+  setHostActive,
   getMockScenarios,
   hasMultipleScenarios,
   getMocksByGroup,

@@ -64,7 +64,8 @@ export const useWorkspaceActions = () => {
 
     storeActions
       .updateStoreInDB(updatedStore)
-      .then(initWorkspace)
+      .then(() => storeActions.setLatestWorkspaceActive(meta.host, workspace.id))
+      .then(() => initWorkspace(meta.host))
       .then(() => {
         storeActions.refreshContentStore(meta.tab.id);
         setView(ViewEnum.MOCKS);

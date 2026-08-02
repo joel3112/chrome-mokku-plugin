@@ -20,7 +20,7 @@ export const App = (props: useGlobalStoreState['meta']) => {
   const initMockStore = useChromeStore((state) => state.init);
 
   useEffect(() => {
-    initMockStore();
+    initMockStore(props.host);
     setMeta(props);
   }, []);
 

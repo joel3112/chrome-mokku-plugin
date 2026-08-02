@@ -3,7 +3,7 @@ import { TbChevronDown, TbLock, TbPlus, TbTrash } from 'react-icons/tb';
 import { shallow } from 'zustand/shallow';
 import { Button, Flex, Menu, createStyles } from '@mantine/core';
 import { sortCollectionByName } from '@mokku/services';
-import { useChromeStore, useChromeStoreState } from '@mokku/store';
+import { useChromeStore, useChromeStoreState, useGlobalStore } from '@mokku/store';
 import { IWorkspace } from '@mokku/types';
 import { DEFAULT_WORKSPACE, storeActions } from '../service/storeActions';
 import { useWorkspaceActions } from './Workspace.action';
@@ -27,13 +27,14 @@ export const WorkspaceSelector = () => {
     shallow
   );
   const isDefaultWorkspace = (w: IWorkspace) => w?.id === DEFAULT_WORKSPACE;
+  const host = useGlobalStore((state) => state.meta.host);
 
   const { addWorkspace, selectWorkspace, deleteWorkspace } = useWorkspaceActions();
   const { classes, cx } = useStyles();
 
   useEffect(() => {
-    setSelectedWorkSpace(storeActions.getActiveWorkspace(store));
-  }, [store.workspaces]);
+    storeActions.getActiveWorkspaceForHost(store, host).then(setSelectedWorkSpace);
+  }, [store.workspaces, host]);
 
   return (
     <Menu width={200} position="bottom-start">

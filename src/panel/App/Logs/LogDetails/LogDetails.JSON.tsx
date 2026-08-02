@@ -29,7 +29,7 @@ export const LogDetailsJSON = ({ response, isRequestPending }: IProps) => {
   const responseJson = parseJSONIfPossible(response);
   if (responseJson.parsed) {
     const formatted = JSON.stringify(responseJson.json, null, 2);
-    return <JsonEditor value={formatted} formatOnBlur />;
+    return <JsonEditor value={formatted} formatOnBlur readOnly />;
   }
 
   return (

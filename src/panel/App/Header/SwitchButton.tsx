@@ -2,14 +2,13 @@ import React from 'react';
 import { ImSwitch } from 'react-icons/im';
 import { ActionIcon } from '@mantine/core';
 import { useGlobalStore } from '@mokku/store';
-import { IHostStore } from '@mokku/types';
+import { storeActions } from '../service/storeActions';
 
 export const SwitchButton = () => {
   const active = useGlobalStore((state) => state.meta.active);
-  const storeKey = useGlobalStore((state) => state.meta.storeKey);
+  const host = useGlobalStore((state) => state.meta.host);
   const toggleActive = () => {
-    const hostStore: IHostStore = { active: !active };
-    chrome.storage.local.set({ [storeKey]: hostStore }, () => {
+    storeActions.setHostActive(host, !active).then(() => {
       chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         chrome.tabs.update(tabs[0].id, { url: tabs[0].url });
         location.reload();

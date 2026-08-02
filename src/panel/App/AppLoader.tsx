@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { IHostStore } from '@mokku/types';
 import { AppProvider } from './AppProvider';
+import { storeActions } from './service/storeActions';
 
 /**
  * case:
@@ -29,11 +29,9 @@ export const AppLoader = ({ tab }: { tab: chrome.tabs.Tab }) => {
   const [active, setActive] = useState(false);
   const host = getDomain(tab.url) || 'invalid';
   const isLocalhost = (tab.url || '').includes('http://localhost');
-  const storeKey = `mokku.extension.active.${host}`;
 
   useEffect(() => {
-    chrome.storage.local.get([storeKey], (result) => {
-      const hostStore = result[storeKey] as IHostStore | undefined;
+    storeActions.getHostStore(host).then((hostStore) => {
       let tempActive = hostStore?.active;
       if (isLocalhost && active === undefined) {
         tempActive = true;
@@ -44,7 +42,7 @@ export const AppLoader = ({ tab }: { tab: chrome.tabs.Tab }) => {
   }, []);
 
   if (!loading) {
-    return <AppProvider host={host} tab={tab} active={active} storeKey={storeKey} />;
+    return <AppProvider host={host} tab={tab} active={active} />;
   }
 
   return null;

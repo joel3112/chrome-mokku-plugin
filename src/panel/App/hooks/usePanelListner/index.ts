@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { messageService, uniqueItemsByKeys } from '@mokku/services';
 import { useGlobalStore, useGlobalStoreState, useLogStore } from '@mokku/store';
-import { IEventMessage, IHostStore, ILog } from '@mokku/types';
+import { IEventMessage, ILog } from '@mokku/types';
 import { getMockFromLog } from '../../Logs/log.util';
+import { storeActions } from '../../service/storeActions';
 import { useAddBulkMock } from './addBulkMock';
 
 const checkIfSameTab = (sender: chrome.tabs.Tab, tab: chrome.tabs.Tab) => {
@@ -51,10 +52,8 @@ export const usePanelListener = (props: useGlobalStoreState['meta']) => {
         case 'INIT': {
           if (message.message !== props.host) {
             const host = message.message as string;
-            const storeKey = `mokku.extension.active.${host}`;
             const isLocalhost = host.includes('http://localhost');
-            chrome.storage.local.get([storeKey], (result) => {
-              const hostStore = result[storeKey] as IHostStore | undefined;
+            storeActions.getHostStore(host).then((hostStore) => {
               let active = !!hostStore?.active;
               if (isLocalhost && active === undefined) {
                 active = true;

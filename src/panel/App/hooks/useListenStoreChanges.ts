@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useChromeStore } from '@mokku/store';
+import { useChromeStore, useGlobalStore } from '@mokku/store';
 import { UNIQUE_INSTANCE_ID } from '../service/storeActions';
 
 
@@ -28,7 +28,7 @@ export const useListenStoreChanges = () => {
 
     window.addEventListener('focus', () => {
       if (isDirty.current) {
-        initMockStore();
+        initMockStore(useGlobalStore.getState().meta.host);
         isDirty.current = false;
       }
     });

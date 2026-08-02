@@ -2,7 +2,7 @@ import React from 'react';
 import { FaPowerOff } from 'react-icons/fa6';
 import { Button, Flex, Highlight, Paper, Title, createStyles } from '@mantine/core';
 import { useGlobalStore } from '@mokku/store';
-import { IHostStore } from '@mokku/types';
+import { storeActions } from '../service/storeActions';
 
 export const usePaperStyles = createStyles((theme) => ({
   full: {
@@ -17,13 +17,12 @@ export const usePaperStyles = createStyles((theme) => ({
 
 export const DisabledPlaceholder = () => {
   const active = useGlobalStore((state) => state.meta.active);
-  const storeKey = useGlobalStore((state) => state.meta.storeKey);
+  const host = useGlobalStore((state) => state.meta.host);
   const tab = useGlobalStore((state) => state.meta.tab);
 
   const { classes } = usePaperStyles();
   const onClick = () => {
-    const hostStore: IHostStore = { active: !active };
-    chrome.storage.local.set({ [storeKey]: hostStore }, () => {
+    storeActions.setHostActive(host, !active).then(() => {
       chrome.tabs.update(tab.id, { url: tab.url });
       location.reload();
     });

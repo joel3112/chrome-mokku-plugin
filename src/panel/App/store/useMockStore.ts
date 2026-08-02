@@ -18,7 +18,7 @@ export type StoreProperties = {
 };
 
 export interface useChromeStoreState extends StoreProperties {
-  init: () => Promise<StoreProperties>;
+  init: (host?: string) => Promise<StoreProperties>;
   setStoreProperties: (properties: Partial<StoreProperties>) => void;
   selectedWorkspace?: IWorkspace;
   setSelectedWorkspace: (workspace?: IWorkspace) => void;
@@ -34,8 +34,8 @@ export const useChromeStore = createWithEqualityFn<useChromeStoreState>((set, ge
   workspaceStore: storeActions.createDefaultWorkspaceStore(),
   dynamicUrlMap: {},
   urlMap: {},
-  init: async () => {
-    const { store, workspaceStore, urlMap, dynamicUrlMap } = await storeActions.getAllStore();
+  init: async (host?: string) => {
+    const { store, workspaceStore, urlMap, dynamicUrlMap } = await storeActions.getAllStore(host);
     const state = { store, workspaceStore, urlMap, dynamicUrlMap };
     set(state);
     return state;

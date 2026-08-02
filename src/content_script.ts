@@ -3,7 +3,6 @@ import { wildcardPattern } from 'wildcard-regex';
 import {
   IDynamicURLMap,
   IEventMessage,
-  IHostStore,
   ILog,
   IMockResponse,
   IStore,
@@ -26,7 +25,7 @@ const init = () => {
     urlMap: IURLMap,
     dynamicUrlMap: IDynamicURLMap;
 
-  storeActions.getAllStore().then((a) => {
+  storeActions.getAllStore(location.host).then((a) => {
     store = a.store;
     workspaceStore = a.workspaceStore;
     urlMap = a.urlMap;
@@ -70,7 +69,7 @@ const init = () => {
   };
 
   const updateStore = () => {
-    storeActions.getAllStore().then((x) => {
+    storeActions.getAllStore(location.host).then((x) => {
       store = x.store;
       workspaceStore = x.workspaceStore;
       urlMap = x.urlMap;
@@ -205,8 +204,7 @@ const checIfActive = () => {
   // can never fire a message before someone is listening
   init();
 
-  chrome.storage.local.get([`mokku.extension.active.${host}`], function (result) {
-    const hostStore = result[`mokku.extension.active.${host}`] as IHostStore | undefined;
+  storeActions.getHostStore(host).then((hostStore) => {
     let active = hostStore?.active;
     if (isLocalhost && active === undefined) {
       active = true;

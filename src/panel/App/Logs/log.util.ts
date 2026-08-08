@@ -5,10 +5,9 @@ export const getMockFromLog = (log: ILog): IMockResponseRaw => ({
   method: (log.request?.method as MethodEnum) || MethodEnum.GET,
   id: undefined,
   createdOn: undefined,
-  url: log.request?.url || '/some-url',
+  url: log.request?.urlWithQueryParams || '/some-url',
   status: log.response?.status || 200,
   response: log.response?.response || '',
   delay: 500,
-  queryParams: log.request?.queryParams,
   headers: []
 });

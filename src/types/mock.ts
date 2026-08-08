@@ -36,6 +36,7 @@ export interface ILog {
     body?: string;
     queryParams?: string;
     headers: Headers;
+    urlWithQueryParams?: string;
   };
   response?: {
     status: number;
@@ -76,7 +77,6 @@ export interface IMockResponse {
   url: string;
   dynamic?: boolean; // is dynamic url (contains *)
   method: MethodEnum;
-  queryParams?: string;
   // Response
   delay?: number;
   response?: string;

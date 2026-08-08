@@ -18,16 +18,32 @@ type MockHeadersProps = {
   onChange?: (headers: Headers) => void;
 };
 
+// need to update the headers state when the headers prop changes
 export const MockHeaders = ({ headers, readOnly, onChange, buttonAddText }: MockHeadersProps) => {
   const { classes } = useStyles();
+  const [initialHeaders] = React.useState<Headers>(headers);
   const form = useForm<{ headers: Headers }>({
     initialValues: {
-      headers: headers
+      headers: initialHeaders
     }
   });
 
+  // tracks the last value both sides agreed on, so we can tell a "real"
+  // external change (prop) apart from the echo caused by our own onChange,
+  // and avoid looping forever just because Mantine hands back new
+  // array/object references every time even when the content is identical
+  const lastSyncedHeaders = React.useRef(initialHeaders);
+
   React.useEffect(() => {
-    if (onChange) {
+    if (JSON.stringify(headers) !== JSON.stringify(lastSyncedHeaders.current)) {
+      lastSyncedHeaders.current = headers;
+      form.setValues({ headers });
+    }
+  }, [headers]);
+
+  React.useEffect(() => {
+    if (onChange && JSON.stringify(form.values.headers) !== JSON.stringify(lastSyncedHeaders.current)) {
+      lastSyncedHeaders.current = form.values.headers;
       onChange(form.values.headers);
     }
   }, [form.values]);

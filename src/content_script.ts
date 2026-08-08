@@ -9,6 +9,7 @@ import {
   IURLMap,
   IWorkspaceStore
 } from '@mokku/types';
+import { updateUrlQueryParams } from './panel/App/Mocks/AddMock/AddMock.utils';
 import { storeActions } from './panel/App/service/storeActions';
 import messageService from './services/message';
 
@@ -127,6 +128,8 @@ const init = () => {
       const message = data.message as ILog;
 
       const mockPaths = getMockPath(message.request.url, message.request.method);
+      const entireLogURL = updateUrlQueryParams(message.request.url, message.request.queryParams);
+      message.request.urlWithQueryParams = entireLogURL;
       const { mock, path } = getActiveMockWithPath(mockPaths);
 
       if (mock && hasGroupActive(mock)) {
@@ -164,11 +167,29 @@ const init = () => {
     }
 
     const request = (data.message as ILog).request;
-    const mockPaths = getMockPath(request.url, request.method);
+    let requestUrlMaybeQueryParams = request.url;
+    console.log('>> request.queryParams', request.url, request.queryParams);
+    if (request.queryParams && Object.keys(request.queryParams).length > 0) {
+      const requestQueryParams = new URLSearchParams(JSON.parse(request.queryParams)).toString();
+      requestUrlMaybeQueryParams = requestQueryParams
+        ? `${request.url}?${requestQueryParams}`
+        : request.url;
+    }
+
+    const responseMessage = response.message as ILog;
+    const responseMocked: typeof response = {
+      ...response,
+      message: {
+        ...responseMessage,
+        request: { ...request, url: requestUrlMaybeQueryParams }
+      }
+    };
+
+    const mockPaths = getMockPath(requestUrlMaybeQueryParams, request.method);
     const { mock } = getActiveMockWithPath(mockPaths);
 
     if (mock && hasGroupActive(mock)) {
-      (response.message as ILog).mockResponse = mock;
+      (responseMocked.message as ILog).mockResponse = mock;
 
       const mockGroup = storeActions.getGroupByMock(workspaceStore, mock);
       const currentTime = new Date().toLocaleTimeString('en-GB', { hour12: false });
@@ -191,7 +212,7 @@ ${okIcon} ${mockGroup ? `[${mockGroup.name} > ${mock.name}]` : `[${mock.name}]`}
       }
     }
 
-    messageService.send(response);
+    messageService.send(responseMocked);
   });
 };
 

@@ -60,7 +60,7 @@ export const LogDetails = ({ log }: IProps) => {
     <SideDrawer>
       <Card className={classes.card} p={0}>
         <Flex direction="column" gap={16} className={classes.wrapper}>
-          <TextInput label="URL" readOnly value={log.request?.url} />
+          <TextInput label="URL" readOnly value={log.request?.urlWithQueryParams} />
 
           <SectionTabs defaultValue="response" className={classes.tabs} mt={10}>
             <Tabs.List>

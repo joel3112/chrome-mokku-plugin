@@ -58,7 +58,7 @@ export const Logs = () => {
           <Flex gap={8} align="center">
             <MethodTag method={data.request.method} />
             <StatusTag status={data.response.status} />
-            <Code fz={11}>{data.request.url}</Code>
+            <Code fz={11}>{data.request.urlWithQueryParams}</Code>
           </Flex>
         ) : (
           <></>

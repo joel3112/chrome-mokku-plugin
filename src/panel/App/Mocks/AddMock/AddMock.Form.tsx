@@ -7,10 +7,16 @@ import { useChromeStore, useChromeStoreState, useGlobalStore } from '@mokku/stor
 import { ActionInFormEnum, IMockResponse, IMockResponseRaw, MethodEnum } from '@mokku/types';
 import { JsonEditor } from '../../Blocks/JsonEditor';
 import { MockHeaders } from '../../Blocks/MockHeaders';
+import { MockQueryParams } from '../../Blocks/MockQueryParams';
 import { FORM_ID, getActionInForm } from '../../Blocks/Modal';
 import { SectionTabs } from '../../Blocks/SectionTabs';
 import { Switch } from '../../Blocks/Switch';
 import { storeActions } from '../../service/storeActions';
+import {
+  extractQueryParamsFromUrl,
+  transformQueryParamStringToObjectString,
+  updateUrlQueryParams
+} from './AddMock.utils';
 import { statusOptions } from './data';
 
 export const useStyles = createStyles(() => ({
@@ -66,7 +72,6 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
   const form = useForm<IMockResponseRaw>({
     initialValues: {
       headers: [],
-      queryParams: '',
       status: 200,
       delay: 500,
       method: MethodEnum.GET,
@@ -212,10 +217,10 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
             </Flex>
 
             <SectionTabs defaultValue="response" className={classes.tabs} mt={10}>
-              {/*<Tabs.List>*/}
-              {/*  <Tabs.Tab value="response">Response</Tabs.Tab>*/}
-              {/*  <Tabs.Tab value="request">Request</Tabs.Tab>*/}
-              {/*</Tabs.List>*/}
+              <Tabs.List>
+                <Tabs.Tab value="response">Response</Tabs.Tab>
+                <Tabs.Tab value="request">Request</Tabs.Tab>
+              </Tabs.List>
 
               <Tabs.Panel pt="xs" value="response">
                 <Tabs defaultValue="responseBody" className={classes.tabs}>
@@ -244,24 +249,30 @@ export const AddMockForm = ({ onFormChange, onClose }: AddMockFormProps) => {
                 </Tabs>
               </Tabs.Panel>
 
-              {/*<Tabs.Panel pt="xs" value="request">*/}
-              {/*  <Tabs defaultValue="requestQueryParams" className={classes.tabs}>*/}
-              {/*    <Flex style={{ height: '100%' }} direction="column">*/}
-              {/*      <Tabs.List>*/}
-              {/*        <Flex>*/}
-              {/*          <Tabs.Tab value="requestQueryParams">Query Params</Tabs.Tab>*/}
-              {/*        </Flex>*/}
-              {/*      </Tabs.List>*/}
+              <Tabs.Panel pt="xs" value="request">
+                <Tabs defaultValue="requestQueryParams" className={classes.tabs}>
+                  <Flex style={{ height: '100%' }} direction="column">
+                    <Tabs.List>
+                      <Flex>
+                        <Tabs.Tab value="requestQueryParams">Query Params</Tabs.Tab>
+                      </Flex>
+                    </Tabs.List>
 
-              {/*      <Tabs.Panel value="requestQueryParams" pt="xs">*/}
-              {/*        <MockQueryParams*/}
-              {/*          queryParams={form.values.queryParams}*/}
-              {/*          onChange={(queryParams) => form.setFieldValue('queryParams', queryParams)}*/}
-              {/*        />*/}
-              {/*      </Tabs.Panel>*/}
-              {/*    </Flex>*/}
-              {/*  </Tabs>*/}
-              {/*</Tabs.Panel>*/}
+                    <Tabs.Panel value="requestQueryParams" pt="xs">
+                      <MockQueryParams
+                        queryParams={transformQueryParamStringToObjectString(
+                          extractQueryParamsFromUrl(form.values.url)
+                        )}
+                        onChange={(queryParams) => {
+                          const urlUpdated = updateUrlQueryParams(form.values.url, queryParams);
+                          console.log({ urlUpdated });
+                          form.setFieldValue('url', urlUpdated);
+                        }}
+                      />
+                    </Tabs.Panel>
+                  </Flex>
+                </Tabs>
+              </Tabs.Panel>
             </SectionTabs>
           </Flex>
         </Card>

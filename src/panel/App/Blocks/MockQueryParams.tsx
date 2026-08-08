@@ -1,5 +1,6 @@
 import React from 'react';
 import { Center, Code } from '@mantine/core';
+import { transformArrayQueryParamsToObjectString } from '../Mocks/AddMock/AddMock.utils';
 import { MockHeaders } from './MockHeaders';
 
 type MockQueryParamsProps = {
@@ -21,7 +22,7 @@ const buildQueryParams = (queryParams: string) => {
 };
 
 export const MockQueryParams = ({ queryParams, readOnly, onChange }: MockQueryParamsProps) => {
-  const result = buildQueryParams(queryParams);
+  const result = React.useMemo(() => buildQueryParams(queryParams), [queryParams]);
 
   if (readOnly && result?.length === 0) {
     return (
@@ -40,14 +41,8 @@ export const MockQueryParams = ({ queryParams, readOnly, onChange }: MockQueryPa
       readOnly={readOnly}
       onChange={(headers) => {
         if (onChange) {
-          const queryParamsObject = headers.reduce(
-            (acc, { name, value }) => {
-              acc[name] = value;
-              return acc;
-            },
-            {} as Record<string, string>
-          );
-          onChange(JSON.stringify(queryParamsObject));
+          const result = transformArrayQueryParamsToObjectString(headers);
+          onChange(result);
         }
       }}
     />
